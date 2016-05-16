@@ -171,21 +171,8 @@
 {% block extra_script %}
 <script type="text/javascript" src="{% static 'geosafe/js/jquery.dynatable.js' %}">
 </script>
+<script type="text/javascript" src="{% static 'geosafe/js/analysis.js' %}"></script>
 <script type="text/javascript">
-function toggle_analysis_saved(id){
-    var url = '{% url "geosafe:toggle-analysis-saved" analysis_id=-1 %}';
-    url = url.replace("-1", id);
-    var $checkbox = $("tr .save-analysis input[data-id='"+id+"']");
-    $checkbox.parent().addClass("processing");
-    $checkbox.prop("disabled", true);
-    $.post(url, function(data){
-        if(data && data.success){
-            $checkbox.parent().removeClass("processing");
-            $checkbox.prop("checked", data.is_saved);
-            $checkbox.prop("disabled", false);
-        }
-    });
-}
 
 $(document).ready(function(){
 
@@ -198,12 +185,11 @@ $(document).ready(function(){
 
     $(".save-analysis input").change(function(){
         var id=$(this).attr('data-id');
-        console.log(this);
-        toggle_analysis_saved(id);
+        var urlpattern = '{% url "geosafe:toggle-analysis-saved" analysis_id=-1 %}';
+        toggle_analysis_saved(urlpattern, id);
     });
 
     $("#user-filter-group label").on('click', function () {
-        console.log(this);
         if($(this).find('input').val()=='all'){
             analysis_list_dynatable.queries.remove('user');
         }

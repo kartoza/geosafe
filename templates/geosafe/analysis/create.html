@@ -287,6 +287,7 @@ a:hover i {
 
 {% block extra_script %} 
 <script src="http://cdn.leafletjs.com/leaflet/v0.7.7/leaflet.js"></script>
+<script type="text/javascript" src="{% static 'geosafe/js/analysis.js' %}"></script>
 
 <script type="text/javascript">
 function init_layer_panel(){
@@ -775,21 +776,6 @@ $(document).ready(function () {
             $iframe_modal.find("#iframe_label").text(title);
             $iframe_modal.find("iframe").attr('src', url);
             $iframe_modal.modal();
-        }
-
-        function toggle_analysis_saved(id){
-            var url = '{% url "geosafe:toggle-analysis-saved" analysis_id=-1 %}';
-            url = url.replace("-1", id);
-            var $a = $("#impact_card_toggle_saved");
-            $a.removeClass("active").addClass("processing");
-            $.post(url, function(data){
-                if(data && data.success){
-                    $a.removeClass("processing");
-                    if(data.is_saved){
-                        $a.addClass("active");
-                    }
-                }
-            });
         }
 
         $(document).ready(function () {
