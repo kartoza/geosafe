@@ -56,7 +56,13 @@ class AnalysisCreateView(CreateView):
     template_name = 'geosafe/analysis/create.html'
     context_object_name = 'analysis'
 
-    def get_context_data(self, **kwargs):
+    @classmethod
+    def options_panel_dict(cls, bbox=None):
+        """Prepare a dictionary to be used in the template view
+
+        :return: dict containing metadata for options panel
+        :rtype: dict
+        """
         purposes = [
             {
                 'name': 'exposure',
@@ -77,11 +83,11 @@ class AnalysisCreateView(CreateView):
                 ]
             }
         ]
-        sections = [];
+        sections = []
         for p in purposes:
             categories = []
             for idx, c in enumerate(p.get('categories')):
-                layers = retrieve_layers(p.get('name'), c)
+                layers = retrieve_layers(p.get('name'), c, bbox=bbox)
                 category = {
                     'name': c,
                     'layers': layers,
@@ -94,7 +100,7 @@ class AnalysisCreateView(CreateView):
             }
             sections.append(section)
 
-        impact_layers = retrieve_layers('impact')
+        impact_layers = retrieve_layers('impact', bbox=bbox)
         sections.append({
             'name': 'impact',
             'categories': [
@@ -104,6 +110,10 @@ class AnalysisCreateView(CreateView):
                 }
             ]
         })
+        return sections
+
+    def get_context_data(self, **kwargs):
+        sections = self.options_panel_dict()
         try:
             analysis = Analysis.objects.get(id=self.kwargs.get('pk'))
         except:
@@ -317,43 +327,7 @@ def layer_panel(request, bbox=None):
         return HttpResponseBadRequest()
 
     try:
-
-        purposes = [
-            {
-                'name': 'exposure',
-                'categories': ['population', 'road', 'structure'],
-            },
-            {
-                'name': 'hazard',
-                'categories': ['flood', 'earthquake', 'volcano'],
-            }
-        ]
-        sections = [];
-        for p in purposes:
-            categories = []
-            for c in p.get('categories'):
-                layers = retrieve_layers(p.get('name'), c, bbox)
-                category = {
-                    'name': c,
-                    'layers': layers
-                }
-                categories.append(category)
-            section = {
-                'name': p.get('name'),
-                'categories': categories
-            }
-            sections.append(section)
-
-        impact_layers = retrieve_layers('impact', bbox=bbox)
-        sections.append({
-            'name': 'impact',
-            'categories': [
-                {
-                    'name': 'impact',
-                    'layers': impact_layers
-                }
-            ]
-        })
+        sections = AnalysisCreateView.options_panel_dict(bbox=bbox)
         form = AnalysisCreationForm(
             user=request.user,
             exposure_layer=retrieve_layers('exposure', bbox=bbox),

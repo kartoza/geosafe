@@ -663,6 +663,18 @@ $(document).ready(function () {
                         '<span class="alert-danger">No usable layer in current extent</span>',
                         'alert-danger');
             }
+            else if(exp_count == 0){
+                show_info_text(
+                        '<span class="text-danger">Extent Changed</span>',
+                        '<span class="alert-danger">No usable exposure layer in current extent</span>',
+                        'alert-danger');
+            }
+            else if(haz_count == 0){
+                show_info_text(
+                        '<span class="text-danger">Extent Changed</span>',
+                        '<span class="alert-danger">No usable hazard layer in current extent</span>',
+                        'alert-danger');
+            }
         }
 
         function filter_layer(bounds){
