@@ -11,10 +11,8 @@ from celery.result import AsyncResult
 
 from geonode.layers.models import Layer
 from geonode.people.models import Profile
+from geosafe.tasks.headless.analysis import filter_impact_function
 
-# geosafe
-import os
-from xml.etree import ElementTree
 
 # geosafe
 # list of tags to get to the InaSAFE keywords.
@@ -196,6 +194,14 @@ class Analysis(models.Model):
             self.exposure_layer.name
         )
         return layer_name
+
+    impact_function_list = filter_impact_function.delay().get()
+
+    def impact_function_name(self):
+        for i in self.impact_function_list:
+            if i['id'] == self.impact_function_id:
+                return i['name']
+        return ''
 
     @classmethod
     def get_layer_url(cls, layer):

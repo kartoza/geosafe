@@ -7,7 +7,7 @@
                         <span aria-hidden="true">&times;</span></button>
                     <h4 class="modal-title" id="myModalLabel">Analysis Failed</h4>
                 {% else %}
-                    <h4 class="modal-title" id="myModalLabel"><i class="fa fa-spinner fa-spin"></i> Waiting Analysis</h4>
+                    <h4 class="modal-title" id="myModalLabel"><i class="fa fa-spinner fa-spin"></i> Waiting for analysis to run</h4>
                 {% endif %}
             </div>
             <div class="modal-body">
@@ -23,9 +23,12 @@
                         </div>
                     </div>
                 {% else %}
-                    <p>Analysis is running asynchronously.</p>
-                    <p>The map will be updated when it is done...</p>
-                    <p>If nothing happens, try refreshing the page.</p>
+                    <p>
+                    The analysis is running.
+                    </p>
+                    <p>
+                    This window will automatically close when the analysis is complete.
+                    </p>
                 {% endif %}
             </div>
             <div class="modal-footer">

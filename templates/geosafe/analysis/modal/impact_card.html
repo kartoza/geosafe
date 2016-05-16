@@ -62,14 +62,15 @@
                 </p>
             </div>
             <div class="modal-footer">
-                <a href="javascript:show_in_iframe('Impact Report', '{% url "geosafe:download-report" analysis_id=analysis.id data_type="table" %}')" role="button" class="btn btn-default btn-xs">See full report</a>
+                <a href="javascript:show_in_iframe('Impact Report', '{% url "geosafe:download-report" analysis_id=analysis.id data_type="map" %}')" role="button" class="btn btn-default btn-xs">See map report</a>
+                <a href="javascript:show_in_iframe('Impact Report', '{% url "geosafe:download-report" analysis_id=analysis.id data_type="table" %}')" role="button" class="btn btn-default btn-xs">See table report</a>
                 <a id="impact_card_toggle_saved" href="javascript:toggle_analysis_saved({{ analysis.id }})" role="button" class="btn btn-default btn-xs {% if analysis.keep %}active{% endif %}">
                     <i class="fa fa-check"></i>
                     <i class="fa fa-close"></i>
                     <i class="fa fa-spinner fa-spin"></i>
                     Save report
                 </a>
-                <a href="{% url "geosafe:download-report" analysis_id=analysis.id data_type="both" %}" role="button" class="btn btn-default btn-xs">Download report</a>
+                <a href="{% url "geosafe:download-report" analysis_id=analysis.id data_type="reports" %}" role="button" class="btn btn-default btn-xs">Download report</a>
             </div>
         </div>
     </div>

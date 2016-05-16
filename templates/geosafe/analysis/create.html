@@ -4,6 +4,7 @@
 {% load i18n avatar_tags %}
 {% block extra_head %}
 <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet/v0.7.7/leaflet.css"/>
+<link rel="stylesheet" href="{% static 'geosafe/css/main.css' %}" />
 <style type="text/css">
  html, body, #wrap {
     height: 100%;
@@ -49,9 +50,6 @@
 }
 .options-panel .option:last-child {
     margin-bottom:0;
-}
-.options-panel .option > a:hover,  .options-panel a.selected {
-    background: #515151;
 }
 .options-panel svg {
     position:absolute;
@@ -143,13 +141,17 @@ a:hover i {
 .list-title {
     font-size: 14px;
     margin: 0;
+    padding-left: 10px;
+    padding-right: 10px;
     line-height: 40px;
     color: #fff;
     background:  rgba(24,24,24,0.5);
     position: relative;
+    white-space: nowrap;
 }
 .list ul {
-    padding: 0;
+    padding-left: 10px;
+    padding-right: 10px;
     line-height: 30px;
     font-size: 14px;
 }
@@ -391,9 +393,10 @@ $(document).ready(function () {
                     $li.appendTo(ul);
                 }
                 for (var i = 0; i < data.length; i++) {
-                    var id = data[i];
-                    $("<option></option>").val(id).text(id).appendTo(select);
-                    var $a = $("<a></a>").attr('href', 'javascript:select_if("'+id+'")').text(id);
+                    var id = data[i]['id'];
+                    var name = data[i]['name'];
+                    $("<option></option>").val(id).text(name).appendTo(select);
+                    var $a = $("<a></a>").attr('href', 'javascript:select_if("'+id+'")').attr('data-id', id).text(name);
                     var $li = $("<li></li>");
                     $li.append($a);
                     $li.appendTo(ul);
@@ -401,8 +404,8 @@ $(document).ready(function () {
 
                 if(data.length==1){
 {#                     only for lone data#}
-                    select_if(data[0]);
-                    show_info_text('InaSAFE Impact Function', 'Automatically select '+data[0]);
+                    select_if(data[0]['id']);
+                    show_info_text('InaSAFE Impact Function', 'Automatically select '+data[0]['name']);
                 }
                 else if(data.length==0){
 {#                    deselect Impact function#}
@@ -436,7 +439,7 @@ $(document).ready(function () {
 
             // update styles
             $if_section.addClass("set");
-            $if_section_list.find("a:contains("+function_id+")").addClass("selected");
+            $if_section_list.find("a[data-id="+function_id+"]").addClass("selected");
 
             console.log('Selected data:');
             console.log('Exposure : '+exposure_layer_cbo.val());
@@ -650,6 +653,18 @@ $(document).ready(function () {
             }
         }
 
+        function check_layer_empty(){
+            var exp_count = $(".exposure.section .option .list ul li").length;
+            var haz_count = $(".hazard.section .option .list ul li").length;
+
+            if(exp_count + haz_count == 0){
+                show_info_text(
+                        '<span class="text-danger">Extent Changed</span>',
+                        '<span class="alert-danger">No usable layer in current extent</span>',
+                        'alert-danger');
+            }
+        }
+
         function filter_layer(bounds){
             var bound_param = [
                     bounds.getSouthWest().lng,
@@ -675,13 +690,21 @@ $(document).ready(function () {
                     update_exposure_layer(exposure_id, false);
                     update_hazard_layer(hazard_id, false);
                     update_impact_layer(impact_id, false);
+                    check_layer_empty();
                 });
             });
         }
 
-        function show_info_text(title, content){
-            $(".info-box .info-title").text(title);
-            $(".info-box .info-text").text(content);
+        function show_info_text(title, content, context_class){
+            var $info_box = $(".info-box");
+            if(context_class){
+                $info_box.addClass(context_class);
+            }
+            else{
+                $info_box.attr('class', 'info-box text-center panel-body');
+            }
+            $info_box.find(".info-title").html(title);
+            $info_box.find(".info-text").html(content);
         }
         
         function dissmiss_info_text(title) {
@@ -703,7 +726,7 @@ $(document).ready(function () {
 
         function run_analysis(){
             var $keep = $("#confirm_save_analysis");
-            if($keep && $keep.hasClass('active')){
+            if($keep && $keep.prop('checked')){
                 $("#id_keep").prop('checked', true);
             }
             else{

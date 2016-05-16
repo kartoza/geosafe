@@ -14,7 +14,7 @@
                 <img src="{% static "geosafe/img/"|add:c.name|add:".svg" %}" alt="{{ c.name }}" class="svg"/>
             </a>
             <div class="list floating-box" id="{{ c.name }}-list">
-                <h4 class="list-title">Select the {{ c.name }}</h4>
+                <h4 class="list-title">{{ c.list_title }}</h4>
                 <ul>
                     {% for e in c.layers %}
                         <li>
@@ -41,7 +41,7 @@
                 <img src="{% static "geosafe/img/"|add:c.name|add:".svg" %}" alt="{{ c.name }}" class="svg"/>
             </a>
             <div class="list floating-box" id="{{ c.name }}-list">
-                <h4 class="list-title">Select the {{ c.name }}</h4>
+                <h4 class="list-title">Select an impact layer</h4>
                 <ul>
                     {% for e in c.layers %}
                         <li>
@@ -49,7 +49,7 @@
                         </li>
                     {% empty %}
                         <p>No {{ c.name }} layer for the extent.</p>
-                        <a href="{% url "layer_upload" %}" class="btn btn-default">Upload Layer</a>
+                        <p>Run analysis to create impact layer</p>
                     {% endfor %}
                 </ul>
             </div>
@@ -72,7 +72,9 @@
         </a>
     </div>
     <div class="option">
-        <a href="#" class="has-children" id="impact-function" title="Impact Function">IF</a>
+        <a href="#" class="has-children" id="impact-function" title="Impact Function">
+            <img src="{% static "geosafe/img/impact_function.svg" %}" alt="Impact Function" class="svg"/>
+        </a>
         <div class="list floating-box" id="impact-function-list">
             <h4 class="list-title">Select impact function</h4>
             <ul>

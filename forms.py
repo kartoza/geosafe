@@ -1,4 +1,5 @@
 # coding=utf-8
+from geonode.people.models import Profile
 from geosafe.tasks.headless.analysis import filter_impact_function
 
 __author__ = 'ismailsunni'
@@ -53,12 +54,14 @@ class AnalysisCreationForm(models.ModelForm):
             attrs={'class': 'form-control'})
     )
 
-    if_id_list = filter_impact_function.delay().get()
+    if_id_list = Analysis.impact_function_list
 
     impact_function_id = forms.ChoiceField(
         label='Impact Function ID',
         required=True,
-        choices=[(id, id) for id in if_id_list]
+        choices=[
+            (impact_function['id'], impact_function['name'])
+            for impact_function in if_id_list]
     )
 
     keep = forms.BooleanField(
@@ -81,6 +84,9 @@ class AnalysisCreationForm(models.ModelForm):
 
     def save(self, commit=True):
         instance = super(AnalysisCreationForm, self).save(commit=False)
-        instance.user = self.user
+        if self.user.username:
+            instance.user = self.user
+        else:
+            instance.user = Profile.objects.get(username='AnonymousUser')
         instance.save()
         return instance

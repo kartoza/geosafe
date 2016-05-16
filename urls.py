@@ -18,7 +18,7 @@ urlpatterns = patterns(
         name='analysis-create'
     ),
     url(
-        r'^geosafe/analysis/$',
+        r'^geosafe/analysis/(?:/user/(?P<user>\d*))?$',
         AnalysisListView.as_view(),
         name='analysis-list'
     ),
@@ -82,7 +82,7 @@ urlpatterns = patterns(
     url(
         r'^geosafe/analysis/report/'
         r'(?P<analysis_id>\d+)/'
-        r'(?P<data_type>(map|table|both))',
+        r'(?P<data_type>(map|table|reports|all))',
         download_report,
         name='download-report'
     ),

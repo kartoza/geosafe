@@ -61,20 +61,31 @@ class AnalysisCreateView(CreateView):
             {
                 'name': 'exposure',
                 'categories': ['population', 'road', 'structure'],
+                'list_titles': [
+                    'Select a population layer',
+                    'Select a structure layer',
+                    'Select a roads layer',
+                ]
             },
             {
                 'name': 'hazard',
                 'categories': ['flood', 'earthquake', 'volcano'],
+                'list_titles': [
+                    'Select a flood layer',
+                    'Select an earthquake layer',
+                    'Select a volcano layer',
+                ]
             }
         ]
         sections = [];
         for p in purposes:
             categories = []
-            for c in p.get('categories'):
+            for idx, c in enumerate(p.get('categories')):
                 layers = retrieve_layers(p.get('name'), c)
                 category = {
                     'name': c,
-                    'layers': layers
+                    'layers': layers,
+                    'list_title': p.get('list_titles')[idx]
                 }
                 categories.append(category)
             section = {
@@ -133,6 +144,7 @@ class AnalysisListView(ListView):
 
     def get_context_data(self, **kwargs):
         context = super(AnalysisListView, self).get_context_data(**kwargs)
+        context.update({'user': self.request.user})
         return context
 
 
@@ -238,19 +250,13 @@ def layer_archive(request, layer_id):
 
     try:
         layer = Layer.objects.get(id=layer_id)
-        base_file, _ = layer.get_base_file()
-        if not base_file:
-            return HttpResponseServerError
-        base_file_path = base_file.file.path
-        base_name, _ = os.path.splitext(base_file_path)
         tmp = tempfile.mktemp()
         with ZipFile(tmp, mode='w') as zf:
-            for root, dirs, files in os.walk(os.path.dirname(base_file_path)):
-                for f in files:
-                    f_name = os.path.join(root, f)
-                    f_base, f_ext = os.path.splitext(f_name)
-                    if f_base == base_name:
-                        zf.write(f_name, arcname=f)
+            for layer_file in layer.upload_session.layerfile_set.all():
+                base_name = os.path.basename(layer_file.file.name)
+                zf.writestr(
+                    base_name,
+                    layer_file.file.read())
 
         with open(tmp) as f:
             return HttpResponse(f.read(), content_type='application/zip')
@@ -443,6 +449,12 @@ def serve_files(file_stream, content_type, filename):
 def download_report(request, analysis_id, data_type='map'):
     """Download the pdf files of the analysis
 
+    available options for data_type:
+    map: only map report
+    table: only table report
+    report: only map and table report
+    all: map, table, and impact layer
+
     :param request:
     :param analysis_id:
     :param data_type: can be 'map' or 'table'
@@ -463,7 +475,7 @@ def download_report(request, analysis_id, data_type='map'):
                 analysis.report_table.read(),
                 'application/pdf',
                 '%s_table.pdf' % layer_title)
-        elif data_type == 'both':
+        elif data_type == 'reports':
             tmp = tempfile.mktemp()
             with ZipFile(tmp, mode='w') as zf:
                 zf.writestr(
@@ -476,7 +488,29 @@ def download_report(request, analysis_id, data_type='map'):
             return serve_files(
                 open(tmp),
                 'application/zip',
-                '%s_report.zip' % layer_title)
+                '%s_reports.zip' % layer_title)
+        elif data_type == 'all':
+            tmp = tempfile.mktemp()
+            with ZipFile(tmp, mode='w') as zf:
+                zf.writestr(
+                    '%s_map.pdf' % layer_title,
+                    analysis.report_map.read())
+                zf.writestr(
+                    '%s_table.pdf' % layer_title,
+                    analysis.report_table.read())
+                layer = analysis.impact_layer
+
+                for layer_file in layer.upload_session.layerfile_set.all():
+                    base_name = os.path.basename(layer_file.file.name)
+                    zf.writestr(
+                        base_name.replace(layer.name, layer.title),
+                        layer_file.file.read())
+
+            return serve_files(
+                open(tmp),
+                'application/zip',
+                '%s_download.zip' % layer_title)
+
         return HttpResponseServerError()
     except Exception as e:
         LOGGER.debug(e)
