@@ -122,13 +122,3 @@
     </div>
     {% endif %}
 </div>
-<script type="text/javascript">
-    $(document).ready(function(){
-
-        $(".save-analysis input").change(function(){
-            var id=$(this).attr('data-id');
-            var urlpattern = '{% url "geosafe:toggle-analysis-saved" analysis_id=-1 %}';
-            toggle_analysis_saved(urlpattern, id);
-        });
-    });
-</script>

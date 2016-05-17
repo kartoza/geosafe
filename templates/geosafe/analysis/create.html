@@ -767,6 +767,15 @@ $(document).ready(function () {
                     $("#impact-card-modal").modal();
                     var impact_layer_title = $(".impact.section a[data-id='"+selected_impact_id+"']").text();
                     show_info_text('Show Analysis Summary', 'Showing summary for '+impact_layer_title);
+
+                    $(document).ready(function(){
+
+                        $(".save-analysis input").change(function(){
+                            var id=$(this).attr('data-id');
+                            var urlpattern = '{% url "geosafe:toggle-analysis-saved" analysis_id=-1 %}';
+                            toggle_analysis_saved(urlpattern, id);
+                        });
+                    });
                 }
             });
         }
