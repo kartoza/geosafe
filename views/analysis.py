@@ -69,8 +69,8 @@ class AnalysisCreateView(CreateView):
                 'categories': ['population', 'road', 'structure'],
                 'list_titles': [
                     'Select a population layer',
-                    'Select a structure layer',
                     'Select a roads layer',
+                    'Select a structure layer',
                 ]
             },
             {
