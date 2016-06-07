@@ -81,13 +81,16 @@ a.set {
 a.set .svg path {
     fill: #50cf5c;
 }
+a.set i {
+    color: #50cf5c;
+}
 a:not(.set).one{
     border: 2px solid #3db2dd;
 }
 a:not(.set).one .svg path {
     fill: #3db2dd;
 }
-a:hover i {
+a:not(.set):hover i {
   color: #fff;
 }
 .options-panel .search a {
@@ -610,10 +613,13 @@ $(document).ready(function () {
             last_impact_id = layer_id;
             // update sidebar styles
             var $impact_section = $("#impact-option");
+            var $summary_section = $("#summary-option");
             console.log($impact_section);
             // clear styles
             $impact_section.find(">a").removeClass("set");
             $impact_section.find("ul>li>a").removeClass("selected");
+
+            $summary_section.find(">a").removeClass("set");
             // find section of the id
             var $a = $impact_section.find("a[data-id="+layer_id+"]");
             console.log($a);
@@ -621,6 +627,7 @@ $(document).ready(function () {
             var $section = $a.closest(".option");
             console.log($section);
             $section.find(">a").addClass("set");
+            $summary_section.find(">a").addClass("set");
 
             if(is_update_map == false){
                 return;
