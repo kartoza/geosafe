@@ -75,9 +75,10 @@ class AnalysisCreateView(CreateView):
             },
             {
                 'name': 'hazard',
-                'categories': ['flood', 'earthquake', 'volcano'],
+                'categories': ['flood', 'tsunami', 'earthquake', 'volcano'],
                 'list_titles': [
                     'Select a flood layer',
+                    'Select a tsunami layer',
                     'Select an earthquake layer',
                     'Select a volcano layer',
                 ]

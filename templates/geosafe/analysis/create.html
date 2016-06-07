@@ -4,6 +4,7 @@
 {% load i18n avatar_tags %}
 {% block extra_head %}
 <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet/v0.7.7/leaflet.css"/>
+<link rel="stylesheet" href="{% static 'geosafe/css/easy-button.css' %}"/>
 <link rel="stylesheet" href="{% static 'geosafe/css/main.css' %}" />
 <style type="text/css">
  html, body, #wrap {
@@ -287,6 +288,7 @@ a:hover i {
 
 {% block extra_script %} 
 <script src="http://cdn.leafletjs.com/leaflet/v0.7.7/leaflet.js"></script>
+<script type="text/javascript" src="{% static 'geosafe/js/easy-button.js' %}"></script>
 <script type="text/javascript" src="{% static 'geosafe/js/analysis.js' %}"></script>
 
 <script type="text/javascript">
@@ -359,6 +361,7 @@ $(document).ready(function () {
         var exposure_layer;
         var hazard_layer;
         var impact_layer;
+        var layer_stack = [];
         var aggregation_layer;
 
         var exposure_layer_cbo = $("#id_exposure_layer");
@@ -482,15 +485,18 @@ $(document).ready(function () {
 
                 if (layer_purpose == 'exposure') {
                     exposure_layer = add_layer(map, layer_tiles_url, exposure_layer);
+                    exposure_layer.setZIndex(0);
                 } else if (layer_purpose == 'hazard') {
                     hazard_layer = add_layer(map, layer_tiles_url, hazard_layer);
+                    hazard_layer.setZIndex(1);
 
                 } else if (layer_purpose == 'aggregation') {
                     aggregation_layer = add_layer(map, layer_tiles_url, aggregation_layer);
-
+                    aggregation_layer.setZIndex(2);
                 }
                 else if (layer_purpose == 'impact'){
                     impact_layer = add_layer(map, layer_tiles_url, impact_layer);
+                    impact_layer.setZIndex(3);
                 }
             });
         }
@@ -594,7 +600,7 @@ $(document).ready(function () {
             console.log('impact changed to ' + layer_id);
 
 {#            deselect if it is the same#}
-            var no_layer_id_exists = layer_id != undefined && $(".impact.section a[data-id='"+layer_id+"']").length == 0;
+            var no_layer_id_exists = layer_id != undefined && $("#impact-option a[data-id='"+layer_id+"']").length == 0;
             var same_layer_id = last_impact_id == layer_id && last_impact_id != undefined;
             if(same_layer_id || no_layer_id_exists){
                 update_impact_layer(undefined);
@@ -603,7 +609,7 @@ $(document).ready(function () {
 
             last_impact_id = layer_id;
             // update sidebar styles
-            var $impact_section = $(".impact.section").find(".option");
+            var $impact_section = $("#impact-option");
             console.log($impact_section);
             // clear styles
             $impact_section.find(">a").removeClass("set");
@@ -691,7 +697,7 @@ $(document).ready(function () {
             $.get(url, function(data){
                 var exposure_id = $(".exposure.section a.selected").attr('data-id');
                 var hazard_id = $(".hazard.section a.selected").attr('data-id');
-                var impact_id = $(".impact.section a.selected").attr('data-id');
+                var impact_id = $("#impact-option a.selected").attr('data-id');
                 $(".layer-list").replaceWith('<div class="layer-list">'+data+'</data>');
                 $(document).ready(function(){
                     exposure_layer_cbo = $("#id_exposure_layer");
@@ -765,7 +771,7 @@ $(document).ready(function () {
                 if(data){
                     $("#impact-card-modal").replaceWith(data);
                     $("#impact-card-modal").modal();
-                    var impact_layer_title = $(".impact.section a[data-id='"+selected_impact_id+"']").text();
+                    var impact_layer_title = $("#impact-option a[data-id='"+selected_impact_id+"']").text();
                     show_info_text('Show Analysis Summary', 'Showing summary for '+impact_layer_title);
 
                     $(document).ready(function(){
@@ -820,6 +826,29 @@ $(document).ready(function () {
                 {# disable category popup #}
                 $(".option .list.show").removeClass("show");
             });
+
+            {# add control to swap exposure and hazard layer #}
+            L.easyButton({
+                states: [{
+                    stateName: 'hazard-top',
+                    icon: 'fa-arrows-v',
+                    title: 'Swap hazard and exposure order',
+                    onClick: function(control){
+                        hazard_layer.setZIndex(0);
+                        exposure_layer.setZIndex(1);
+                        control.state('exposure-top');
+                    }
+                }, {
+                    stateName: 'exposure-top',
+                    icon: 'fa-arrows-v',
+                    title: 'Swap hazard and exposure order',
+                    onClick: function(control){
+                        hazard_layer.setZIndex(1);
+                        exposure_layer.setZIndex(0);
+                        control.state('hazard-top');
+                    }
+                }]
+            }).addTo(map);
 
             var w_width = $(window).width();
             var map_width = w_width - 70;
