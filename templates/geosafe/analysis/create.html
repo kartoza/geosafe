@@ -627,7 +627,9 @@ $(document).ready(function () {
             var $section = $a.closest(".option");
             console.log($section);
             $section.find(">a").addClass("set");
-            $summary_section.find(">a").addClass("set");
+            if($section.length > 0){
+                $summary_section.find(">a").addClass("set");
+            }
 
             if(is_update_map == false){
                 return;
