@@ -52,7 +52,7 @@
 .options-panel .option:last-child {
     margin-bottom:0;
 }
-.options-panel svg {
+.options-panel svg, .options-panel i {
     position:absolute;
     top:0;
     bottom:0;
@@ -140,6 +140,12 @@ a:not(.set):hover i {
     display: block;
 }
 .options-panel .list:hover {
+    display: block;
+}
+#impact-function.loading svg, #impact-function i {
+    display: none;
+}
+#impact-function.loading i, #impact-function svg {
     display: block;
 }
 .list-title {
@@ -381,6 +387,10 @@ $(document).ready(function () {
                 'hazard_id': $("#id_hazard_layer").val()
             };
 
+            {# create spinning animation #}
+            var if_function = $("#impact-function");
+            if_function.addClass('loading');
+
             $.get('{% url 'geosafe:impact-function-filter' %}', chosen_combination, function (data) {
                 console.log(data);
                 var select = $("#id_impact_function_id");
@@ -388,7 +398,7 @@ $(document).ready(function () {
                 select.empty();
                 ul.empty();
                 // clear styles
-                $("#impact-function").removeClass("set");
+                if_function.removeClass("set").removeClass("loading");
                 $("#impact-function-list .selected").removeClass("selected");
                 if (data.length == 0) {
                     console.log('No IF found')
@@ -399,6 +409,11 @@ $(document).ready(function () {
                     $li.append($a);
                     $li.appendTo(ul);
                 }
+
+                if(data.length > 1){
+                    if_function.addClass("has-children");
+                }
+
                 for (var i = 0; i < data.length; i++) {
                     var id = data[i]['id'];
                     var name = data[i]['name'];
