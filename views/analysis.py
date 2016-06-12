@@ -66,21 +66,25 @@ class AnalysisCreateView(CreateView):
         purposes = [
             {
                 'name': 'exposure',
-                'categories': ['population', 'road', 'structure'],
+                'categories': ['population', 'road', 'structure',
+                               'land_cover'],
                 'list_titles': [
                     'Select a population layer',
                     'Select a roads layer',
                     'Select a structure layer',
+                    'Select a land_cover layer',
                 ]
             },
             {
                 'name': 'hazard',
-                'categories': ['flood', 'tsunami', 'earthquake', 'volcano'],
+                'categories': ['flood', 'tsunami', 'earthquake', 'volcano',
+                               'volcanic-ash'],
                 'list_titles': [
                     'Select a flood layer',
                     'Select a tsunami layer',
                     'Select an earthquake layer',
                     'Select a volcano layer',
+                    'Select a volcanic ash layer',
                 ]
             }
         ]
