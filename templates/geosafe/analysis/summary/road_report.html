@@ -2,16 +2,16 @@
 <div class="impact-summary row">
     <div class="summary col-xs-6">
         <div class="highlight">
-            <div class="number">{{ summary.total_buildings }}</div>
-            <div class="category">Total Buildings</div>
+            <div class="number">{{ summary.total_roads }}</div>
+            <div class="category">Total Roads (m)</div>
         </div>
         <div class="highlight">
             <div class="number">{{ summary.total_affected }}</div>
-            <div class="category">Buildings Affected</div>
+            <div class="category">Roads Affected (m)</div>
         </div>
     </div>
     <div class="category-breakdown col-xs-6">
-        <div class="title text-center">Hazard areas</div>
+        <div class="title text-center">Hazard areas (m)</div>
         <div class="content">
             {% for category, value in summary.breakdown_dict.iteritems %}
                 <div class="breakdown row {{ summary|category_css_class:category }}">
@@ -22,7 +22,7 @@
                     <div class="value col-xs-4 text-left">
                         {% with 84.5 as total_width %}
                         <svg width="{{ total_width }}" height="20">
-                            <rect x="0" rx="10" ry="10" height="20" width="{% widthratio value summary.total_buildings total_width %}"></rect>
+                            <rect x="0" rx="10" ry="10" height="20" width="{% widthratio value summary.total_roads total_width %}"></rect>
                         </svg>
                         {% endwith %}
                     </div>

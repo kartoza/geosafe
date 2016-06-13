@@ -70,7 +70,7 @@ class ImpactSummary(object):
         :return: list of dict of category and value
         """
         fields = []
-        if self.impact_data.get('impact summary'):
+        if self.is_summary_exists():
             fields = self.impact_data.get('impact summary').get('fields')
 
         ret_val = []
@@ -89,6 +89,12 @@ class ImpactSummary(object):
             ret_val[f['category']] = f['value']
 
         return ret_val
+
+    def summary_attributes(self):
+        ret_val = OrderedDict()
+        if self.is_summary_exists():
+            attrs = self.impact_data.get('impact summary').get('attributes')
+        return attrs
 
     def category_list(self):
         if self.is_summary_exists():

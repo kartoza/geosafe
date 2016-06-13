@@ -5,7 +5,7 @@
     color: #cacaca;
 }
 #impact-card-modal .modal-dialog{
-    width: 460px;
+    /*width: 460px;*/
 }
 #impact-card-modal .modal-title{
     text-align: center;
@@ -130,19 +130,19 @@
 }
 
 /* impact level class */
-.hazard-category-high .category{
+.hazard-category-high .category, .hazard-category-high .value{
     color: #fd7e71;
 }
 .hazard-category-high text, .hazard-category-high rect{
     fill: #fd7e71;
 }
-.hazard-category-medium .category{
+.hazard-category-medium .category, .hazard-category-medium .value{
     color: #fdb558;
 }
 .hazard-category-medium text, .hazard-category-medium rect{
     fill: #fdb558;
 }
-.hazard-category-low .category{
+.hazard-category-low .category, .hazard-category-low .value{
     color: #63d46f;
 }
 .hazard-category-low text, .hazard-category-low rect{

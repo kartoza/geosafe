@@ -17,6 +17,7 @@ from django.views.generic import (
 
 from geonode.layers.models import Layer
 from geosafe.forms import (AnalysisCreationForm)
+from geosafe.helpers.impact_summary.road_summary import RoadSummary
 from geosafe.helpers.impact_summary.structure_summary import StructureSummary
 from geosafe.models import Analysis, Metadata
 from geosafe.signals import analysis_post_save
@@ -535,6 +536,7 @@ def analysis_summary(request, impact_id):
             report_type = 'population'
         elif 'road' in analysis.impact_function_id.lower():
             report_type = 'road'
+            summary = RoadSummary(analysis.impact_layer)
         elif 'landcover' in analysis.impact_function_id.lower():
             report_type = 'landcover'
         elif 'people' in analysis.impact_function_id.lower():

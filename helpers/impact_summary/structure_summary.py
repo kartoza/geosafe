@@ -9,6 +9,9 @@ __date__ = '5/18/16'
 
 class StructureSummary(ImpactSummary):
 
+    def total(self):
+        return self.total_buildings()
+
     def total_buildings(self):
         return self.summary_dict().get('Total')
 
