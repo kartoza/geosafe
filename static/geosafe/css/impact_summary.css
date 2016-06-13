@@ -90,19 +90,31 @@
     border-bottom: none;
     border-left: none;
     border-right: none;
+    display: flex;
 }
 .summary{
-    padding-right: 0px;
+    display: flex;
+    flex-direction: column;
+    border-right: 1px solid #606060;
 }
 .summary .highlight{
     margin-left: -15px;
     padding: 15px;
     border-bottom: 1px solid #606060;
-    border-right: 1px solid #606060;
 }
 
 .summary .highlight:last-child{
     border-bottom: none;
+}
+
+.summary .highlight div{
+    padding-left: 0;
+    padding-right: 0;
+}
+
+.summary .highlight .svg{
+    width: 100%;
+    height: 100%;
 }
 
 .summary .highlight .number{
@@ -111,11 +123,18 @@
 
 .category-breakdown{
     padding: 15px;
+    display: flex;
+    flex-direction: column;
 }
-
+.category-breakdown .title{
+    padding-bottom: 15px;
+}
 .breakdown{
     display: flex;
     flex-direction: row;
+    border-top: 1px solid #606060;
+    padding-top: 5px;
+    padding-bottom: 5px;
 }
 .breakdown .value svg{
     fill: #606060;

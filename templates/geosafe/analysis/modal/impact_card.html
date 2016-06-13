@@ -13,14 +13,6 @@
                 <h4 class="modal-title" id="impact_card_label">Analysis Result</h4>
             </div>
             <div class="modal-body">
-                <p class="impact-icons">
-                    {% with analysis.exposure_layer.metadata.category as c %}
-                    <img src="{% static "geosafe/img/"|add:c|add:".svg" %}" alt="{{ c }}" class="svg"/>
-                    {% endwith %}
-                    {% with analysis.hazard_layer.metadata.category as c %}
-                    <img src="{% static "geosafe/img/"|add:c|add:".svg" %}" alt="{{ c }}" class="svg"/>
-                    {% endwith %}
-                </p>
                 <p class="impact-questions">
                     In the event of {{ analysis.hazard_layer.title }}, how many {{ analysis.exposure_layer.title }} will be affected
                 </p>

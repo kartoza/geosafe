@@ -100,6 +100,9 @@ class ImpactSummary(object):
         if self.is_summary_exists():
             return [f.get('category') for f in self.summary_fields()]
 
+    def exposure_type(self):
+        return self.impact_data.get('exposure')
+
     @classmethod
     def category_css_class(cls, category):
         """Get css-class from a given category

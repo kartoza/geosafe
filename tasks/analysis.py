@@ -152,7 +152,7 @@ def process_impact_result(analysis_id, impact_url_result):
                 if os.path.exists(report_table_path):
                     analysis.assign_report_table(report_table_path)
 
-                analysis.task_state = analysis.get_task_result().state
+                analysis.task_state = 'SUCCESS'
                 analysis.save()
 
                 if current_impact:

@@ -1,13 +1,28 @@
 {% load geosafe_impact_summary %}
+{% load staticfiles %}
 <div class="impact-summary row">
     <div class="summary col-xs-6">
-        <div class="highlight">
-            <div class="number">{{ summary.total_buildings }}</div>
-            <div class="category">Total Buildings</div>
+        <div class="row highlight">
+            <div class="col-xs-8">
+                <div class="number">{{ summary.total }}</div>
+                <div class="category">Total Buildings</div>
+            </div>
+            <div class="col-xs-4">
+                {% with analysis.exposure_layer.metadata.category as c %}
+                <img src="{% static "geosafe/img/"|add:c|add:".svg" %}" alt="{{ c }}" class="svg"/>
+                {% endwith %}
+            </div>
         </div>
-        <div class="highlight">
-            <div class="number">{{ summary.total_affected }}</div>
-            <div class="category">Buildings Affected</div>
+        <div class="row highlight">
+            <div class="col-xs-8">
+                <div class="number">{{ summary.total_affected }}</div>
+                <div class="category">Buildings Affected</div>
+            </div>
+            <div class="col-xs-4">
+                {% with analysis.hazard_layer.metadata.category as c %}
+                <img src="{% static "geosafe/img/"|add:c|add:".svg" %}" alt="{{ c }}" class="svg"/>
+                {% endwith %}
+            </div>
         </div>
     </div>
     <div class="category-breakdown col-xs-6">
@@ -22,7 +37,7 @@
                     <div class="value col-xs-4 text-left">
                         {% with 84.5 as total_width %}
                         <svg width="{{ total_width }}" height="20">
-                            <rect x="0" rx="10" ry="10" height="20" width="{% widthratio value summary.total_buildings total_width %}"></rect>
+                            <rect x="0" rx="10" ry="10" height="20" width="{% widthratio value summary.total total_width %}"></rect>
                         </svg>
                         {% endwith %}
                     </div>

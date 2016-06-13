@@ -15,8 +15,14 @@ from django.shortcuts import render
 from django.views.generic import (
     ListView, CreateView, DetailView)
 
+from geosafe.helpers.impact_summary.polygon_people_summary import \
+    PolygonPeopleSummary
+from geosafe.helpers.impact_summary.summary_base import ImpactSummary
+
 from geonode.layers.models import Layer
 from geosafe.forms import (AnalysisCreationForm)
+from geosafe.helpers.impact_summary.population_summary import \
+    PopulationSummary
 from geosafe.helpers.impact_summary.road_summary import RoadSummary
 from geosafe.helpers.impact_summary.structure_summary import StructureSummary
 from geosafe.models import Analysis, Metadata
@@ -50,16 +56,16 @@ def retrieve_layers(purpose, category=None, bbox=None):
             Q(layer__bbox_x1__gte=bbox[0]) &
             Q(layer__bbox_y0__lte=bbox[3]) &
             Q(layer__bbox_y1__gte=bbox[1]) &
-            Q(layer__bbox_x0__lte=F('bbox_x1')) &
-            Q(layer__bbox_y0__lte=F('bbox_y1'))
+            Q(layer__bbox_x0__lte=F('layer__bbox_x1')) &
+            Q(layer__bbox_y0__lte=F('layer__bbox_y1'))
         ) | (
             # in case of swapped value
             Q(layer__bbox_x0__lte=bbox[2]) &
             Q(layer__bbox_x1__gte=bbox[0]) &
             Q(layer__bbox_y0__gte=bbox[3]) &
             Q(layer__bbox_y1__lte=bbox[1]) &
-            Q(layer__bbox_x0__lte=F('bbox_x1')) &
-            Q(layer__bbox_y1__lte=F('bbox_y0'))
+            Q(layer__bbox_x0__lte=F('layer__bbox_x1')) &
+            Q(layer__bbox_y1__lte=F('layer__bbox_y0'))
         )
         metadatas = Metadata.objects.filter(
             Q(layer_purpose=purpose),
@@ -88,13 +94,17 @@ class AnalysisCreateView(CreateView):
         purposes = [
             {
                 'name': 'exposure',
-                'categories': ['population', 'road', 'structure',
-                               'land_cover'],
+                'categories': [
+                    'population',
+                    'road',
+                    'structure',
+                    # 'land_cover',
+                    ],
                 'list_titles': [
                     'Select a population layer',
                     'Select a roads layer',
                     'Select a structure layer',
-                    'Select a land_cover layer',
+                    # 'Select a land_cover layer',
                 ]
             },
             {
@@ -528,19 +538,21 @@ def analysis_summary(request, impact_id):
     try:
         analysis = Analysis.objects.get(impact_layer__id=impact_id)
         report_type = None
-        summary = None
-        if 'building' in analysis.impact_function_id.lower():
+        summary = ImpactSummary(analysis.impact_layer)
+        if 'building' in summary.exposure_type():
             report_type = 'structure'
             summary = StructureSummary(analysis.impact_layer)
-        elif 'population' in analysis.impact_function_id.lower():
+        elif 'population' in summary.exposure_type():
             report_type = 'population'
-        elif 'road' in analysis.impact_function_id.lower():
+            summary = PopulationSummary(analysis.impact_layer)
+        elif 'polygon people' in summary.exposure_type():
+            report_type = 'polygon_people'
+            summary = PolygonPeopleSummary(analysis.impact_layer)
+        elif 'road' in summary.exposure_type():
             report_type = 'road'
             summary = RoadSummary(analysis.impact_layer)
-        elif 'landcover' in analysis.impact_function_id.lower():
+        elif 'landcover' in summary.exposure_type():
             report_type = 'landcover'
-        elif 'people' in analysis.impact_function_id.lower():
-            report_type = 'people'
         context = {
             'analysis': analysis,
             'report_type': report_type,

@@ -119,7 +119,7 @@
                         <td>
                             {% if not analysis.get_task_result %}
                                 Analysis not yet running
-                            {% elif analysis.get_task_result.successful or analysis.get_task_state == 'SUCCESS' %}
+                            {% elif analysis.get_task_state == 'SUCCESS' %}
                                 <a href="{% url 'layer_detail' layername=analysis.impact_layer.typename %}">{{ analysis.impact_layer }}</a>
                             {% else %}
                                 <div>Task Status: <span class="label label-{{ analysis.get_label_class }}">{{ analysis.get_task_state }}</span></div>
