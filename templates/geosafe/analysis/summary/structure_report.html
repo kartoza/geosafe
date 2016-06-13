@@ -1,0 +1,29 @@
+{% load geosafe_impact_summary %}
+<div class="impact-summary row">
+    <div class="summary col-xs-6">
+        <div class="highlight">
+            <div class="number">{{ summary.total_buildings }}</div>
+            <div class="category">Total Buildings</div>
+        </div>
+        <div class="highlight">
+            <div class="number">{{ summary.total_affected }}</div>
+            <div class="category">Buildings Affected</div>
+        </div>
+    </div>
+    <div class="category-breakdown col-xs-6">
+        <div class="title text-center">Hazard areas</div>
+        <div class="content">
+            {% for category, value in summary.breakdown_dict.iteritems %}
+                <div class="breakdown row {{ summary|category_css_class:category }}">
+                    <span class="category col-xs-4 text-right">{{ category|lower }}</span>
+                    <span class="value col-xs-8 text-left">
+                        <svg width="150" height="20">
+                            <text x="45" y="15" text-anchor="end">{{ value }}</text>
+                            <rect x="50" rx="10" ry="10" height="20" width="{% widthratio value summary.total_buildings 100 %}"></rect>
+                        </svg>
+                    </span>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>

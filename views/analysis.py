@@ -7,6 +7,7 @@ from zipfile import ZipFile
 
 from django.conf import settings
 from django.core.urlresolvers import reverse
+from django.db.models.expressions import F
 from django.db.models.query_utils import Q
 from django.http.response import HttpResponseServerError, HttpResponse, \
     HttpResponseBadRequest, HttpResponseRedirect
@@ -16,6 +17,7 @@ from django.views.generic import (
 
 from geonode.layers.models import Layer
 from geosafe.forms import (AnalysisCreationForm)
+from geosafe.helpers.impact_summary.structure_summary import StructureSummary
 from geosafe.models import Analysis, Metadata
 from geosafe.signals import analysis_post_save
 from geosafe.tasks.headless.analysis import filter_impact_function
@@ -33,11 +35,30 @@ def retrieve_layers(purpose, category=None, bbox=None):
         category = None
     if bbox:
         bbox = json.loads(bbox)
+        # normalize bbox
+        if bbox[2] < bbox[0]:
+            temp = bbox[0]
+            bbox[0] = bbox[2]
+            bbox[2] = temp
+        if bbox[3] < bbox[1]:
+            temp = bbox[1]
+            bbox[1] = bbox[3]
+            bbox[3] = temp
         intersect = (
             Q(layer__bbox_x0__lte=bbox[2]) &
             Q(layer__bbox_x1__gte=bbox[0]) &
             Q(layer__bbox_y0__lte=bbox[3]) &
-            Q(layer__bbox_y1__gte=bbox[1])
+            Q(layer__bbox_y1__gte=bbox[1]) &
+            Q(layer__bbox_x0__lte=F('bbox_x1')) &
+            Q(layer__bbox_y0__lte=F('bbox_y1'))
+        ) | (
+            # in case of swapped value
+            Q(layer__bbox_x0__lte=bbox[2]) &
+            Q(layer__bbox_x1__gte=bbox[0]) &
+            Q(layer__bbox_y0__gte=bbox[3]) &
+            Q(layer__bbox_y1__lte=bbox[1]) &
+            Q(layer__bbox_x0__lte=F('bbox_x1')) &
+            Q(layer__bbox_y1__lte=F('bbox_y0'))
         )
         metadatas = Metadata.objects.filter(
             Q(layer_purpose=purpose),
@@ -128,6 +149,7 @@ class AnalysisCreateView(CreateView):
             {
                 'sections': sections,
                 'analysis': analysis,
+                'report_type': None,
             }
         )
         return context
@@ -504,8 +526,25 @@ def analysis_summary(request, impact_id):
 
     try:
         analysis = Analysis.objects.get(impact_layer__id=impact_id)
+        report_type = None
+        summary = None
+        if 'building' in analysis.impact_function_id.lower():
+            report_type = 'structure'
+            summary = StructureSummary(analysis.impact_layer)
+        elif 'population' in analysis.impact_function_id.lower():
+            report_type = 'population'
+        elif 'road' in analysis.impact_function_id.lower():
+            report_type = 'road'
+        elif 'landcover' in analysis.impact_function_id.lower():
+            report_type = 'landcover'
+        elif 'people' in analysis.impact_function_id.lower():
+            report_type = 'people'
         context = {
-            'analysis': analysis
+            'analysis': analysis,
+            'report_type': report_type,
+            'report_template': 'geosafe/analysis/summary/%s_report.html' % (
+                report_type, ),
+            'summary': summary
         }
         return render(request, "geosafe/analysis/modal/impact_card.html",
                       context)
