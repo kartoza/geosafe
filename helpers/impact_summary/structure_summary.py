@@ -10,14 +10,14 @@ __date__ = '5/18/16'
 class StructureSummary(ImpactSummary):
 
     def total(self):
-        return self.total_buildings()
+        return int(self.total_buildings())
 
     def total_buildings(self):
-        return self.summary_dict().get('Total')
+        return int(self.summary_dict().get('Total'))
 
     def total_affected(self):
         if 'Affected buildings' in self.summary_dict().keys():
-            return self.summary_dict().get('Affected buildings')
+            return int(self.summary_dict().get('Affected buildings'))
         elif 'Not affected buildings' in self.summary_dict().keys():
             not_affected = self.summary_dict().get('Not affected buildings')
             return int(self.total_buildings()) - int(not_affected)

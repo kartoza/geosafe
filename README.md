@@ -17,3 +17,8 @@ this app. A sample settings can be seen in *local_settings.sample.py*. This
 settings file should be included in geonode settings file or called last, to 
 make sure it was overriding celery settings in the default geonode settings.
 
+# Note
+
+Geonode project is a requirement for this app to works, since it contains 
+dependency to geonode packages.
+

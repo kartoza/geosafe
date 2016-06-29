@@ -10,10 +10,10 @@ __date__ = '5/18/16'
 class PopulationSummary(ImpactSummary):
 
     def total(self):
-        return self.total_populations()
+        return int(self.total_populations())
 
     def total_populations(self):
-        return self.summary_dict().get('Total population')
+        return int(self.summary_dict().get('Total population'))
 
     def total_affected(self):
         if 'Total affected population' in self.summary_dict().keys():
