@@ -7,20 +7,20 @@ __author__ = 'Rizky Maulana Nugraha <lana.pcfre@gmail.com>'
 __date__ = '5/18/16'
 
 
-class StructureSummary(ImpactSummary):
+class LandcoverSummary(ImpactSummary):
 
     def total(self):
-        return self.total_buildings()
+        return self.total_landcover()
 
-    def total_buildings(self):
-        return self.summary_dict().get('Total')
+    def total_landcover(self):
+        return int(self.summary_dict().get('Total'))
 
     def total_affected(self):
-        if 'Affected buildings' in self.summary_dict().keys():
-            return self.summary_dict().get('Affected buildings')
-        elif 'Not affected buildings' in self.summary_dict().keys():
-            not_affected = self.summary_dict().get('Not affected buildings')
-            return int(self.total_buildings()) - int(not_affected)
+        if 'Affected landcover' in self.summary_dict().keys():
+            return int(self.summary_dict().get('Affected landcover'))
+        elif 'Not affected landcover' in self.summary_dict().keys():
+            not_affected = self.summary_dict().get('Not affected landcover')
+            return int(self.total_landcover()) - int(not_affected)
 
     def breakdown_dict(self):
         ret_val = OrderedDict()
@@ -37,12 +37,8 @@ class StructureSummary(ImpactSummary):
     def category_css_class(self, category):
         css_class = ImpactSummary.category_css_class(category)
         if not css_class:
-            if 'flood' in category.lower():
-                css_class = 'hazard-category-high'
-            elif 'dry' in category.lower():
+            if 'dry' in category.lower():
                 css_class = 'hazard-category-low'
             elif 'wet' in category.lower():
                 css_class = 'hazard-category-medium'
-            elif 'radius' in category.lower():
-                css_class = 'hazard-category-high'
         return css_class

@@ -10,7 +10,7 @@ __date__ = '5/18/16'
 class PolygonPeopleSummary(ImpactSummary):
 
     def total(self):
-        return self.total_people()
+        return int(self.total_people())
 
     def total_people(self):
         return int(self.summary_dict().get('Total people'))

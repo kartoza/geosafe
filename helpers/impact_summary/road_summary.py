@@ -10,7 +10,7 @@ __date__ = '6/13/16'
 class RoadSummary(ImpactSummary):
 
     def total(self):
-        return self.total_roads()
+        return int(self.total_roads())
 
     def total_roads(self):
         for idx, val in enumerate(self.summary_attributes()):
