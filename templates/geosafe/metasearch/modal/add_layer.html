@@ -1,0 +1,185 @@
+{% load bootstrap_tags %}
+{% load staticfiles %}
+<div class="modal fade" id="add-layer" tabindex="-1" role="dialog" aria-labelledby="Add Layer">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <i class="fa fa-times-circle-o"></i></button>
+                    <h4 class="modal-title" id="add_confirmation_label">
+                    <img class="glyphicon" src="{% static 'geosafe/img/inasafe-icon.png' %}" ></img>
+                    Add Layer
+                </h4>
+            </div>
+            <div class="modal-body">
+                <form id="add-layer-form" action="{% url 'geosafe:metasearch_add_layer' %}" method="post">
+                    <input type="hidden" name="user" />
+                    <input type="hidden" name="password" />
+                    <input type="hidden" name="identifier" value="{{ record.identifier }}" />
+                    <input type="hidden" name="service_id" value="{{ record.service_id }}" />
+                    <input type="hidden" name="service_version" value="{{ record.service_version }}" />
+                    <div class="form-group">
+                        <label>Title</label>
+                        <input id="confirm_layer_title" type="text" disabled class="form-control" value="{{ record.title }}"/>
+                    </div>
+                    <div class="form-group">
+                        <label>Abstract</label>
+                        <input id="confirm_layer_abstract" type="text" disabled class="form-control" value="{{ record.abstract }}"/>
+                    </div>
+                    <div class="form-group">
+                        <label>Endpoint</label>
+                        <input id="confirm_layer_endpoint" name="endpoint" type="text" disabled class="form-control" value="{{ record.endpoint }}"/>
+                    </div>
+                    <div class="form-group">
+                        <label>Endpoint Type</label>
+                        <input id="confirm_layer_type" name="type" type="text" disabled class="form-control" value="{{ record.type }}"/>
+                    </div>
+                    <div class="form-group">
+                        <label>Extent</label>
+                        <div style="width: 100%">
+                            <div class="btn-group" data-toggle="buttons">
+                                <span class="btn btn-primary active">
+                                    <input type="radio" name="extent" checked value="map"/>
+                                    Use Map
+                                </span>
+                                <span class="btn btn-primary">
+                                    <input type="radio" name="extent" value="input"/>
+                                    Use Input
+                                </span>
+                            </div>
+                            <input id="confirm_reset_extent" type="button" class="btn btn-primary" value="Reset Extent" style="margin-left: 50px;" />
+                        </div>
+                        <div id="map" style="height: 500px">
+                        </div>
+                        <div id="extent-input">
+                            <label for="confirm_minx">Minx</label>
+                            <input id="confirm_minx" name="minx" type="number" class="form-control">
+                            <label for="confirm_miny">Miny</label>
+                            <input id="confirm_miny" name="miny" type="number" class="form-control">
+                            <label for="confirm_maxx">Maxx</label>
+                            <input id="confirm_maxx" name="maxx" type="number" class="form-control">
+                            <label for="confirm_maxy">Maxy</label>
+                            <input id="confirm_maxy" name="maxy" type="number" class="form-control">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <input class="btn btn-primary" type="submit" value="Add Layer" />
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    var map;
+    $(document).ready(function(){
+        var OpenMapSurfer_Roads = L.tileLayer('http://korona.geog.uni-heidelberg.de/tiles/roads/x={x}&y={y}&z={z}', {
+            noWrap: true,
+            attribution: 'Imagery from <a href="http://giscience.uni-hd.de/">GIScience Research Group @ University of Heidelberg</a> &mdash; Map data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+        });
+        map = L.map('map', {
+            layers: [OpenMapSurfer_Roads]
+        });
+        {# update extent view #}
+        var extent_change_map = function (event) {
+            var bounds = map.getBounds();
+            $("#confirm_minx").val(bounds.getWest());
+            $("#confirm_miny").val(bounds.getSouth());
+            $("#confirm_maxx").val(bounds.getEast());
+            $("#confirm_maxy").val(bounds.getNorth());
+        };
+
+        var extent_change_input = function(event){
+            var get_number = function(id){
+                return parseFloat($(id).val());
+            };
+            var bbox = [
+                    [get_number("#confirm_miny"), get_number("#confirm_minx")],
+                    [get_number("#confirm_maxy"), get_number("#confirm_maxx")]
+            ];
+            map.fitBounds(bbox);
+        };
+
+        {# check active extent input #}
+        $("input[name=extent]").change(function(event){
+            var val = $(this).val();
+            if(val == "map"){
+                $("#extent-input input").prop('disabled', true);
+
+                map.on('moveend', extent_change_map);
+                extent_change_map();
+                $("#extent-input input").off('change', extent_change_input);
+
+                map.dragging.enable();
+                map.touchZoom.enable();
+                map.doubleClickZoom.enable();
+                map.scrollWheelZoom.enable();
+                map.boxZoom.enable();
+                map.keyboard.enable();
+                if (map.tap) map.tap.enable();
+                $("#map").get(0).style.cursor='';
+            }
+            else if(val == "input"){
+                $("#extent-input input").prop('disabled', false);
+
+                map.off('moveend', extent_change_map);
+                $("#extent-input input").on('change', extent_change_input);
+                extent_change_input();
+
+                map.dragging.disable();
+                map.touchZoom.disable();
+                map.doubleClickZoom.disable();
+                map.scrollWheelZoom.disable();
+                map.boxZoom.disable();
+                map.keyboard.disable();
+                if (map.tap) map.tap.disable();
+                $("#map").get(0).style.cursor='not-allowed';
+            }
+        });
+
+        var resetExtent = function(event){
+            var bbox = [
+                [{{ record.bbox.miny }}, {{ record.bbox.minx }}],
+                [{{ record.bbox.maxy }}, {{ record.bbox.maxx }}]
+            ];
+            map.fitBounds(bbox);
+        };
+
+        $("#confirm_reset_extent").click(resetExtent);
+
+        $("#add-layer-form").submit(function(event){
+            var $form = $(this);
+            var data = $form.serializeObject();
+            data.endpoint = $("input[name=endpoint]", $form).val();
+            data.type = $("input[name=type]", $form).val();
+            data.minx = $("input[name=minx]", $form).val();
+            data.maxx = $("input[name=maxx]", $form).val();
+            data.miny = $("input[name=miny]", $form).val();
+            data.maxy = $("input[name=maxy]", $form).val();
+            $.ajax({
+                type: $form.attr('method'),
+                url: $form.attr('action'),
+                data: data,
+                success: function (data) {
+                    if(data){
+                        console.log(data);
+                    }
+                },
+                error: function(){
+                    alert('Request failed');
+                }
+            });
+            return false;
+        });
+
+        $("#add-layer").on('shown.bs.modal', function(){
+
+            $("#add-layer-form input[name=user]").val($("#id_user").val());
+            $("#add-layer-form input[name=password]").val($("#id_password").val());
+            map.invalidateSize();
+            resetExtent();
+            $("input[name=extent][value=map]").change();
+        });
+        $("#add-layer").modal('show', {backdrop: 'static'});
+    });
+</script>

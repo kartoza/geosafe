@@ -1,3 +1,7 @@
+from django.views.generic.base import TemplateView
+
+from geosafe.views import metasearch
+
 __author__ = 'ismailsunni'
 from django.conf.urls import patterns, url
 
@@ -92,4 +96,21 @@ urlpatterns = patterns(
         analysis_summary,
         name='analysis-summary'
     ),
+
+    # Metasearch
+    url(
+        r'^geosafe/metasearch/$',
+        metasearch.index,
+        name='metasearch'
+    ),
+    url(
+        r'^geosafe/metasearch/add_layer$',
+        metasearch.add_layer,
+        name='metasearch_add_layer'
+    ),
+    url(
+        r'^geosafe/metasearch/add_layer_dialog',
+        metasearch.show_add_layer_dialog,
+        name='metasearch_add_layer_dialog'
+    )
 )

@@ -11,7 +11,6 @@ from celery.result import AsyncResult
 
 from geonode.layers.models import Layer
 from geonode.people.models import Profile
-from geosafe.tasks.headless.analysis import filter_impact_function
 
 
 # geosafe
@@ -216,7 +215,7 @@ class Analysis(models.Model):
         )
         return layer_name
 
-    impact_function_list = filter_impact_function.delay().get()
+    impact_function_list = []
 
     def impact_function_name(self):
         for i in self.impact_function_list:
