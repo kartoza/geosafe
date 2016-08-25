@@ -92,3 +92,5 @@ ENV/
 
 # pycharm
 .idea
+
+tasks/headless/celeryconfig.py

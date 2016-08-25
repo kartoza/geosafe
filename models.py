@@ -216,7 +216,7 @@ class Analysis(models.Model):
         )
         return layer_name
 
-    impact_function_list = filter_impact_function.delay().get()
+    impact_function_list = []
 
     def impact_function_name(self):
         for i in self.impact_function_list:
