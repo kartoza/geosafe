@@ -90,5 +90,9 @@ ENV/
 # Rope project settings
 .ropeproject
 
+# config file
+tasks/headless/celeryconfig.py
 # pycharm
 .idea
+
+tasks/headless/celeryconfig.py

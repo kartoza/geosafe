@@ -1,0 +1,41 @@
+{% load bootstrap_tags %}
+{% load staticfiles %}
+{% load i18n avatar_tags %}
+
+<div id="meta-result">
+    <div class="panel">
+        <div class="panel-body">
+            <h2>Result</h2>
+            <div>
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Title</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for r in result %}
+                        <tr>
+                            <td>{{ r.title }}</td>
+                            <td>
+{#                                <form method="post" action="{% url "geosafe:metasearch_add_layer" %}">#}
+{#                                    {% csrf_token %}#}
+{#                                    <input type="hidden" name="url" value="{{ r.download_url }}" />#}
+{#                                    <input type="hidden" name="type" value="{{ r.type }}" />#}
+{#                                    <input type="hidden" name="user" value="{{ form.cleaned_data.user }}"/>#}
+{#                                    <input type="hidden" name="password" value="{{ form.cleaned_data.password }}"/>#}
+{#                                    <input type="submit" class="btn btn-primary" value="Add" />#}
+{#                                </form>#}
+                                <input type="button" class="btn btn-primary" value="Add" onclick="show_add_layer_dialog('{{ r.identifier }}')" />
+                            </td>
+                        </tr>
+                    {% empty %}
+                        No matching record
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

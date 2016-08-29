@@ -1,0 +1,69 @@
+{% extends 'site_base.html' %}
+{% load bootstrap_tags %}
+{% load staticfiles %}
+{% load i18n avatar_tags %}
+
+{% block extra_head %}
+    <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet/v0.7.7/leaflet.css"/>
+    <link rel="stylesheet" href="{% static 'geosafe/css/easy-button.css' %}"/>
+{% endblock %}
+
+{% block body %}
+    <div class="panel">
+        <div class="panel-heading">
+            <div class="panel-title">
+                <h1>MetaSearch</h1>
+            </div>
+        </div>
+        <div class="panel-body">
+            <form id="csw-form" method="post">
+                {% csrf_token %}
+                {{ form|as_bootstrap }}
+                <input type="submit" value="Submit" class="btn btn-primary" />
+            </form>
+        </div>
+    </div>
+    <div id="meta-result">
+    </div>
+    <div id="add-layer"></div>
+{% endblock %}
+
+{% block extra_script %}
+    <script src="http://cdn.leafletjs.com/leaflet/v0.7.7/leaflet.js"></script>
+    <script type="text/javascript" src="{% static 'geosafe/js/easy-button.js' %}"></script>
+    <script type="text/javascript">
+        function show_add_layer_dialog(layer_id) {
+            var params = {
+                'layer_id': layer_id,
+                'csw_url': $("#id_csw_url").val(),
+                'user': $("#id_user").val(),
+                'password': $("#id_password").val()
+            };
+            $.post('{% url 'geosafe:metasearch_add_layer_dialog' %}', params, function(data){
+                if(data){
+                    $("#add-layer").replaceWith(data);
+                }
+            })
+        }
+
+        $(document).ready(function(){
+            $("#csw-form").submit(function () {
+                var $form = $(this);
+                $.ajax({
+                    type: $form.attr('method'),
+                    url: $form.attr('action'),
+                    data: $form.serialize(),
+                    success: function (data) {
+                        if(data){
+                            $("#meta-result").replaceWith(data);
+                        }
+                    },
+                    error: function(){
+                        alert('Request failed');
+                    }
+                });
+                return false;
+            });
+        });
+    </script>
+{% endblock %}
