@@ -215,10 +215,17 @@ class Analysis(models.Model):
         )
         return layer_name
 
-    impact_function_list = []
+    _impact_function_list = []
+
+    @classmethod
+    def impact_function_list(cls):
+        if not cls._impact_function_list:
+            from geosafe.tasks.headless.analysis import filter_impact_function
+            cls._impact_function_list = filter_impact_function.delay().get()
+        return cls._impact_function_list
 
     def impact_function_name(self):
-        for i in self.impact_function_list:
+        for i in self.impact_function_list():
             if i['id'] == self.impact_function_id:
                 return i['name']
         return ''

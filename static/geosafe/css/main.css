@@ -5,9 +5,10 @@
 .onoffswitch-checkbox {
     display: none;
 }
-.onoffswitch-label {
+label.onoffswitch-label {
     display: block; overflow: hidden; cursor: pointer;
     border: 2px solid #999999; border-radius: 20px;
+    margin-right: 0;
 }
 .onoffswitch-inner {
     display: block; width: 200%; margin-left: -100%;
@@ -30,7 +31,7 @@
     text-align: right;
 }
 .onoffswitch-switch {
-    display: block; width: 18px; margin: 6px;
+    display: block; width: 21px; margin: 6px;
     background: #FFFFFF;
     position: absolute; top: 0; bottom: 0;
     right: 56px;

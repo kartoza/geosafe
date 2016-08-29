@@ -165,12 +165,29 @@ class AnalysisCreateView(CreateView):
         )
         return context
 
+    def get_form(self, form_class):
+        kwargs = self.get_form_kwargs()
+        kwargs.update({
+            'impact_functions': Analysis.impact_function_list()
+        })
+        logger.error(kwargs)
+        return form_class(**kwargs)
+
     def post(self, request, *args, **kwargs):
-        super(AnalysisCreateView, self).post(request, *args, **kwargs)
-        return HttpResponse(json.dumps({
-            'success': True,
-            'redirect': self.get_success_url()
-        }), content_type='application/json')
+        retval = super(AnalysisCreateView, self).post(request, *args, **kwargs)
+
+        form_class = self.get_form_class()
+        form = self.get_form(form_class)
+        if form.is_valid():
+            # return retval
+            return HttpResponse(json.dumps({
+                'success': True,
+                'redirect': self.get_success_url()
+            }), content_type='application/json')
+        else:
+            return HttpResponse(json.dumps({
+                'success': False
+            }), content_type='application/json')
 
     def get_success_url(self):
         kwargs = {
@@ -369,7 +386,8 @@ def layer_panel(request, bbox=None):
         form = AnalysisCreationForm(
             user=request.user,
             exposure_layer=retrieve_layers('exposure', bbox=bbox),
-            hazard_layer=retrieve_layers('hazard', bbox=bbox))
+            hazard_layer=retrieve_layers('hazard', bbox=bbox),
+            impact_functions=Analysis.impact_function_list())
         context = {
             'sections': sections,
             'form': form,

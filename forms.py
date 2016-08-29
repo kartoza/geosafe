@@ -8,9 +8,7 @@ import logging
 
 from django.forms import models
 from django import forms
-
 from geonode.layers.models import Layer
-
 from geosafe.models import Analysis
 
 LOG = logging.getLogger(__name__)
@@ -54,14 +52,9 @@ class AnalysisCreationForm(models.ModelForm):
             attrs={'class': 'form-control'})
     )
 
-    if_id_list = Analysis.impact_function_list
-
     impact_function_id = forms.ChoiceField(
         label='Impact Function ID',
         required=True,
-        choices=[
-            (impact_function['id'], impact_function['name'])
-            for impact_function in if_id_list]
     )
 
     keep = forms.BooleanField(
@@ -80,7 +73,9 @@ class AnalysisCreationForm(models.ModelForm):
         if hazard_layer:
             self.fields['hazard_layer'].queryset = hazard_layer
         if impact_function_ids:
-            self.fields['impact_function_id'].choices = impact_function_ids
+            self.fields['impact_function_id'].choices = [
+                (impact_function['id'], impact_function['name'])
+                for impact_function in impact_function_ids]
 
     def save(self, commit=True):
         instance = super(AnalysisCreationForm, self).save(commit=False)
