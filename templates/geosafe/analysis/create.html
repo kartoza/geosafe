@@ -724,7 +724,7 @@ $(document).ready(function () {
                     bounds.getNorthEast().lat
             ];
             var url = '{% url "geosafe:layer-panel" bbox="9,9,9,9" %}';
-            url = url.replace("9%2C9%2C9%2C9", JSON.stringify(bound_param));
+            url = url.replace("9%2C9%2C9%2C9", JSON.stringify(bound_param)).replace("9,9,9,9", JSON.stringify(bound_param));
             show_info_text('Extent Changed', 'Filtering available layer for extent');
             $.get(url, function(data){
                 var exposure_id = $(".exposure.section a.selected").attr('data-id');
