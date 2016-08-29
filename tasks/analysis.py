@@ -1,4 +1,7 @@
 # coding=utf-8
+
+from __future__ import absolute_import
+
 import logging
 import os
 import tempfile
@@ -25,7 +28,7 @@ __author__ = 'lucernae'
 LOGGER = logging.getLogger(__name__)
 
 
-def download_file(url):
+def download_file(url, user=None, password=None):
     parsed_uri = urlparse.urlparse(url)
     if parsed_uri.scheme == 'http' or parsed_uri.scheme == 'https':
         tmpfile = tempfile.mktemp()
@@ -35,7 +38,11 @@ def download_file(url):
             'User-Agent': 'Mozilla/5.0 (X11; U; Linux i686) '
                           'Gecko/20071127 Firefox/2.0.0.11'
         }
-        r = requests.get(url, headers=headers, stream=True)
+        if user:
+            r = requests.get(
+                url, headers=headers, stream=True, auth=(user, password))
+        else:
+            r = requests.get(url, headers=headers, stream=True)
         with open(tmpfile, 'wb') as f:
             for chunk in r.iter_content(chunk_size=1024):
                 if chunk:

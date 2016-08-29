@@ -839,8 +839,12 @@ $(document).ready(function () {
                 subdomains: '1234',
                 noWrap: true,
             });
+            var OpenMapSurfer_Roads = L.tileLayer('http://korona.geog.uni-heidelberg.de/tiles/roads/x={x}&y={y}&z={z}', {
+                noWrap: true,
+                attribution: 'Imagery from <a href="http://giscience.uni-hd.de/">GIScience Research Group @ University of Heidelberg</a> &mdash; Map data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+            });
             map = L.map('map', {
-                layers: [map_quest]
+                layers: [OpenMapSurfer_Roads]
             });
 
             zoom_to_box(map, [0, 45, 0, -45]);

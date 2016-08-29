@@ -90,3 +90,29 @@ class AnalysisCreationForm(models.ModelForm):
             instance.user = Profile.objects.get(username='AnonymousUser')
         instance.save()
         return instance
+
+
+class MetaSearchForm(forms.Form):
+
+    class Meta:
+        fields = (
+            'csw_url',
+            'keywords',
+            'user',
+            'password',
+        )
+
+    csw_url = forms.CharField(
+        label='CSW URL',
+        help_text='URL to CSW endpoint',
+        required=True)
+    keywords = forms.CharField(
+        help_text='Keywords to include in the search',
+        required=False)
+    user = forms.CharField(
+        help_text='User to connect to CSW Endpoint',
+        required=False)
+    password = forms.CharField(
+        help_text='Password to connect to CSW Endpoint',
+        required=False,
+        widget=forms.PasswordInput)

@@ -11,7 +11,6 @@ from celery.result import AsyncResult
 
 from geonode.layers.models import Layer
 from geonode.people.models import Profile
-from geosafe.tasks.headless.analysis import filter_impact_function
 
 
 # geosafe

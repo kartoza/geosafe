@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block extra_tab %}
+    <li class="dropdown" id="nav_geosafe">
+       <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+           {% trans "GeoSAFE" %}
+           <span class="caret"></span>
+       </a>
+       <ul class="dropdown-menu">
+           <li><a href="{% url "geosafe:metasearch" %}">{% trans "MetaSearch" %}</a></li>
+           <li><a href="{% url "geosafe:analysis-create" %}">{% trans "Create Analysis" %}</a></li>
+           <li><a href="{% url "geosafe:analysis-list" %}">{% trans "Analysis List" %}</a></li>
+       </ul>
+   </li>
+{% endblock %}
