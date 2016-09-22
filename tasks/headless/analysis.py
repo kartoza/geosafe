@@ -11,8 +11,7 @@ LOGGER = logging.getLogger(__name__)
 
 
 @app.task(
-    name='headless.tasks.inasafe_wrapper.filter_impact_function',
-    queue='inasafe-headless')
+    name='headless.tasks.inasafe_wrapper.filter_impact_function')
 def filter_impact_function(hazard=None, exposure=None):
     """Filter available impact function for a given hazard and exposure.
 
@@ -32,8 +31,7 @@ def filter_impact_function(hazard=None, exposure=None):
 
 
 @app.task(
-    name='headless.tasks.inasafe_wrapper.run_analysis',
-    queue='inasafe-headless')
+    name='headless.tasks.inasafe_wrapper.run_analysis')
 def run_analysis(hazard, exposure, function, aggregation=None,
                  generate_report=False):
     """Run analysis with a given combination
@@ -64,8 +62,7 @@ def run_analysis(hazard, exposure, function, aggregation=None,
 
 
 @app.task(
-    name='headless.tasks.inasafe_wrapper.read_keywords_iso_metadata',
-    queue='inasafe-headless')
+    name='headless.tasks.inasafe_wrapper.read_keywords_iso_metadata')
 def read_keywords_iso_metadata(metadata_url, keyword=None):
     """Read keywords of a given metadata url.
 

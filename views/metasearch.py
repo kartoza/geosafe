@@ -3,6 +3,7 @@ import json
 import os
 
 import shutil
+import logging
 import urlparse
 
 from django.http.response import HttpResponse, HttpResponseServerError
@@ -20,6 +21,8 @@ from geosafe.tasks import metasearch
 __author__ = 'Rizky Maulana Nugraha <lana.pcfre@gmail.com>'
 
 __date__ = '7/28/16'
+
+LOGGER = logging.getLogger(__name__)
 
 
 def index(request, *args, **kwargs):
@@ -58,7 +61,8 @@ def index(request, *args, **kwargs):
 
                     template = 'geosafe/metasearch/metasearch_result.html'
             except Exception as e:
-                raise HttpResponseServerError()
+                LOGGER.exception(e)
+                return HttpResponseServerError()
 
     else:
         form = MetaSearchForm()
