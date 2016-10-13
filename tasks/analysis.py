@@ -21,6 +21,7 @@ from geonode.layers.models import Layer
 from geonode.layers.utils import file_upload
 from geosafe.models import Analysis, Metadata
 from geosafe.tasks.headless.analysis import read_keywords_iso_metadata
+from geosafe.tasks.headless.analysis import run_analysis
 
 __author__ = 'lucernae'
 
@@ -105,22 +106,43 @@ def clean_impact_result():
 @shared_task(
     name='geosafe.tasks.analysis.process_impact_result',
     queue='geosafe')
-def process_impact_result(analysis_id, impact_url_result):
+def process_impact_result(analysis_id):
     """Extract impact analysis after running it via InaSAFE-Headless celery
 
     :param analysis_id: analysis id of the object
     :type analysis_id: int
 
-    :param impact_url_result: the AsyncResult taken from executing headless
-        task to run impact analysis
-    :type impact_url_result: celery.result.AsyncResult
-
     :return: True if success
     :rtype: bool
     """
     # wait for process to return the result
-    impact_url = impact_url_result.get()
+    # try_count = 0
+    # while try_count < 5:
+    #     time.sleep(5)
+    #     try:
+    #         impact_url = impact_url_result.get()
+    #         break
+    #     except:
+    #         try_count += 1
+
     analysis = Analysis.objects.get(id=analysis_id)
+
+    hazard = analysis.get_layer_url(analysis.hazard_layer)
+    exposure = analysis.get_layer_url(analysis.exposure_layer)
+    function = analysis.impact_function_id
+    try_count = 0
+    while try_count < 5:
+        time.sleep(5)
+        try:
+            impact_url = run_analysis.delay(
+                hazard,
+                exposure,
+                function,
+                generate_report=True).get()
+            break
+        except:
+            try_count += 1
+
     # download impact zip
     impact_path = download_file(impact_url)
     dir_name = os.path.dirname(impact_path)
