@@ -32,16 +32,8 @@ def analysis_post_save(sender, instance, created, **kwargs):
     """
     # Used to run impact analysis when analysis object is firstly created
     if created:
-        hazard = instance.get_layer_url(instance.hazard_layer)
-        exposure = instance.get_layer_url(instance.exposure_layer)
-        function = instance.impact_function_id
-        impact_url_result = run_analysis.delay(
-            hazard,
-            exposure,
-            function,
-            generate_report=True)
         async_result = process_impact_result.delay(
-            instance.id, impact_url_result)
+            instance.id)
         instance.task_id = async_result.task_id
         instance.task_state = async_result.state
         instance.save()

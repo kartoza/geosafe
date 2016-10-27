@@ -25,7 +25,6 @@
     </div>
     <div id="meta-result">
     </div>
-    <div id="add-layer"></div>
 {% endblock %}
 
 {% block extra_script %}
@@ -34,16 +33,31 @@
     <script type="text/javascript">
         function show_add_layer_dialog(layer_id) {
             var params = {
-                'layer_id': layer_id,
-                'csw_url': $("#id_csw_url").val(),
-                'user': $("#id_user").val(),
-                'password': $("#id_password").val()
+                'layer_id': layer_id
             };
             $.post('{% url 'geosafe:metasearch_add_layer_dialog' %}', params, function(data){
                 if(data){
                     $("#add-layer").replaceWith(data);
                 }
-            })
+            }).fail(function(){
+                alert("Cannot get downloadable format");
+            });
+
+        }
+
+        function show_metadata(layer_id){
+            var params = {
+                'layer_id': layer_id
+            };
+            $.get('{% url 'geosafe:metasearch_show_metadata' %}', params, function(data){
+                if(data){
+{#                    var $textarea = $("<textarea />").text(data);#}
+{#                    $("#show-metadata").empty().append($textarea);#}
+                    $("#show-metadata").replaceWith(data);
+                }
+            }).fail(function () {
+                alert("Failed to get ISO Metadata");
+            });
         }
 
         $(document).ready(function(){
