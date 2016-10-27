@@ -5,6 +5,7 @@ from __future__ import absolute_import
 import shutil
 import os
 import tempfile
+import io
 import urllib
 import urlparse
 
@@ -28,6 +29,7 @@ def add_wcs_layer(
         endpoint,
         version,
         coverage_id,
+        metadata_string=None,
         title=None,
         bbox=None,
         user=None, password=None):
@@ -54,6 +56,13 @@ def add_wcs_layer(
     tmpfile = download_file(parsed_url.geturl(), user=user, password=password)
     shutil.move(tmpfile, tmpfile + '.tif')
     tmpfile += '.tif'
+
+    # get metadata file
+    if metadata_string:
+        metadata_file = '%s.xml' % tmpfile
+        with io.open(metadata_file, mode='w', encoding='utf-8') as f:
+            f.write(metadata_string)
+
     saved_layer = None
     with open(tmpfile) as f:
         saved_layer = file_upload(tmpfile, overwrite=True)
@@ -73,6 +82,7 @@ def add_wfs_layer(
         endpoint,
         version,
         typename,
+        metadata_string=None,
         title=None,
         bbox=None,
         user=None,
@@ -113,6 +123,12 @@ def add_wfs_layer(
     ]
 
     retval = subprocess.call(args)
+
+    # get metadata file
+    if metadata_string:
+        metadata_file = '%s.xml' % tmpfile
+        with io.open(metadata_file, mode='w', encoding='utf-8') as f:
+            f.write(metadata_string)
 
     saved_layer = None
     if retval == 0:

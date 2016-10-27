@@ -80,6 +80,69 @@
         map = L.map('map', {
             layers: [OpenMapSurfer_Roads]
         });
+
+        {% if record.type.lower == 'wfs' %}
+            var root_url = '{{ record.endpoint }}';
+            var default_param = {
+                service: 'WFS',
+                version: '1.0.0',
+                request: 'GetFeature',
+                typeName: '{{ record.service_id }}',
+                maxFeatures: 200,
+                outputFormat: 'text/javascript',
+                format_options: 'callback: getJson',
+                srsName:'EPSG:4326'
+            };
+            var parameters = L.Util.extend(default_param);
+            $.ajax({
+                jsonp: false,
+                url: root_url + L.Util.getParamString(parameters),
+                dataType: 'jsonp',
+                jsonpCallback: 'getJson',
+                success: handleJson
+            });
+            var group = new L.featureGroup().addTo(map);
+            var geojsonlayer;
+            function handleJson(data) {
+                geojsonlayer=L.geoJson(data, {
+                    onEachFeature: function (feature, my_Layer) {
+                            my_Layer.bindPopup("str.1: "+feature.properties.str1+"<br />cat: "+feature.properties.cat);
+                        },
+                    pointToLayer: function (feature, latlng) {
+                        return L.circleMarker(latlng);
+                    }
+                }).addTo(group);
+                map.fitBounds(group.getBounds());
+            }
+
+{#            var params = {#}
+{#                'typename': '{{ record.service_id }}',#}
+{#                'endpoint': '{{ record.endpoint }}'#}
+{#            };#}
+{#            var group = new L.featureGroup().addTo(map);#}
+{#            var geojsonlayer;#}
+{#            $.get('{% url "geosafe:metasearch_wfs_proxy" %}', params, function(data){#}
+{#                if(data){#}
+{#                    geojsonlayer = L.geoJson(data, {#}
+{#                        onEachFeature: function(feature, layer){#}
+{#                            layer.bindPopup("properties: "+feature.properties);#}
+{#                        },#}
+{#                        pointToLayer: function (feature, latlng) {#}
+{#                            return L.circleMarker(latlng);#}
+{#                        }#}
+{#                    }).addTo(group);#}
+{#                    map.fitBounds(group.getBounds());#}
+{#                }#}
+{#            });#}
+
+        {% elif record.type.lower == 'wms' or record.type.lower == 'wcs' %}
+            var endpoint = '{{ record.endpoint }}';
+            endpoint = endpoint.replace('/wcs', '/wms');
+
+            var tilelayer = L.tileLayer.wms(endpoint,{
+                layers: '{{ record.service_id }}'
+            }).addTo(map);
+        {% endif %}
         {# update extent view #}
         var extent_change_map = function (event) {
             var bounds = map.getBounds();

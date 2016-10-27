@@ -181,6 +181,7 @@ def process_impact_result(analysis_id):
                 if os.path.exists(report_table_path):
                     analysis.assign_report_table(report_table_path)
 
+                analysis.task_id = process_impact_result.request.id
                 analysis.task_state = 'SUCCESS'
                 analysis.save()
 

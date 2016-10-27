@@ -1,0 +1,32 @@
+{% load bootstrap_tags %}
+{% load staticfiles %}
+<div class="modal fade" id="show-metadata" tabindex="-1" role="dialog" aria-labelledby="Layer Metadata">
+    <style>
+    #show-metadata textarea{
+        width: 100%;
+        height: 300px;
+    }
+    </style>
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <i class="fa fa-times-circle-o"></i></button>
+                    <h4 class="modal-title">
+                    <img class="glyphicon" src="{% static 'geosafe/img/inasafe-icon.png' %}" ></img>
+                    Layer Metadata
+                </h4>
+            </div>
+            <div class="modal-body">
+                <textarea>
+                    {{ metadata|safe }}
+                </textarea>
+            </div>
+        </div>
+    </div>
+    <script type="text/javascript">
+        $(document).ready(function(){
+            $("#show-metadata").modal('show', {backdrop: 'static'});
+        });
+    </script>
+</div>

@@ -104,6 +104,11 @@ urlpatterns = patterns(
         name='metasearch'
     ),
     url(
+        r'^geosafe/metasearch/csw_ajax$',
+        metasearch.csw_ajax,
+        name='metasearch_csw_ajax'
+    ),
+    url(
         r'^geosafe/metasearch/add_layer$',
         metasearch.add_layer,
         name='metasearch_add_layer'
@@ -112,5 +117,16 @@ urlpatterns = patterns(
         r'^geosafe/metasearch/add_layer_dialog',
         metasearch.show_add_layer_dialog,
         name='metasearch_add_layer_dialog'
-    )
+    ),
+    url(
+        r'^geosafe/metasearch/show_metadata',
+        metasearch.show_metadata,
+        name='metasearch_show_metadata'
+    ),
+
+    url(
+        r'^geosafe/metasearch/wfs_proxy',
+        metasearch.wfs_proxy,
+        name='metasearch_wfs_proxy'
+    ),
 )

@@ -110,4 +110,4 @@ class MetaSearchForm(forms.Form):
     password = forms.CharField(
         help_text='Password to connect to CSW Endpoint',
         required=False,
-        widget=forms.PasswordInput)
+        widget=forms.PasswordInput(render_value=True))
