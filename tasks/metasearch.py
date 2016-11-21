@@ -2,6 +2,7 @@
 
 from __future__ import absolute_import
 
+import re
 import shutil
 import os
 import tempfile
@@ -20,6 +21,23 @@ from geosafe.tasks.analysis import download_file
 
 __author__ = 'Rizky Maulana Nugraha <lana.pcfre@gmail.com>'
 __date__ = '7/29/16'
+
+
+def cleanup_metadata(metadata_string):
+    """Cleanup inasafe metadata in Supplemental Information."""
+    pattern = (r'<gmd:supplementalInformation>'
+               r'(?P<inasafe_keywords>'
+               r'\s*<gco:CharacterString>[\w\W]*</gco:CharacterString>\s*)'
+               r'</gmd:supplementalInformation>')
+    prog = re.search(pattern, metadata_string)
+    inasafe_keywords = prog.group('inasafe_keywords')
+    new_inasafe_keywords = inasafe_keywords\
+        .replace('&gt;', '>').replace('&lt;', '<').replace('&quot;', '"')\
+        .replace('&apos;', "'").replace('&amp;', '&')
+    new_inasafe_keywords = new_inasafe_keywords.strip()
+    new_inasafe_keywords = new_inasafe_keywords[
+        len('<gco:CharacterString>'):-len('</gco:CharacterString>')]
+    return metadata_string.replace(inasafe_keywords, new_inasafe_keywords)
 
 
 @shared_task(
@@ -55,11 +73,15 @@ def add_wcs_layer(
     )
     tmpfile = download_file(parsed_url.geturl(), user=user, password=password)
     shutil.move(tmpfile, tmpfile + '.tif')
+    metadata_file = '%s.xml' % tmpfile
     tmpfile += '.tif'
 
     # get metadata file
     if metadata_string:
-        metadata_file = '%s.xml' % tmpfile
+        if not isinstance(metadata_string, unicode):
+            metadata_string = unicode(metadata_string, 'utf-8')
+
+        metadata_string = cleanup_metadata(metadata_string)
         with io.open(metadata_file, mode='w', encoding='utf-8') as f:
             f.write(metadata_string)
 
@@ -71,9 +93,11 @@ def add_wcs_layer(
         saved_layer.save()
     try:
         os.remove(tmpfile)
+        os.remove(metadata_file)
     except:
         pass
     return saved_layer
+
 
 @shared_task(
     name='geosafe.tasks.metasearch.add_wfs_layer',
@@ -87,16 +111,11 @@ def add_wfs_layer(
         bbox=None,
         user=None,
         password=None):
-    # wfs = WebFeatureService(url=endpoint, version=version)
-    # response = wfs.getfeature(
-    #     typename=typename,
-    #     bbox=bbox,
-    #     outputFormat='shape-zip')
     endpoint_parsed = urlparse.urlparse(endpoint)
     q_dict = {
         'version': version,
         'typename': typename,
-        'outputFormat': 'json',
+        'outputFormat': 'shape-zip',
         'request': 'GetFeature',
         'service': 'WFS',
         'srsName': 'EPSG:4326',
@@ -113,69 +132,90 @@ def add_wfs_layer(
     )
     tmpfile = download_file(parsed_url.geturl(), user=user, password=password)
 
-    args = [
-        'ogr2ogr',
-        '-nlt POLYGON',
-        '-skipfailures',
-        '%s.shp' % tmpfile,
-        tmpfile,
-        'OGRGeoJSON'
-    ]
+    # args = [
+    #     'ogr2ogr',
+    #     '-nlt POLYGON',
+    #     '-skipfailures',
+    #     '%s.shp' % tmpfile,
+    #     tmpfile,
+    #     'OGRGeoJSON'
+    # ]
+    #
+    # retval = subprocess.call(args)
 
-    retval = subprocess.call(args)
-
-    # get metadata file
-    if metadata_string:
-        metadata_file = '%s.xml' % tmpfile
-        with io.open(metadata_file, mode='w', encoding='utf-8') as f:
-            f.write(metadata_string)
-
-    saved_layer = None
-    if retval == 0:
-        saved_layer = file_upload(
-            '%s.shp' % tmpfile,
-            overwrite=True)
-        saved_layer.set_default_permissions()
-        saved_layer.title = title or typename
-        saved_layer.save()
-
-    # cleanup
-    dir_name = os.path.dirname(tmpfile)
-    for root, dirs, files in os.walk(dir_name):
-        for f in files:
-            if tmpfile in f:
-                try:
-                    os.remove(os.path.join(root, f))
-                except:
-                    pass
-
-    # dir_name = os.path.dirname(tmpfile)
+    # # get metadata file
+    # if metadata_string:
+    #     if not isinstance(metadata_string, unicode):
+    #         metadata_string = unicode(metadata_string, 'utf-8')
+    #     metadata_file = '%s.xml' % tmpfile
+    #     with io.open(metadata_file, mode='w', encoding='utf-8') as f:
+    #         f.write(metadata_string)
+    #
     # saved_layer = None
-    #
-    # with ZipFile(tmpfile) as zf:
-    #     zf.extractall(path=dir_name)
-    #     for name in zf.namelist():
-    #         basename, ext = os.path.splitext(name)
-    #         if '.shp' in ext:
-    #             # process shapefile layer
-    #             saved_layer = file_upload(
-    #                 os.path.join(dir_name, name),
-    #                 overwrite=True)
-    #             saved_layer.set_default_permissions()
-    #             saved_layer.title = title or typename
-    #             saved_layer.save()
-    #
-    #     # cleanup
-    #     for name in zf.namelist():
-    #         filepath = os.path.join(dir_name, name)
-    #         try:
-    #             os.remove(filepath)
-    #         except:
-    #             pass
+    # if retval == 0:
+    #     saved_layer = file_upload(
+    #         '%s.shp' % tmpfile,
+    #         overwrite=True)
+    #     saved_layer.set_default_permissions()
+    #     saved_layer.title = title or typename
+    #     saved_layer.save()
     #
     # # cleanup
-    # try:
-    #     os.remove(tmpfile)
-    # except:
-    #     pass
+    # dir_name = os.path.dirname(tmpfile)
+    # for root, dirs, files in os.walk(dir_name):
+    #     for f in files:
+    #         if tmpfile in f:
+    #             try:
+    #                 os.remove(os.path.join(root, f))
+    #             except:
+    #                 pass
+
+    dir_name = os.path.dirname(tmpfile)
+    saved_layer = None
+    metadata_file = None
+
+    with ZipFile(tmpfile) as zf:
+        zf.extractall(path=dir_name)
+        for name in zf.namelist():
+            basename, ext = os.path.splitext(name)
+            if '.shp' in ext:
+                # get metadata file
+                if metadata_string:
+                    if not isinstance(metadata_string, unicode):
+                        metadata_string = unicode(metadata_string, 'utf-8')
+                    metadata_file = '%s.xml' % basename
+                    metadata_file = os.path.join(dir_name, metadata_file)
+                    metadata_string = cleanup_metadata(metadata_string)
+                    with io.open(metadata_file, mode='w',
+                                 encoding='utf-8') as f:
+                        f.write(metadata_string)
+
+                # process shapefile layer
+                saved_layer = file_upload(
+                    os.path.join(dir_name, name),
+                    overwrite=True)
+                saved_layer.set_default_permissions()
+                saved_layer.title = title or typename
+                saved_layer.save()
+                break
+
+        # cleanup
+        for name in zf.namelist():
+            filepath = os.path.join(dir_name, name)
+            try:
+                os.remove(filepath)
+            except:
+                pass
+
+        if metadata_file:
+            try:
+                os.remove(metadata_file)
+            except:
+                pass
+
+    # cleanup
+    try:
+        os.remove(tmpfile)
+    except:
+        pass
     return saved_layer
