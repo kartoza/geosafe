@@ -226,6 +226,10 @@
                 success: function (data) {
                     if(data){
                         console.log(data);
+                        if(data.success){
+                            $("#add-layer").modal('hide');
+                            alert('Layer will be fetched in the background.');
+                        }
                     }
                 },
                 error: function(){
