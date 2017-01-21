@@ -36,7 +36,24 @@ logger = logging.getLogger("geonode.geosafe.analysis")
 
 
 def retrieve_layers(purpose, category=None, bbox=None):
-    """List all required layers"""
+    """List all required layers.
+
+    :param purpose: InaSAFE layer purpose that want to be filtered.
+        Can be 'hazard', 'exposure', or 'impact'
+    :type purpose: str
+
+    :param category: InaSAFE layer category that want to be filtered.
+        Vary, depend on purpose. Example: 'flood', 'tsunami'
+    :type category: str
+
+    :param bbox: Layer bbox to filter
+    :type bbox: (float, float, float, float)
+
+    :returns: filtered layer and a status for filtered.
+        Status will return True, if it is filtered.
+    :rtype: list[Layer], bool
+
+    """
 
     if not category:
         category = None
@@ -72,10 +89,20 @@ def retrieve_layers(purpose, category=None, bbox=None):
             Q(category=category),
             intersect
         )
+        layer_count = Metadata.objects.filter(
+            layer_purpose=purpose,
+            category=category).count()
+        if len(metadatas) == layer_count:
+            # it means unfiltered by bbox
+            is_filtered = False
+        else:
+            # it means filtered by bbox
+            is_filtered = True
     else:
         metadatas = Metadata.objects.filter(
             layer_purpose=purpose, category=category)
-    return [m.layer for m in metadatas]
+        is_filtered = False
+    return [m.layer for m in metadatas], is_filtered
 
 
 class AnalysisCreateView(CreateView):
@@ -123,23 +150,32 @@ class AnalysisCreateView(CreateView):
         sections = []
         for p in purposes:
             categories = []
+            is_section_filtered = False
             for idx, c in enumerate(p.get('categories')):
-                layers = retrieve_layers(p.get('name'), c, bbox=bbox)
+                layers, is_filtered = retrieve_layers(p.get('name'), c, bbox=bbox)
+                if is_filtered:
+                    is_section_filtered = True
                 category = {
                     'name': c,
                     'layers': layers,
+                    'filter_status': (
+                        'filtered' if is_filtered else 'unfiltered'),
                     'list_title': p.get('list_titles')[idx]
                 }
                 categories.append(category)
             section = {
                 'name': p.get('name'),
+                'filter_status': (
+                    'filtered' if is_section_filtered else 'unfiltered'),
                 'categories': categories
             }
             sections.append(section)
 
-        impact_layers = retrieve_layers('impact', bbox=bbox)
+        impact_layers, is_filtered = retrieve_layers('impact', bbox=bbox)
         sections.append({
             'name': 'impact',
+            'filter_status': (
+                'filtered' if is_filtered else 'unfiltered'),
             'categories': [
                 {
                     'name': 'impact',
@@ -361,7 +397,7 @@ def layer_list(request, layer_purpose, layer_category=None, bbox=None):
         return HttpResponseBadRequest()
 
     try:
-        layers_object = retrieve_layers(layer_purpose, layer_category, bbox)
+        layers_object, _ = retrieve_layers(layer_purpose, layer_category, bbox)
         layers = []
         for l in layers_object:
             layer_obj = dict()
@@ -385,8 +421,8 @@ def layer_panel(request, bbox=None):
         sections = AnalysisCreateView.options_panel_dict(bbox=bbox)
         form = AnalysisCreationForm(
             user=request.user,
-            exposure_layer=retrieve_layers('exposure', bbox=bbox),
-            hazard_layer=retrieve_layers('hazard', bbox=bbox),
+            exposure_layer=retrieve_layers('exposure', bbox=bbox)[0],
+            hazard_layer=retrieve_layers('hazard', bbox=bbox)[0],
             impact_functions=Analysis.impact_function_list())
         context = {
             'sections': sections,
