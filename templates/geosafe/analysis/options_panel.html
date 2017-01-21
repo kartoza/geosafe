@@ -5,7 +5,12 @@
 {% for s in sections %}
     {% if not s.name == 'impact' %}
     <div class="{{ s.name }} section">
-        <h4 class="section-title">{{ s.name|capfirst }}</h4>
+        <div class="option">
+            <h4 class="section-title">{{ s.name|capfirst }}</h4>
+            <a class="menu-icon" href="#">
+                <img src="{% static "geosafe/img/"|add:s.name|add:"-menu.svg" %}" alt="{{ s.name }}-icon" class="svg"/>
+            </a>
+        </div>
         <div class="section-panel">
             {% for c in s.categories %}
             <div class="option">

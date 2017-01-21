@@ -23,7 +23,7 @@
             cursor: pointer;
         }
 
-        .section.set>h4 {
+        .section.set h4 {
             color: #50cf5c;
         }
 
@@ -103,7 +103,7 @@
 
         .options-panel .section-title {
             line-height: 12px;
-            margin: 24px 0;
+            margin: 12px 0;
             font-weight: normal;
             font-size: 12px;
         }
@@ -419,14 +419,6 @@
                     }
 
                     last_click = this;
-
-{#                    if layer is set, set green color to section#}
-                    if((".set", $section_panel)){
-                        $section_panel.addClass("set");
-                    }
-                    else{
-                        $section_panel.removeClass("set");
-                    }
                 });
             })();
             var last_click;
@@ -649,11 +641,14 @@
             $section.find(">a").addClass("set");
 
             var $header = $(".exposure.section");
+            var $menu_icon = $(".menu-icon", $header);
             if($exposure_sections.find(".set").length == 0){
                 $header.removeClass("set");
+                $menu_icon.removeClass("set");
             }
             else{
                 $header.addClass("set");
+                $menu_icon.addClass("set");
             }
 
             if (is_update_map == false) {
@@ -705,11 +700,14 @@
             $section.find(">a").addClass("set");
 
             var $header = $(".hazard.section");
+            var $menu_icon = $(".menu-icon", $header);
             if($hazard_sections.find(".set").length == 0){
                 $header.removeClass("set");
+                $menu_icon.removeClass("set");
             }
             else{
                 $header.addClass("set");
+                $menu_icon.addClass("set");
             }
 
             if (is_update_map == false) {
