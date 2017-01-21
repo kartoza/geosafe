@@ -141,6 +141,7 @@
                             {% if analysis.report_table %}
                                 <a href="{% url 'geosafe:download-report' analysis_id=analysis.id data_type='table' %}">Table Report</a>
                             {% endif %}
+                            <a href="{% url 'geosafe:analysis-create' pk=analysis.id %}">Analysis Page</a>
                         </td>
                         {% if user.username %}
                         <td>
