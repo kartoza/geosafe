@@ -31,7 +31,7 @@
                         <a href="javascript:show_in_iframe('Impact Report', '{% url "geosafe:download-report" analysis_id=analysis.id data_type="map" %}')" role="button" class="btn btn-default btn-xs col-xs-3">Show map report</a>
                         <a href="javascript:show_in_iframe('Impact Report', '{% url "geosafe:download-report" analysis_id=analysis.id data_type="table" %}')" role="button" class="btn btn-default btn-xs col-xs-3">Show table report</a>
                         <a href="{% url "geosafe:download-report" analysis_id=analysis.id data_type="reports" %}" role="button" class="btn btn-default btn-xs col-xs-3">Download report</a>
-                        <div class="onoffswitch save-analysis col-xs-2">
+                        <div class="onoffswitch save-analysis col-xs-3">
                             <input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox"
                                    id="save_analysis_{{ analysis.id }}"
                                    {% if analysis.keep %}checked{% endif %}
@@ -42,7 +42,7 @@
                                     PROCESSING
                                 </span>
                                 <span class="onoffswitch-inner"></span>
-                                <span class="onoffswitch-switch"></span>
+{#                                <span class="onoffswitch-switch"></span>#}
                             </label>
                         </div>
                     </div>

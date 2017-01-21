@@ -81,9 +81,17 @@
     padding: 0;
 }
 .save-analysis .onoffswitch-inner:after{
-    content: "NOT";
+    content: "DON'T SAVE";
     padding: 0;
     text-align: center;
+}
+
+.save-analysis.onoffswitch{
+    padding: 5px 0;
+}
+
+.save-analysis .onoffswitch-switch{
+    right: 95px;
 }
 
 /* impact statistics */

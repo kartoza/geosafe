@@ -1,5 +1,6 @@
 {% load bootstrap_tags %}
 {% load staticfiles %}
+<link href="{% static "geosafe/css/analysis_confirmation.css" %}" rel="stylesheet"/>
 <div class="modal fade" id="analysis-confirmation-modal" tabindex="-1" role="dialog" aria-labelledby="Analysis Confirmation">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
@@ -36,8 +37,14 @@
                                 <input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox" id="confirm_save_analysis" checked>
                                 <label class="onoffswitch-label" for="confirm_save_analysis">
                                     <span class="onoffswitch-inner"></span>
-                                    <span class="onoffswitch-switch"></span>
+{#                                    <span class="onoffswitch-switch"></span>#}
                                 </label>
+                                <span class="checked-message">
+                                    The output layer will be permanently saved in GeoNode.
+                                </span>
+                                <span class="unchecked-message">
+                                    The output layer will be deleted at the end of the day.
+                                </span>
                             </div>
                         {% else %}
                             <label>You are not logged in, so you won't be able to save analysis.</label>

@@ -52,6 +52,10 @@
         #user-filter-group{
             margin-right: 10px;
         }
+
+        .download-link{
+            white-space: nowrap;
+        }
     </style>
     <h1>List of Analysis</h1>
     <div>
@@ -136,12 +140,18 @@
                         </td>
                         <td>
                             {% if analysis.report_map %}
-                                <a href="{% url 'geosafe:download-report' analysis_id=analysis.id data_type='map' %}">Map Report</a>
+                                <div>
+                                    <a class="download-link" href="{% url 'geosafe:download-report' analysis_id=analysis.id data_type='map' %}">Map Report</a>
+                                </div>
                             {% endif %}
                             {% if analysis.report_table %}
-                                <a href="{% url 'geosafe:download-report' analysis_id=analysis.id data_type='table' %}">Table Report</a>
+                                <div>
+                                    <a class="download-link" href="{% url 'geosafe:download-report' analysis_id=analysis.id data_type='table' %}">Table Report</a>
+                                </div>
                             {% endif %}
-                            <a href="{% url 'geosafe:analysis-create' pk=analysis.id %}">Analysis Page</a>
+                            <div>
+                                <a class="download-link" href="{% url 'geosafe:analysis-create' pk=analysis.id %}">Analysis Page</a>
+                            </div>
                         </td>
                         {% if user.username %}
                         <td>

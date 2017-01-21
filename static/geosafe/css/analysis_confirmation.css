@@ -1,0 +1,35 @@
+/*Specific for analysis confirmation dialog*/
+
+#analysis-confirmation-modal .onoffswitch-inner:after{
+    content: "DON'T SAVE";
+    padding-right: 0;
+    text-align: center;
+}
+
+#analysis-confirmation-modal .onoffswitch-inner:before{
+    content: "SAVE";
+    padding-left: 0;
+    text-align: center;
+}
+
+#analysis-confirmation-modal .onoffswitch{
+    width: auto;
+}
+
+#analysis-confirmation-modal .onoffswitch .onoffswitch-label{
+    width: 130px;
+}
+
+#analysis-confirmation-modal .onoffswitch-switch{
+    right: 95px;
+}
+
+#analysis-confirmation-modal .onoffswitch-checkbox ~ .checked-message,
+#analysis-confirmation-modal .onoffswitch-checkbox:checked ~ .unchecked-message{
+    display: none;
+}
+
+#analysis-confirmation-modal .onoffswitch-checkbox ~ .unchecked-message,
+#analysis-confirmation-modal .onoffswitch-checkbox:checked ~ .checked-message{
+    display: block;
+}

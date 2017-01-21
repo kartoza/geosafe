@@ -30,6 +30,7 @@ label.onoffswitch-label {
     padding-left: 10px;
     background-color: #50cf5c; color: #FFFFFF;
 }
+
 .onoffswitch-inner:after {
     content: "OFF";
     padding-right: 10px;
@@ -50,3 +51,4 @@ label.onoffswitch-label {
 .onoffswitch-checkbox:checked + .onoffswitch-label .onoffswitch-switch {
     right: 0px;
 }
+
