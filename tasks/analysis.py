@@ -158,7 +158,10 @@ def process_impact_result(analysis_id):
                     os.path.join(dir_name, name),
                     overwrite=True)
                 saved_layer.set_default_permissions()
-                layer_name = analysis.get_default_impact_title()
+                if analysis.user_title:
+                    layer_name = analysis.user_title
+                else:
+                    layer_name = analysis.get_default_impact_title()
                 saved_layer.title = layer_name
                 saved_layer.save()
                 current_impact = None

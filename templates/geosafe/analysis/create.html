@@ -909,6 +909,9 @@
             else {
                 $("#id_keep").prop('checked', false);
             }
+            var $user_title = $("#confirm_user_title");
+            $("#id_user_title").val($user_title.val());
+
             var $analysis_form = $(".report.section form");
             $.post($analysis_form.attr('action'), $analysis_form.serialize(), function (data) {
                 if (data && data.success) {

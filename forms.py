@@ -20,6 +20,7 @@ class AnalysisCreationForm(models.ModelForm):
     class Meta:
         model = Analysis
         fields = (
+            'user_title',
             'exposure_layer',
             'hazard_layer',
             'aggregation_layer',
@@ -27,6 +28,13 @@ class AnalysisCreationForm(models.ModelForm):
             'extent_option',
             'keep',
         )
+
+    user_title = forms.CharField(
+        label='Analysis Title',
+        required=False,
+        widget=forms.TextInput(
+            attrs={'placeholder': 'Default title generated'})
+    )
 
     exposure_layer = forms.ModelChoiceField(
         label='Exposure Layer',

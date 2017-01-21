@@ -75,6 +75,13 @@ class Analysis(models.Model):
     class Meta:
         verbose_name_plural = 'Analyses'
 
+    user_title = models.CharField(
+        max_length=255,
+        verbose_name='User defined title for analysis',
+        help_text='Title to assign after analysis is generated.',
+        blank=True,
+        null=True,
+    )
     exposure_layer = models.ForeignKey(
         Layer,
         verbose_name='Exposure Layer',
