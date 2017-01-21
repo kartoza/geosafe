@@ -4,7 +4,7 @@
     -webkit-user-select:none; -moz-user-select:none; -ms-user-select: none;
 }
 
-.form-group .onoffswitch{
+.form-group .onoffswitch, td .onoffswitch{
     width: 90px;
 }
 
