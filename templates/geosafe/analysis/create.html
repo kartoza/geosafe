@@ -1035,6 +1035,8 @@
                 {# check if impact process is done #}
                 {% if analysis.get_task_state == 'SUCCESS' %}
                     update_impact_layer({{ analysis.impact_layer_id }});
+{#                    automatically popup infographics#}
+                    show_analysis_summary()
                 {% else %}
                     {# impact not yet processed #}
                     $("#analysis-result-modal").modal({
