@@ -571,6 +571,7 @@ def analysis_summary(request, impact_id):
             summary = RoadSummary(analysis.impact_layer)
         elif 'landcover' in summary.exposure_type():
             report_type = 'landcover'
+
         context = {
             'analysis': analysis,
             'report_type': report_type,
@@ -578,6 +579,22 @@ def analysis_summary(request, impact_id):
                 report_type, ),
             'summary': summary
         }
+
+        # provides download links
+        analysis_layer = analysis.impact_layer
+        has_download_permissions = request.user.has_perm(
+            'download_resourcebase',
+            analysis_layer.get_self_resource())
+        if has_download_permissions:
+            if analysis_layer.storeType == 'dataStore':
+                download_format = settings.DOWNLOAD_FORMATS_VECTOR
+            else:
+                download_format = settings.DOWNLOAD_FORMATS_RASTER
+
+            links = analysis_layer.link_set.download().filter(
+                name__in=download_format)
+            context['links'] = links
+
         return render(request, "geosafe/analysis/modal/impact_card.html",
                       context)
     except Exception as e:

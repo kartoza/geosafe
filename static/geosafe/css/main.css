@@ -1,7 +1,13 @@
 .onoffswitch {
-    position: relative; width: 90px;
+    position: relative;
+    padding: 0;
     -webkit-user-select:none; -moz-user-select:none; -ms-user-select: none;
 }
+
+.form-group .onoffswitch{
+    width: 90px;
+}
+
 .onoffswitch-checkbox {
     display: none;
 }
