@@ -158,6 +158,7 @@ class AnalysisCreateView(CreateView):
                 category = {
                     'name': c,
                     'layers': layers,
+                    'total_layers': len(layers),
                     'filter_status': (
                         'filtered' if is_filtered else 'unfiltered'),
                     'list_title': p.get('list_titles')[idx]
@@ -165,6 +166,8 @@ class AnalysisCreateView(CreateView):
                 categories.append(category)
             section = {
                 'name': p.get('name'),
+                'total_layers': sum(
+                    [len(c['layers']) for c in categories]),
                 'filter_status': (
                     'filtered' if is_section_filtered else 'unfiltered'),
                 'categories': categories
@@ -172,14 +175,17 @@ class AnalysisCreateView(CreateView):
             sections.append(section)
 
         impact_layers, is_filtered = retrieve_layers('impact', bbox=bbox)
+        total_impact_layers = len(impact_layers)
         sections.append({
             'name': 'impact',
+            'total_layers': total_impact_layers,
             'filter_status': (
                 'filtered' if is_filtered else 'unfiltered'),
             'categories': [
                 {
                     'name': 'impact',
-                    'layers': impact_layers
+                    'layers': impact_layers,
+                    'total_layers': total_impact_layers,
                 }
             ]
         })

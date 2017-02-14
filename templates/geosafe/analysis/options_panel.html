@@ -8,6 +8,9 @@
         <div class="option">
             <h4 class="section-title">{{ s.name|capfirst }}</h4>
             <a class="menu-icon" href="#">
+                {% if s.total_layers > 0 %}
+                <span class="badge">{{ s.total_layers }}</span>
+                {% endif %}
                 <img src="{% static "geosafe/img/"|add:s.name|add:"-menu.svg" %}" alt="{{ s.name }}-icon" class="svg"/>
             </a>
         </div>
@@ -21,6 +24,9 @@
                 <a href="#"
                    id="{{ c.name }}" class="{% if c.layers|length > 1 %}has-children{% endif %} {% if c.layers|length == 1 %}one{% endif %}"
                    title="{{ c.name|capfirst }}">
+                    {% if c.total_layers > 0 %}
+                    <span class="badge">{{ c.total_layers }}</span>
+                    {% endif %}
                     <img src="{% static "geosafe/img/"|add:c.name|add:".svg" %}" alt="{{ c.name }}" class="svg"/>
                 </a>
                 <div class="list floating-box" id="{{ c.name }}-list">
@@ -74,6 +80,9 @@
             <a href="#"
                id="{{ c.name }}" class="{% if c.layers|length > 1 %}has-children{% endif %} {% if c.layers|length == 1 %}one{% endif %}"
                title="{{ c.name|capfirst }}">
+                {% if c.total_layers > 0 %}
+                <span class="badge">{{ c.total_layers }}</span>
+                {% endif %}
                 <img src="{% static "geosafe/img/"|add:c.name|add:".svg" %}" alt="{{ c.name }}" class="svg"/>
             </a>
             <div class="list floating-box" id="{{ c.name }}-list">
