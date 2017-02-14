@@ -7,7 +7,16 @@
     <div class="{{ s.name }} section">
         <div class="option">
             <h4 class="section-title">{{ s.name|capfirst }}</h4>
-            <a href="#" class="menu-icon {% if s.total_layers > 0 %}has-children{% endif %}">
+            <a id="{{ s.name }}-section-link" href="#" class="menu-icon {% if s.total_layers > 0 %}has-children{% endif %}"
+                {% if s.name == 'exposure' %}
+                data-toggle="popover" data-trigger="manual" title="Select Exposure"
+                data-content="To get started, choose an exposure dataset that you want to use."
+                >
+                {% elif s.name == 'hazard' %}
+                data-toggle="popover" data-trigger="manual" title="Select Hazard"
+                data-content="Now select hazard layer."
+                >
+                {% endif %}
                 {% if s.total_layers > 0 %}
                 <span class="badge">{{ s.total_layers }}</span>
                 {% endif %}
@@ -70,7 +79,12 @@
             <div style="display: none;">
                 {{ form|as_bootstrap }}
             </div>
-            <button type="submit" class="btn btn-primary" disabled>Run</button>
+            <button id="run-analysis-submit-button" type="submit" class="btn btn-primary" disabled
+                data-toggle="popover" data-trigger="manual" title="Run Analysis"
+                data-content="If hazard and exposure were selected, you can run analysis."
+                >
+                Run
+            </button>
         </form>
     </div>
     <div class="report option">
