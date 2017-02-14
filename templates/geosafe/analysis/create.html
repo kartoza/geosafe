@@ -1037,6 +1037,18 @@
                 }]
             }).addTo(map);
 
+            {# add control to zoom to global map #}
+            L.easyButton({
+                states: [{
+                    stateName: 'zoom-all',
+                    icon: 'fa-globe',
+                    title: 'Zoom to global view',
+                    onClick: function(control) {
+                        map.fitWorld();
+                    }
+                }]
+            }).addTo(map);
+
             var w_width = $(window).width();
             var map_width = w_width - 70;
 
