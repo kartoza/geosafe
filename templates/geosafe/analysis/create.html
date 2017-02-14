@@ -126,6 +126,7 @@
             fill: #fff;
         }
 
+        /* badge style */
         .option .badge{
             position: relative;
             top: -20px;
@@ -137,10 +138,11 @@
             background-color: #50cf5c;
         }
 
-        .option .one:not(.set) .badge{
+        .option .has-children:not(.set) .badge{
             background-color: #3db2dd;
         }
 
+        /* link border style */
         a.set {
             border: 2px solid #50cf5c;
         }
@@ -153,11 +155,12 @@
             color: #50cf5c;
         }
 
-        a:not(.set).one {
+        a:not(.set).has-children {
             border: 2px solid #3db2dd;
         }
 
-        a:not(.set).one .svg path {
+        /* icon style */
+        a:not(.set).has-children .svg path {
             fill: #3db2dd;
         }
 
@@ -177,6 +180,7 @@
             fill: #181818;
         }
 
+        /* triangle for has-children indicator */
         .options-panel a.has-children:after {
             content: "";
             position: absolute;
@@ -186,21 +190,20 @@
             height: 0;
             border-style: solid;
             border-width: 6.5px 0 6.5px 7px;
-            border-color: transparent transparent transparent #757575;
+            border-color: transparent transparent transparent #3db2dd;
+        }
+
+        .options-panel a.has-children:after{
+            top: 14px;
+            right: -9px;
         }
 
         .options-panel a.has-children.set:after, .options-panel a.has-children.set:hover:after {
-            top: 14px;
-            right: -9px;
             border-color: transparent transparent transparent #50cf5c;
         }
 
         .options-panel a.one:after, .options-panel a.one:hover:after {
             border: 0;
-        }
-
-        .options-panel a.has-children:hover:after, .options-panel a.has-children.selected:after {
-            border-color: transparent transparent transparent #515151;
         }
 
         .options-panel .list {
