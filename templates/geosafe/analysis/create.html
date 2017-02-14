@@ -453,7 +453,7 @@
                 }
                 last_click = this;
             });
-            var $analysis_form = $(".report.section form");
+            var $analysis_form = $(".analysis.section form");
             $analysis_form.on('submit', function (e) {
                 {# prevent form submit by default #}
                 $("#confirm_hazard_title").val(hazard_layer_cbo.find('option:selected').text());
@@ -557,7 +557,7 @@
                 $if_section_list.find("a:contains(" + function_id + ")")
                     .removeClass("selected");
 
-                $(".report.section form button[type=submit]").prop("disabled", true);
+                $(".analysis.section form button[type=submit]").prop("disabled", true);
                 return
             }
 
@@ -573,7 +573,7 @@
             console.log('Impact Function : ' + impact_function_cbo.val());
 
             // validate button
-            $(".report.section form button[type=submit]").prop("disabled", false);
+            $(".analysis.section form button[type=submit]").prop("disabled", false);
         }
 
         function zoom_to_box(map, bbox) {
@@ -912,7 +912,7 @@
             var $user_title = $("#confirm_user_title");
             $("#id_user_title").val($user_title.val());
 
-            var $analysis_form = $(".report.section form");
+            var $analysis_form = $(".analysis.section form");
             $.post($analysis_form.attr('action'), $analysis_form.serialize(), function (data) {
                 if (data && data.success) {
                     window.location.href = data.redirect;

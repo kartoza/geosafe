@@ -43,7 +43,8 @@
     </div>
     {% else %}
     {# for impact #}
-    <div class="report section">
+    <div class="analysis section">
+        <h4 class="section-title">Analysis</h4>
         <div id="function-option" class="option">
             <a href="#" id="impact-function" title="Impact Function">
                 <img src="{% static "geosafe/img/impact_function.svg" %}" alt="Impact Function" class="svg"/>
@@ -65,6 +66,9 @@
             </div>
             <button type="submit" class="btn btn-primary" disabled>Run</button>
         </form>
+    </div>
+    <div class="report option">
+        <h4 class="section-title">Reports</h4>
         {% for c in s.categories %}
         <div id="impact-option" class="option">
             <a href="#"
