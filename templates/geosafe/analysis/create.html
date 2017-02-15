@@ -365,7 +365,7 @@
         {#    <div class="search section"> <a href="#" id="search-call"><i class="fa fa-search"></i></a> </div>#}
         <div class="brand section">
             <a href="{% url "home" %}"
-               title="Go To Geonode Homepage"
+               title="To Homepage"
                data-toggle="tooltip"
                data-placement="right">
                 <img src="{% static 'geosafe/img/logo-geonode.png' %}"
@@ -983,46 +983,13 @@
             $iframe_modal.modal();
         }
 
-        function init_popover(){
-            var $exposure_popover = $("#exposure-section-link");
-            var $hazard_popover = $("#hazard-section-link");
-            var $run_analysis_popover = $("#run-analysis-submit-button");
-
-            {# hide exposure popover when user click exposure #}
-            $exposure_popover.on('click', function(){
-                $exposure_popover.popover('hide');
-            });
-
-            {# hide hazard popover when user click hazard #}
-            $hazard_popover.on('click', function(){
-                $hazard_popover.popover('hide');
-            });
-
-            {# hide run button popover when user click run #}
-            $run_analysis_popover.on('click', function(){
-                $run_analysis_popover.popover('hide');
-            });
-
-        }
-
         function check_popover(){
             var $exposure_popover = $("#exposure-section-link");
             var $hazard_popover = $("#hazard-section-link");
             var $run_analysis_popover = $("#run-analysis-submit-button");
 
-            {# hide exposure popover when user click exposure #}
-            $exposure_popover.on('click', function(){
-                $exposure_popover.popover('hide');
-            });
-
-            {# hide hazard popover when user click hazard #}
-            $hazard_popover.on('click', function(){
-                $hazard_popover.popover('hide');
-            });
-
-            {# hide run button popover when user click run #}
-            $run_analysis_popover.on('click', function(){
-                $run_analysis_popover.popover('hide');
+            $('body').on('click', function(){
+                $('[data-toggle="popover"]').popover('hide');
             });
 
             {# show exposure popover when document first loaded #}
