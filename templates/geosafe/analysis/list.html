@@ -84,7 +84,7 @@
 {#                    <th>Aggregation</th>#}
 {#                    <th>Extent</th>#}
                     <th>Impact Function Name</th>
-                    <th>Impact Layer</th>
+                    <th>Result</th>
                     <th>View</th>
                     {% if user.username %}
                         <th>Save</th>
@@ -102,7 +102,7 @@
                             {% if analysis.impact_layer %}
                                 {{ analysis.impact_layer.date }}
                             {% else %}
-                                Impact layer not yet created
+                                Result not yet created
                             {% endif %}
                         </td>
 {#                        <td>#}
@@ -175,7 +175,7 @@
                             {% if analysis.impact_layer %}
                                 <a href="{% url 'geosafe:download-report' analysis_id=analysis.id data_type='all' %}">Download</a>
                             {% else %}
-                                Impact layer not yet created
+                                Result not yet created
                             {% endif %}
                         </td>
                     </tr>
