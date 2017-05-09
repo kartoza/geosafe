@@ -992,14 +992,14 @@
                 $('[data-toggle="popover"]').popover('hide');
             });
 
-            {# show exposure popover when document first loaded #}
-            if(!$exposure_popover.hasClass('set')){
-                $exposure_popover.popover('show');
-                return;
-            }
-            {# show hazard popover if exposure is selected #}
+            {# show hazard popover when document first loaded #}
             if(!$hazard_popover.hasClass('set')){
                 $hazard_popover.popover('show');
+                return;
+            }
+            {# show exposure popover if hazard is selected #}
+            if(!$exposure_popover.hasClass('set')){
+                $exposure_popover.popover('show');
                 return;
             }
 

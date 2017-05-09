@@ -8,13 +8,13 @@
         <div class="option">
             <h4 class="section-title">{{ s.name|capfirst }}</h4>
             <a id="{{ s.name }}-section-link" href="#" class="menu-icon {% if s.total_layers > 0 %}has-children{% endif %}"
-                {% if s.name == 'exposure' %}
-                data-toggle="popover" data-trigger="manual" title="Select Exposure"
-                data-content="To get started, choose an exposure dataset that you want to use."
-                >
-                {% elif s.name == 'hazard' %}
+                {% if s.name == 'hazard' %}
                 data-toggle="popover" data-trigger="manual" title="Select Hazard"
-                data-content="Now select hazard layer."
+                data-content="To get started, select hazard layer that you want to use."
+                >
+                {% elif s.name == 'exposure' %}
+                data-toggle="popover" data-trigger="manual" title="Select Exposure"
+                data-content="Now choose an exposure dataset."
                 >
                 {% endif %}
                 {% if s.total_layers > 0 %}

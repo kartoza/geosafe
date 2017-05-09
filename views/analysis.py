@@ -120,6 +120,18 @@ class AnalysisCreateView(CreateView):
         """
         purposes = [
             {
+                'name': 'hazard',
+                'categories': ['flood', 'tsunami', 'earthquake', 'volcano',
+                               'volcanic-ash'],
+                'list_titles': [
+                    'Select a flood layer',
+                    'Select a tsunami layer',
+                    'Select an earthquake layer',
+                    'Select a volcano layer',
+                    'Select a volcanic ash layer',
+                ]
+            },
+            {
                 'name': 'exposure',
                 'categories': [
                     'population',
@@ -132,18 +144,6 @@ class AnalysisCreateView(CreateView):
                     'Select a roads layer',
                     'Select a structure layer',
                     # 'Select a land_cover layer',
-                ]
-            },
-            {
-                'name': 'hazard',
-                'categories': ['flood', 'tsunami', 'earthquake', 'volcano',
-                               'volcanic-ash'],
-                'list_titles': [
-                    'Select a flood layer',
-                    'Select a tsunami layer',
-                    'Select an earthquake layer',
-                    'Select a volcano layer',
-                    'Select a volcanic ash layer',
                 ]
             }
         ]
