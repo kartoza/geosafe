@@ -1,0 +1,190 @@
+{% extends "geonode_base.html" %}
+{% load i18n %}
+{% load staticfiles %}
+{% load base_tags %}
+
+{% block title %} {% trans "Welcome!" %} - GeoSAFE {% endblock %}
+
+{% block body_class %}home{% endblock %}
+
+{% block middle %}
+  {% block hero %}
+  <div class="jumbotron">
+  	<div class="container">
+  		<h1>{% trans "GeoSAFE" %}</h1>
+  		<p></p>
+  		<p>{% blocktrans %}GeoSAFE is a django app that integrates inaSAFE Headless functionality into Geonode.{% endblocktrans %}</p>
+		<p>{% blocktrans %}This app visually analyzes an impact on a map in the event of disaster.{% endblocktrans %}</p>
+		<p>{% blocktrans %}Analysis reports can also be generated and saved for future reference.{% endblocktrans %}</p>
+  		<a class="btn btn-default btn-lg" href="#what-anchor" role="button">{% blocktrans %}What ?{% endblocktrans %}</a>
+  	</div>
+  </div>
+  {% include "_status_message.html" %}
+  {% include "_announcements.html" %}
+  {% include "_messages.html" %}
+  <a class="anchor" id="what-anchor"></a>
+  <section id="what-section" class="safe-section">
+    <div class="container">
+      <div class="row">
+        <h1>What can GeoSAFE do?</h1>
+        <div class="row">
+            <ul>
+                <li>
+                    <b>Perform Analysis</b>
+                    <p>
+                        Analyze a map according to the given layers (exposure and hazard) and generate InaSAFE report
+                    </p>
+                </li>
+                <li>
+                    <b>Analysis List</b>
+                    <p>
+                        Contain saved map analysis for future reference
+                    </p>
+                </li>
+                <li>
+                    <b>Metasearch</b>
+                    <p>
+                        Search based on Catalog Service for the Web (CSW)
+                    </p>
+                </li>
+            </ul>
+        </div>
+        <a class="btn btn-default btn-lg" href="#how-anchor" role="button">{% blocktrans %}How ?{% endblocktrans %}</a>
+      </div>
+    </div>
+  </section>
+
+
+  <a class="anchor" id="how-anchor"></a>
+  <section id="how-section" class="safe-section">
+    <div class="container">
+      <div class="row">
+        <h1>How to run an Analysis?</h1>
+        <div class="row">
+            <ul>
+                <li>
+                    Select an exposure layer (road, structure, population)
+                </li>
+                <li>
+                    Select a hazard layer (flood, tsunami, earthquake, volcano, and volcanic ash)
+                </li>
+                <li>
+                    Select an impact function
+                </li>
+            </ul>
+            <div class="extra-note">
+                That's it. Ready to go...
+            </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {% endblock %}
+
+  {% block mainbody %}
+  <div class="big-search">
+  	<div class="container">
+  		<h1>{% trans "Search for Data." %}</h1>
+  		<div class="search">
+  			<form id="search" action="{% url "search" %}" >
+  				<span class="fa fa-search fa-2x"></span>
+  				{% if HAYSTACK_SEARCH %}
+  				<input id="search_input" type="text" placeholder="Search" class="form-control" name="q">
+  				{% else %}
+  				<input id="search_input" type="text" placeholder="Search" class="form-control" name="title__icontains">
+  				{% endif %}
+  			</form>
+  		</div>
+  		<p><a class="btn btn-default btn-lg" href="/search/">Advanced Search</a></p>
+  	</div>
+  </div>
+
+  {% block datasets %}
+  {% endblock %}
+
+  {% block showcase %}
+  {% endblock %}
+
+  {% endblock %}
+
+{% endblock %}
+
+{% block extra_script %}
+{{ block.super }}
+{% if DEBUG_STATIC %}
+<script src="{{ STATIC_URL }}lib/js/angular.js"></script>
+{% endif %}
+<script type="text/javascript">
+    FEATURED_URL = '{% url 'api_dispatch_list' api_name='api' resource_name='featured' %}'
+    'use strict';
+    (function(){
+      var module = angular.module('featured', []);
+      module.run(function($http, $rootScope){
+        $http.get(FEATURED_URL).success(function(data){
+          $rootScope.featured = data.objects;
+        });
+      });
+    })();
+</script>
+<script>
+	$('[data-toggle="tooltip"]').tooltip();
+</script>
+<style>
+    #what-section {
+        background-color: #eee;
+    }
+    
+    #how-section {
+        background-color: #2c689c;
+        color: #fff;
+    }
+
+    .extra-note {
+        padding-left: 15px;
+        margin-top: 20px;
+        font-size: 18px;
+    }
+
+    #how-section li {
+        padding-top: 15px;
+        padding-bottom: 15px;
+    }
+
+    .safe-section {
+        padding-top: 50px;
+        padding-bottom: 50px;
+    }
+
+    .safe-section .btn-default {
+        min-width: 320px;
+        border: 2px solid #2c689c;
+    }
+
+    .safe-section h1 {
+        font-size: 45px;
+        text-shadow: 2px 2px 2px rgba(0, 0, 0, 0.2);
+    }
+
+    .safe-section ul {
+        font-size: 20px;
+        padding-top: 15px;
+    }
+
+    .safe-section p {
+        padding-top: 10px;
+        padding-bottom: 10px;
+    }
+
+    .big-search {
+        background: #474747 !important;
+    }
+
+    a.anchor {
+        display: block;
+        position: relative;
+        top: -75px;
+        visibility: hidden;
+    }
+</style>
+{% endblock extra_script %}
