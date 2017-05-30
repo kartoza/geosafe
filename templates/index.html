@@ -4,7 +4,6 @@
 {% load base_tags %}
 
 {% block title %} {% trans "Welcome!" %} - GeoSAFE {% endblock %}
-
 {% block body_class %}home{% endblock %}
 
 {% block middle %}
@@ -13,10 +12,21 @@
   	<div class="container">
   		<h1>{% trans "GeoSAFE" %}</h1>
   		<p></p>
+        <div id='mySwipe' style='max-width:320px;max-height:240px;margin:0 auto' class='swipe'>
+            <div class='swipe-wrap'>
+                <div><img src="{% static 'geosafe/img/geosafe-menu.png' %}"/></div>
+                <div><img src="{% static 'geosafe/img/geosafe-impact-visualisation.png' %}"/></div>
+                <div><img src="{% static 'geosafe/img/analysis-result.png' %}"/></div>
+            </div>
+        </div>
+        <p></p>
   		<p>{% blocktrans %}GeoSAFE is a django app that integrates inaSAFE Headless functionality into Geonode.{% endblocktrans %}</p>
 		<p>{% blocktrans %}This app visually analyzes an impact on a map in the event of disaster.{% endblocktrans %}</p>
 		<p>{% blocktrans %}Analysis reports can also be generated and saved for future reference.{% endblocktrans %}</p>
-  		<a class="btn btn-default btn-lg" href="#what-anchor" role="button">{% blocktrans %}What ?{% endblocktrans %}</a>
+        <p style="text-align: center">
+            <a href="#what-anchor" role="button">{% blocktrans %}<i class="fa fa-arrow-circle-o-down fa-3x"></i>{% endblocktrans %}</a>
+        </p>
+
   	</div>
   </div>
   {% include "_status_message.html" %}
@@ -27,7 +37,16 @@
     <div class="container">
       <div class="row">
         <h1>What can GeoSAFE do?</h1>
-        <div class="row">
+          <div id='mySwipeWhat' style='max-width:320px;max-height:240px;margin:0 auto' class='swipe-what'>
+              <div class='swipe-what-wrap'>
+                  <div><img src="{% static 'geosafe/img/geosafe-menu.png' %}"/></div>
+                  <div><img src="{% static 'geosafe/img/analysis-list.png' %}"/></div>
+                  <div><img src="{% static 'geosafe/img/analysis-result.png' %}"/></div>
+                  <div><img src="{% static 'geosafe/img/meta-search.png' %}"/></div>
+              </div>
+          </div>
+
+          <div class="row">
             <ul>
                 <li>
                     <b>Perform Analysis</b>
@@ -49,7 +68,9 @@
                 </li>
             </ul>
         </div>
-        <a class="btn btn-default btn-lg" href="#how-anchor" role="button">{% blocktrans %}How ?{% endblocktrans %}</a>
+          <p style="text-align: center">
+              <a href="#how-anchor" role="button">{% blocktrans %}<i class="fa fa-arrow-circle-o-down fa-3x"></i>{% endblocktrans %}</a>
+          </p>
       </div>
     </div>
   </section>
@@ -60,6 +81,14 @@
     <div class="container">
       <div class="row">
         <h1>How to run an Analysis?</h1>
+          <div id='mySwipeHow' style='max-width:320px;max-height:240px;margin:0 auto' class='swipe-how'>
+              <div class='swipe-how-wrap'>
+                  <div><img src="{% static 'geosafe/img/select-hazard.png' %}"/></div>
+                  <div><img src="{% static 'geosafe/img/select-exposure.png' %}"/></div>
+                  <div><img src="{% static 'geosafe/img/select-impact-layer.png' %}"/></div>
+                  <div><img src="{% static 'geosafe/img/analysis-being-run.png' %}"/></div>
+              </div>
+          </div>
         <div class="row">
             <ul>
                 <li>
@@ -115,6 +144,7 @@
 {% if DEBUG_STATIC %}
 <script src="{{ STATIC_URL }}lib/js/angular.js"></script>
 {% endif %}
+<script type="text/javascript" src="{% static 'geosafe/js/swipe.js' %}"></script>
 <script type="text/javascript">
     FEATURED_URL = '{% url 'api_dispatch_list' api_name='api' resource_name='featured' %}'
     'use strict';
@@ -126,11 +156,45 @@
         });
       });
     })();
+    var scrollTimer = 10000;
+    var elem = document.getElementById('mySwipe');
+    window.mySwipe = Swipe(elem, {
+        auto: scrollTimer,
+        continuous: true,
+    });
+    var elemWhat = document.getElementById('mySwipeWhat');
+    window.mySwipeWhat = Swipe(elemWhat, {
+        auto: scrollTimer,
+        continuous: true,
+    });
+    var elemHow = document.getElementById('mySwipeHow');
+    window.mySwipeHow = Swipe(elemHow, {
+        auto: scrollTimer,
+        continuous: true,
+    });
+
 </script>
 <script>
 	$('[data-toggle="tooltip"]').tooltip();
 </script>
+
+<link rel="stylesheet" href="{% static 'geosafe/css/swipe_style.css' %}"/>
 <style>
+    .swipe, .swipe-what, .swipe-how {
+         overflow: hidden;
+         visibility: hidden;
+         position: relative;
+    }
+    .swipe-wrap, .swipe-what-wrap, .swipe-how-wrap {
+         overflow: hidden;
+         position: relative;
+    }
+    .swipe-wrap > div, .swipe-what-wrap > div, .swipe-how-wrap > div {
+         float:left;
+         width:100%;
+         position: relative;
+    }
+
     #what-section {
         background-color: #eee;
     }
@@ -156,7 +220,7 @@
         padding-bottom: 50px;
     }
 
-    .safe-section .btn-default {
+    .safe-section, .btn-default {
         min-width: 320px;
         border: 2px solid #2c689c;
     }
@@ -185,6 +249,14 @@
         position: relative;
         top: -75px;
         visibility: hidden;
+    }
+
+    .fa-arrow-circle-o-down {
+        color: black;
+    }
+
+    .fa-arrow-circle-o-down:hover {
+        color: red;
     }
 </style>
 {% endblock extra_script %}
