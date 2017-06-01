@@ -442,7 +442,29 @@
                 </div>
             </div>
         </div>
-
+        <div class="modal fade" id="upgrade-browser" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+             aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                        <h4 class="modal-title" id="myModalLabel">{% trans "Upgrade Your Browser" %}</h4>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row edit-modal">
+                            <!--div class="col-sm-3"-->
+                            <div class="col-sm-12">
+                                <p>You seem to use an old browser.<br/>Please consider upgrading to the newer version to
+                                    fully use the website</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">{% trans "Close" %}</button>
+                    </div>
+                </div>
+            </div>
+        </div>
         {#    <div id="form-div" style="display: none;position: absolute; width: 30%; z-index: 100; top: 0; right: 0; background-color: transparent">#}
         {#        <form action="" method="post" enctype="multipart/form-data">#}
         {#            {% csrf_token %}#}
@@ -467,6 +489,7 @@
     <script type="text/javascript" src="{% static 'geosafe/js/easy-button.js' %}"></script>
     <script type="text/javascript" src="{% static 'geosafe/js/analysis.js' %}"></script>
     <script type="text/javascript" src="{% static 'geosafe/js/bootstrap-slider.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'geosafe/js/modernizr-custom.js' %}"></script>
 
     <script type="text/javascript">
         var map;
@@ -1238,6 +1261,11 @@
         }
 
         $(document).ready(function () {
+
+            //check browser compatibility against ECMA Script 5
+            if (Modernizr.json || !Modernizr.es5) {
+                $('#upgrade-browser').modal('toggle');
+            }
 
             {# initialize tooltip #}
             $(function () {
