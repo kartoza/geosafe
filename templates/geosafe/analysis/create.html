@@ -358,26 +358,31 @@
             height: auto;
             position: relative;
             float: right;
-            margin-right: 50px;
-            margin-top: 30px;
+            margin: 30px;
             display: block;
             z-index: 10;
             padding: 0px;
             border: 1px solid #6d6c6c;
             border-radius: 5px;
+            background-color: #FFFFFF;
+        }
+
+        .legend p {
+            text-align: center;
+            font-size: 14px;
+            font-style: oblique;
+            margin: 3px
         }
 
         #legend-title h5 {
             float: center;
             padding: 5px;
-            background-color: #FFFFFF;
         }
 
         #legend-body {
             float: center;
             display: block;
             padding: 5px;
-            background-color: #ffffff;
         }
 
     </style>
@@ -411,19 +416,29 @@
     {% include "geosafe/analysis/modal/impact_card.html" %}
     {% include "geosafe/analysis/modal/iframe_modal.html" %}
     <div id="map" style="width: 100%; height: 100%; position:relative; margin-left: 70px; ">
-        <div class="legend">
+        <div class="legend" onmouseover="set_map_dragging(false);" onmouseout="set_map_dragging(true);">
             <div id="legend-title">
-                <a href="#"><H5 style="text-align: center">Legend</H5></a>
+                <a href="#" style="font-style: oblique;"><p>Legend</p></a>
             </div>
             <div id="legend-body">
-                <H5>Hazard</H5>
-                <p><input type="text" value="5" id="hazard-slider" data-slider-min="1" data-slider-max="10"
-                          data-slider-step="1" onchange="set_transparency();"></p>
-                <p><img id="hazard-legend-img"/></p>
-                <H5>Exposure</H5>
-                <p><input type="text" value="5" id="exposure-slider" data-slider-min="1" data-slider-max="10"
-                          data-slider-step="1" onchange="set_transparency();"></p>
-                <p><img id="exposure-legend-img"/></p>
+                <div id="legend-hazard-body">
+                    <p>Hazard</p>
+                    <p><input type="text" value="5" id="hazard-slider" data-slider-min="1" data-slider-max="10"
+                              data-slider-step="1" onchange="set_transparency();"></p>
+                    <p><img id="hazard-legend-img"/></p>
+                </div>
+                <div id="legend-exposure-body">
+                    <p>Exposure</p>
+                    <p><input type="text" value="5" id="exposure-slider" data-slider-min="1" data-slider-max="10"
+                              data-slider-step="1" onchange="set_transparency();"></p>
+                    <p><img id="exposure-legend-img"/></p>
+                </div>
+                <div id="legend-impact-body">
+                    <p>Impact</p>
+                    <p><input type="text" value="5" id="impact-slider" data-slider-min="1" data-slider-max="10"
+                              data-slider-step="1" onchange="set_transparency();"></p>
+                    <p><img id="impact-legend-img"/></p>
+                </div>
             </div>
         </div>
 
@@ -453,6 +468,24 @@
     <script type="text/javascript" src="{% static 'geosafe/js/bootstrap-slider.min.js' %}"></script>
 
     <script type="text/javascript">
+        var map;
+        var exposure_layer;
+        var hazard_layer;
+        var impact_layer;
+        var layer_stack = []; //let utilise this variable for keeping track of 3 layers: boney-bun
+        var aggregation_layer;
+        var is_legend = false;
+        var is_hazard = false;
+        var is_exposure = false;
+        var is_impact = false;
+
+        var exposure_layer_cbo = $("#id_exposure_layer");
+        var hazard_layer_cbo = $("#id_hazard_layer");
+        var aggregation_layer_cbo = $("#id_aggregation_layer");
+        var impact_function_cbo = $("#id_impact_function_id");
+        var last_impact_id;
+        var slider_exposure_val = 5, slider_hazard_val = 5, slider_impact_val = 5;
+
         function init_layer_panel() {
             jQuery('img.svg').each(function () {
                 var $img = jQuery(this);
@@ -539,26 +572,33 @@
 
         $(document).ready(function () {
             init_layer_panel();
-            $("#hazard-slider").bootstrapSlider();
-            $("#exposure-slider").bootstrapSlider();
+/*            $("#hazard-slider").ondrag = function(){
+                map.dragging.disable();
+            }; */
+            $("#hazard-slider").bootstrapSlider().on('slide', function(){
+                set_transparency();
+            }); /*.on('mousedown', function() {
+                    map.dragging.disable();
+                }).on('mouseup', function() {
+                    map.dragging.disable();
+                });*/
+
+
+            $("#exposure-slider").bootstrapSlider().on('slide', function(){
+                set_transparency();
+            });
+            $("#impact-slider").bootstrapSlider().on('slide', function(){
+                set_transparency();
+            });
         });
-    </script>
-    <script type="text/javascript">
-        var map;
 
-        var exposure_layer;
-        var hazard_layer;
-        var impact_layer;
-        var layer_stack = [];
-        var aggregation_layer;
-
-        var exposure_layer_cbo = $("#id_exposure_layer");
-        var hazard_layer_cbo = $("#id_hazard_layer");
-        var aggregation_layer_cbo = $("#id_aggregation_layer");
-        var impact_function_cbo = $("#id_impact_function_id");
-        var last_impact_id;
-        slider_exposure_val = 5;
-        slider_hazard_val = 5;
+        function set_map_dragging(status) {
+            if (!status) {
+                map.dragging.disable();
+            } else {
+                map.dragging.enable();
+            }
+        }
 
         {# listen to change handler #}
         var retrieve_if_list = function (evt) {
@@ -661,12 +701,17 @@
             map.fitBounds(bounds);
         }
 
+        //add layer only if it doesn't exist in stack_layer.
+        //update it, otherwise.
         function add_layer(map, layer_tiles_url, layer, layer_purpose) {
-            if(layer_purpose == "exposure") {
+            if(layer_purpose == 'exposure') {
                 slider_val = slider_exposure_val;
-            } else if(layer_purpose == "hazard") {
+            } else if(layer_purpose == 'hazard') {
                 slider_val = slider_hazard_val;
-            } else {
+            } else if (layer_purpose == 'impact') {
+                slider_val = slider_impact_val;
+            }
+            else {
                 slider_val = 0.8;
             }
 
@@ -675,7 +720,20 @@
                     'opacity': slider_val / 10
                 });
             if (layer != null) {
-                map.addLayer(layer);
+                //add layer if doesn't exist
+                if ($.inArray(layer_tiles_url, layer_stack) == -1 ) {
+                    layer_stack.push(layer_tiles_url);
+                    map.addLayer(layer);
+                } else { //update layer by removed the old one, replace with the new properties
+                    for(var key in map._layers) {
+                        temp_layer = map._layers[key];
+                        if(temp_layer._url === layer_tiles_url) {
+                            map.removeLayer(temp_layer);
+                            map.addLayer(layer);
+                            break;
+                        }
+                    }
+                }
                 return layer;
             }
         }
@@ -690,16 +748,29 @@
                 layer_bbox_y1 = data['layer_bbox_y1'];
                 layer_name = data['layer_name'];
                 legend_url = '{% url 'qgis-server-legend' layername=layer_name %}' + layer_name;
-                map.fitBounds([[layer_bbox_y1, layer_bbox_x1], [layer_bbox_y0, layer_bbox_x0]]);
+
+                //show legend
+                if (is_legend == false) {
+                    is_legend = true;
+                    $(".legend").toggle(is_legend);
+                    map.fitBounds([[layer_bbox_y1, layer_bbox_x1], [layer_bbox_y0, layer_bbox_x0]]);
+                }
 
                 if (layer_purpose == 'exposure') {
-                    exposure_layer = add_layer(map, layer_tiles_url, exposure_layer, 'exposure');
+                    if(is_exposure == false) {
+                        is_exposure = true;
+                        $("#legend-exposure-body").toggle(is_exposure);
+                    }
 
+                    exposure_layer = add_layer(map, layer_tiles_url, exposure_layer, 'exposure');
                     $("#exposure-legend-img").attr("src", legend_url);
                     exposure_layer.setZIndex(0);
                 } else if (layer_purpose == 'hazard') {
+                     if(is_hazard == false) {
+                        is_hazard = true;
+                        $("#legend-hazard-body").toggle(is_hazard);
+                     }
                     hazard_layer = add_layer(map, layer_tiles_url, hazard_layer, 'hazard');
-                    hazard_url = "http://localhost/qgis-server/legend/" + layer_name;
                     $("#hazard-legend-img").attr("src", legend_url);
                     hazard_layer.setZIndex(1);
 
@@ -708,7 +779,12 @@
                     aggregation_layer.setZIndex(2);
                 }
                 else if (layer_purpose == 'impact') {
-                    impact_layer = add_layer(map, layer_tiles_url, impact_layer, null);
+                    if (is_impact == false) {
+                        is_impact = true;
+                        $("#legend-impact-body").toggle(is_impact);
+                    }
+                    impact_layer = add_layer(map, layer_tiles_url, impact_layer, 'impact');
+                    $("#impact-legend-img").attr("src", legend_url);
                     impact_layer.setZIndex(3);
                 }
             });
@@ -1045,8 +1121,9 @@
         }
 
         function set_transparency() {
-            var exposure_id = $(".exposure.section a.selected").attr('data-id');
-            var hazard_id = $(".hazard.section a.selected").attr('data-id');
+            exposure_id = $(".exposure.section a.selected").attr('data-id');
+            hazard_id = $(".hazard.section a.selected").attr('data-id');
+            impact_id = $(".impact-option a.selected").attr('data-id');
 
             //Using slider from https://github.com/seiyria/bootstrap-slider
             //there are two slider: jquery and seiyria's version
@@ -1063,6 +1140,13 @@
                 slider_hazard_val = new_hazard_opacity;
                 update_map(hazard_id, 'hazard');
                 $('#hazard-slider').bootstrapSlider('setValue', slider_hazard_val);
+            }
+
+            new_impact_opacity = $('#impact-slider').bootstrapSlider('getValue');
+            if(impact_id != undefined && new_impact_opacity != slider_impact_val) {
+                slider_impact_val = new_impact_opacity;
+                update_map(impact_id, 'hazard');
+                $('#hazard-slider').bootstrapSlider('setValue', slider_impact_val);
             }
         }
 
@@ -1193,6 +1277,10 @@
             hazard_layer_cbo.change(update_hazard_layer);
             aggregation_layer_cbo.change(update_aggregation_layer);
 
+            $(".legend").toggle(is_legend);
+            $("#legend-exposure-body").toggle(is_exposure);
+            $("#legend-hazard-body").toggle(is_hazard);
+            $("#legend-impact-body").toggle(is_impact);
             //hide/view legend
             $("#legend-title").click(function () {
                 $("#legend-body").toggle();
