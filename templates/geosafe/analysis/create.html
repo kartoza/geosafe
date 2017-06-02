@@ -572,18 +572,9 @@
 
         $(document).ready(function () {
             init_layer_panel();
-/*            $("#hazard-slider").ondrag = function(){
-                map.dragging.disable();
-            }; */
             $("#hazard-slider").bootstrapSlider().on('slide', function(){
                 set_transparency();
-            }); /*.on('mousedown', function() {
-                    map.dragging.disable();
-                }).on('mouseup', function() {
-                    map.dragging.disable();
-                });*/
-
-
+            });
             $("#exposure-slider").bootstrapSlider().on('slide', function(){
                 set_transparency();
             });
