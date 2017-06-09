@@ -15,10 +15,6 @@
             padding-bottom: 0;
         }
 
-        .section.brand a {
-        {#     background: url('{% static 'geosafe/img/logo-geonode.png' %}') 15px 0 no-repeat;#}
-        }
-
         .section {
             position: relative;
             cursor: pointer;
@@ -738,7 +734,7 @@
                 layer_bbox_y0 = data['layer_bbox_y0'];
                 layer_bbox_y1 = data['layer_bbox_y1'];
                 layer_name = data['layer_name'];
-                legend_url = '{% url 'qgis-server-legend' layername=layer_name %}' + layer_name;
+                legend_url = data['legend_url'];
 
                 //show legend
                 if (is_legend == false) {
