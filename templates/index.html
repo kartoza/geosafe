@@ -11,18 +11,28 @@
   <div class="jumbotron">
   	<div class="container">
   		<h1>{% trans "GeoSAFE" %}</h1>
-  		<p></p>
-        <div id='mySwipe' style='max-width:320px;max-height:240px;margin:0 auto' class='swipe'>
-            <div class='swipe-wrap'>
-                <div><img src="{% static 'geosafe/img/geosafe-menu.png' %}"/></div>
-                <div><img src="{% static 'geosafe/img/geosafe-impact-visualisation.png' %}"/></div>
-                <div><img src="{% static 'geosafe/img/analysis-result.png' %}"/></div>
-            </div>
-        </div>
-        <p></p>
-  		<p>{% blocktrans %}GeoSAFE is a django app that integrates inaSAFE Headless functionality into Geonode.{% endblocktrans %}</p>
-		<p>{% blocktrans %}This app visually analyzes an impact on a map in the event of disaster.{% endblocktrans %}</p>
-		<p>{% blocktrans %}Analysis reports can also be generated and saved for future reference.{% endblocktrans %}</p>
+        <table>
+            <tr>
+                <td>
+                    <div id='mySwipe' style='max-width:640px;max-height: 480px;margin:0 auto' class="swipe">
+                        <div class='swipe-wrap'>
+                            <div><img src="{% static 'geosafe/img/geosafe-menu.png' %}"/></div>
+                            <div><img src="{% static 'geosafe/img/geosafe-impact-visualisation.png' %}"/></div>
+                            <div><img src="{% static 'geosafe/img/analysis-result.png' %}"/></div>
+                        </div>
+                    </div>
+                </td>
+                <td>
+                    <p style="margin: 5px 20px; font-size: 18px;">GeoSAFE is a web platform that provides the ability to run InaSAFE analyses online.<br/>
+                        InaSAFE is free software that produces realistic natural hazard impact scenarios for better planning, preparedness and response activities.<br/>
+                        It provides a simple but rigorous way to combine data from scientists, local governments and communities to provide insights into the likely impacts of future disaster events.<br/>
+                        You can find out more about the InaSAFE project at <a href="http://inasafe.org">http://inasafe.org</a><br/>
+                        This app visually analyzes an impact on a map in the event of disaster.<br/>
+                        Analysis reports can also be generated and saved for future reference.
+                    </p>
+                </td>
+            </tr>
+        </table>
         <p style="text-align: center">
             <a href="#what-anchor" role="button">{% blocktrans %}<i class="fa fa-arrow-circle-o-down fa-3x"></i>{% endblocktrans %}</a>
         </p>
@@ -37,39 +47,48 @@
     <div class="container">
       <div class="row">
         <h1>What can GeoSAFE do?</h1>
-          <div id='mySwipeWhat' style='max-width:320px;max-height:240px;margin:0 auto' class='swipe-what'>
-              <div class='swipe-what-wrap'>
-                  <div><img src="{% static 'geosafe/img/geosafe-menu.png' %}"/></div>
-                  <div><img src="{% static 'geosafe/img/analysis-list.png' %}"/></div>
-                  <div><img src="{% static 'geosafe/img/analysis-result.png' %}"/></div>
-                  <div><img src="{% static 'geosafe/img/meta-search.png' %}"/></div>
-              </div>
-          </div>
 
           <div class="row">
-            <ul>
-                <li>
-                    <b>Perform Analysis</b>
-                    <p>
-                        Analyze a map according to the given layers (exposure and hazard) and generate InaSAFE report
-                    </p>
-                </li>
-                <li>
-                    <b>Analysis List</b>
-                    <p>
-                        Contain saved map analysis for future reference
-                    </p>
-                </li>
-                <li>
-                    <b>Metasearch</b>
-                    <p>
-                        Search based on Catalog Service for the Web (CSW)
-                    </p>
-                </li>
-            </ul>
+              <table>
+                  <tr>
+                      <td>
+                          <div id='mySwipeWhat' style='max-width:640px;max-height: 480px;margin:0 auto' class="swipe-what">
+                              <div class='swipe-what-wrap'>
+                                  <div><img src="{% static 'geosafe/img/geosafe-menu.png' %}"/></div>
+                                  <div><img src="{% static 'geosafe/img/analysis-list.png' %}"/></div>
+                                  <div><img src="{% static 'geosafe/img/analysis-result.png' %}"/></div>
+                                  <div><img src="{% static 'geosafe/img/meta-search.png' %}"/></div>
+                              </div>
+                          </div>
+                      </td>
+                      <td>
+                          <ul>
+                              <li>
+                                  <b>Perform Analysis</b>
+                                  <p>
+                                      Analyze a map according to the given layers (exposure and hazard) and generate
+                                      InaSAFE report
+                                  </p>
+                              </li>
+                              <li>
+                                  <b>Analysis List</b>
+                                  <p>
+                                      Contain saved map analysis for future reference
+                                  </p>
+                              </li>
+                              <li>
+                                  <b>Metasearch</b>
+                                  <p>
+                                      Search based on Catalog Service for the Web (CSW)
+                                  </p>
+                              </li>
+                          </ul>
+                      </td>
+                  </tr>
+              </table>
         </div>
           <p style="text-align: center">
-              <a href="#how-anchor" role="button">{% blocktrans %}<i class="fa fa-arrow-circle-o-down fa-3x"></i>{% endblocktrans %}</a>
+              <a href="#how-anchor" role="button">{% blocktrans %}<i class="fa fa-arrow-circle-o-down fa-5x"></i>{% endblocktrans %}</a>
           </p>
       </div>
     </div>
@@ -81,30 +100,42 @@
     <div class="container">
       <div class="row">
         <h1>How to run an Analysis?</h1>
-          <div id='mySwipeHow' style='max-width:320px;max-height:240px;margin:0 auto' class='swipe-how'>
-              <div class='swipe-how-wrap'>
-                  <div><img src="{% static 'geosafe/img/select-hazard.png' %}"/></div>
-                  <div><img src="{% static 'geosafe/img/select-exposure.png' %}"/></div>
-                  <div><img src="{% static 'geosafe/img/select-impact-layer.png' %}"/></div>
-                  <div><img src="{% static 'geosafe/img/analysis-being-run.png' %}"/></div>
-              </div>
+          <div class="row">
+              <table>
+                  <tr>
+                      <td>
+                          <div id='mySwipeHow' style='max-width:640px;max-height: 480px;margin:0 auto' class="swipe-how">
+                              <div class='swipe-how-wrap'>
+                                  <div><img src="{% static 'geosafe/img/select-hazard.png' %}"/></div>
+                                  <div><img src="{% static 'geosafe/img/select-exposure.png' %}"/></div>
+                                  <div><img src="{% static 'geosafe/img/select-impact-layer.png' %}"/></div>
+                                  <div><img src="{% static 'geosafe/img/analysis-being-run.png' %}"/></div>
+                              </div>
+                          </div>
+                      </td>
+                      <td>
+                          <ul>
+                              <li>
+                                  Select an exposure layer (road, structure, population)
+                              </li>
+                              <li>
+                                  Select a hazard layer (flood, tsunami, earthquake, volcano, and volcanic ash)
+                              </li>
+                              <li>
+                                  Select an impact function
+                              </li>
+                          </ul>
+                      </td>
+                  </tr>
+                  <tr>
+                      <td>
+                          <div class="extra-note">
+                              That's it. Ready to go...
+                          </div>
+                      </td>
+                  </tr>
+              </table>
           </div>
-        <div class="row">
-            <ul>
-                <li>
-                    Select an exposure layer (road, structure, population)
-                </li>
-                <li>
-                    Select a hazard layer (flood, tsunami, earthquake, volcano, and volcanic ash)
-                </li>
-                <li>
-                    Select an impact function
-                </li>
-            </ul>
-            <div class="extra-note">
-                That's it. Ready to go...
-            </div>
-        </div>
       </div>
     </div>
   </section>
@@ -160,17 +191,17 @@
     var elem = document.getElementById('mySwipe');
     window.mySwipe = Swipe(elem, {
         auto: scrollTimer,
-        continuous: true,
+        continuous: true
     });
     var elemWhat = document.getElementById('mySwipeWhat');
     window.mySwipeWhat = Swipe(elemWhat, {
         auto: scrollTimer,
-        continuous: true,
+        continuous: true
     });
     var elemHow = document.getElementById('mySwipeHow');
     window.mySwipeHow = Swipe(elemHow, {
         auto: scrollTimer,
-        continuous: true,
+        continuous: true
     });
 
 </script>
@@ -178,25 +209,30 @@
 	$('[data-toggle="tooltip"]').tooltip();
 </script>
 
-<link rel="stylesheet" href="{% static 'geosafe/css/swipe_style.css' %}"/>
 <style>
     .swipe, .swipe-what, .swipe-how {
-         overflow: hidden;
-         visibility: hidden;
-         position: relative;
+        overflow: hidden;
+        visibility: hidden;
+        position: relative;
     }
-    .swipe-wrap, .swipe-what-wrap, .swipe-how-wrap {
-         overflow: hidden;
-         position: relative;
+
+    #mySwipe div, mySwipeWhat div, mySwipeHow div {
+        display: block;
     }
+
     .swipe-wrap > div, .swipe-what-wrap > div, .swipe-how-wrap > div {
-         float:left;
-         width:100%;
-         position: relative;
+        float:left;
+        overflow: hidden;
+        position: relative;
     }
 
     #what-section {
         background-color: #eee;
+    }
+
+    img {
+        width: 640px;
+        height: 320px;
     }
     
     #how-section {
