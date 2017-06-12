@@ -120,7 +120,13 @@
                 <img src="{% static "geosafe/img/show-summary.svg" %}" alt="Show Analysis Summary" class="svg"/>
             </a>
         </div>
+        <div class="option">
+            <a href="{% url "geosafe:analysis-create" %}" title="Start Again">
+                <i class="fa fa-undo" aria-hidden="true"></i>
+            </a>
+        </div>
     </div>
+
     {% endif %}
 {% endfor %}
 {#<div class="report section">#}
