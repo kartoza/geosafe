@@ -11,7 +11,7 @@
   <div class="jumbotron">
   	<div class="container">
   		<h1>{% trans "GeoSAFE" %}</h1>
-        <table>
+        <table style="margin: 25px 0px;">
             <tr>
                 <td>
                     <div id='mySwipe' style='max-width:640px;max-height: 480px;margin:0 auto' class="swipe">
@@ -23,7 +23,7 @@
                     </div>
                 </td>
                 <td>
-                    <p style="margin: 5px 20px; font-size: 18px;">GeoSAFE is a web platform that provides the ability to run InaSAFE analyses online.<br/>
+                    <p style="margin: 5px 50px; font-size: 18px;">GeoSAFE is a web platform that provides the ability to run InaSAFE analyses online.<br/>
                         InaSAFE is free software that produces realistic natural hazard impact scenarios for better planning, preparedness and response activities.<br/>
                         It provides a simple but rigorous way to combine data from scientists, local governments and communities to provide insights into the likely impacts of future disaster events.<br/>
                         You can find out more about the InaSAFE project at <a href="http://inasafe.org">http://inasafe.org</a><br/>
@@ -34,7 +34,7 @@
             </tr>
         </table>
         <p style="text-align: center">
-            <a href="#what-anchor" role="button">{% blocktrans %}<i class="fa fa-arrow-circle-o-down fa-3x"></i>{% endblocktrans %}</a>
+            <a href="#what-anchor" role="button">{% blocktrans %}<i class="fa fa-arrow-down fa-3x icon-white"></i>{% endblocktrans %}</a>
         </p>
 
   	</div>
@@ -49,7 +49,7 @@
         <h1>What can GeoSAFE do?</h1>
 
           <div class="row">
-              <table>
+              <table style="margin: 25px 0px;">
                   <tr>
                       <td>
                           <div id='mySwipeWhat' style='max-width:640px;max-height: 480px;margin:0 auto' class="swipe-what">
@@ -62,7 +62,7 @@
                           </div>
                       </td>
                       <td>
-                          <ul>
+                          <ul style="margin: 5px 50px;">
                               <li>
                                   <b>Perform Analysis</b>
                                   <p>
@@ -88,7 +88,7 @@
               </table>
         </div>
           <p style="text-align: center">
-              <a href="#how-anchor" role="button">{% blocktrans %}<i class="fa fa-arrow-circle-o-down fa-5x"></i>{% endblocktrans %}</a>
+              <a href="#how-anchor" role="button">{% blocktrans %}<i class="fa fa-arrow-down icon-blue fa-5x"></i>{% endblocktrans %}</a>
           </p>
       </div>
     </div>
@@ -101,7 +101,7 @@
       <div class="row">
         <h1>How to run an Analysis?</h1>
           <div class="row">
-              <table>
+              <table style="margin: 25px 0px;">
                   <tr>
                       <td>
                           <div id='mySwipeHow' style='max-width:640px;max-height: 480px;margin:0 auto' class="swipe-how">
@@ -114,7 +114,7 @@
                           </div>
                       </td>
                       <td>
-                          <ul>
+                          <ul style="margin: 5px 50px;">
                               <li>
                                   Select an exposure layer (road, structure, population)
                               </li>
@@ -287,12 +287,20 @@
         visibility: hidden;
     }
 
-    .fa-arrow-circle-o-down {
-        color: black;
+    .fa-arrow-down.icon-white {
+        color: white;
     }
 
-    .fa-arrow-circle-o-down:hover {
-        color: red;
+    .fa-arrow-down.icon-white:hover {
+        color: #2d6987;
+    }
+
+    .fa-arrow-down.icon-blue {
+        color: #2c689c;
+    }
+
+    .fa-arrow-down.icon-blue:hover {
+        color: #6d6c6c;
     }
 </style>
 {% endblock extra_script %}
