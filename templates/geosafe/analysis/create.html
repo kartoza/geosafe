@@ -474,6 +474,8 @@
         var hazard_layer;
         var impact_layer;
         var layer_stack = []; //let utilise this variable for keeping track of 3 layers: boney-bun
+        var hazard_exposure_marker_groups = L.layerGroup();
+        var hazard_exposure_rect_groups = L.layerGroup();
         var aggregation_layer;
         var is_legend = false;
         var is_hazard = false;
@@ -792,6 +794,17 @@
                 return;
             }
 
+            //replace marker with rectangle if the image fits the screen
+            if (map._zoom > 10) {
+                map.removeLayer(hazard_exposure_marker_groups);
+                map.addLayer(hazard_exposure_rect_groups);
+
+            } else {
+                map.removeLayer(hazard_exposure_rect_groups);
+                map.addLayer(hazard_exposure_marker_groups);
+            }
+
+
             exposure_layer_cbo.val(layer_id);
             retrieve_if_list();
 
@@ -833,6 +846,14 @@
                     map.removeLayer(exposure_layer);
                 }
                 update_map(layer_id, 'exposure');
+                //at this point, the user has picked a layer, so it's time to remove all markers
+                if(hazard_exposure_marker_groups.getLayers().length != 0) {
+                    hazard_exposure_marker_groups.clearLayers();
+                }
+                if(hazard_exposure_rect_groups.getLayers().length != 0) {
+                    hazard_exposure_rect_groups.clearLayers();
+                }
+
                 show_info_text('InaSAFE Exposure', $a.text() + ' selected.');
             } else {
                 console.log('delete exposure');
@@ -849,6 +870,17 @@
             if (hazard_layer_cbo.val() == layer_id || no_layer_id_exists) {
                 update_hazard_layer(undefined);
                 return;
+            }
+
+            //replace marker with rectangle if the image fits the screen
+            if(map._zoom > 10)
+            {
+                map.removeLayer(hazard_exposure_marker_groups);
+                map.addLayer(hazard_exposure_rect_groups);
+
+            } else {
+                map.removeLayer(hazard_exposure_rect_groups);
+                map.addLayer(hazard_exposure_marker_groups);
             }
 
             hazard_layer_cbo.val(layer_id);
@@ -891,6 +923,14 @@
                     map.removeLayer(hazard_layer);
                 }
                 update_map(layer_id, 'hazard');
+                //at this point, the user has picked a layer, so it's time to remove all markers
+                if(hazard_exposure_marker_groups.getLayers().length != 0) {
+                    hazard_exposure_marker_groups.clearLayers();
+                }
+                if(hazard_exposure_rect_groups.getLayers().length != 0) {
+                    hazard_exposure_rect_groups.clearLayers();
+                }
+
                 show_info_text('InaSAFE Hazard', $a.text() + ' selected.');
             } else {
                 console.log('delete hazard');
@@ -1174,6 +1214,29 @@
 
         }
 
+        //generate both markers and rectangles in one go to save bandwidth
+        function show_marker(layer_id, category) {
+            $.get('{% url 'geosafe:layer-tiles' %}', {'layer_id': layer_id}, function (data) {
+                //default use of the marker
+                layer = L.marker([data['layer_bbox_y0'], data['layer_bbox_x0']]);
+                hazard_exposure_marker_groups.addLayer(layer);
+                map.addLayer(hazard_exposure_marker_groups);
+
+                //use later, particularly if zoom > 10
+                bounds = [[data['layer_bbox_y0'],data['layer_bbox_x0']],[data['layer_bbox_y1'],data['layer_bbox_x1']]];
+                if(category == "hazard") {
+                    rect_layer = L.rectangle(bounds, {color: "#000000", opacity: 0.3, weight: 1});
+                } else if(category == "exposure") {
+                    rect_layer = L.rectangle(bounds, {color: "#ff7800", opacity: 0.8, weight: 1});
+                }
+                hazard_exposure_rect_groups.addLayer(rect_layer);
+            });
+        }
+
+        function show_rectangle(layer_id) {
+
+        }
+
         $(document).ready(function () {
 
             {# initialize tooltip #}
@@ -1255,6 +1318,21 @@
                     }
                     }]
             }).addTo(map);
+
+            if(hazard_layer_cbo != undefined && exposure_layer_cbo != undefined)
+            {
+                num_hazard = hazard_layer_cbo[0].length;
+                num_exposure = exposure_layer_cbo[0].length;
+                //show marker for each layers
+                for (var loop_hazard = 0; loop_hazard < num_hazard; loop_hazard++) {
+                    layer_id = hazard_layer_cbo[0][loop_hazard].value;
+                    show_marker(layer_id, "hazard");
+                }
+                for (var loop_exposure = 0; loop_exposure < num_exposure; loop_exposure++) {
+                    layer_id = exposure_layer_cbo[0][loop_exposure].value;
+                    show_marker(layer_id, "exposure");
+                }
+            }
 
             var w_width = $(window).width();
             var map_width = w_width - 70;
