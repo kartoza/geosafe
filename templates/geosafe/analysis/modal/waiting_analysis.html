@@ -7,6 +7,9 @@
                         <span aria-hidden="true">&times;</span></button>
                     <h4 class="modal-title" id="analysis-result-label">Analysis Failed</h4>
                 {% else %}
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <i class="fa fa-times-circle-o"></i>
+                    </button>
                     <h4 class="modal-title" id="analysis-result-label"><i class="fa fa-spinner fa-spin"></i> Waiting for analysis to run</h4>
                 {% endif %}
             </div>
@@ -24,10 +27,14 @@
                     </div>
                 {% else %}
                     <p>
-                    The analysis is running.
+                        The analysis is running...
                     </p>
                     <p>
-                    This window will automatically close when the analysis is complete.
+                        However, you can close this message if you want to continue working. <br />
+                        See the Analysis List link on the home page to monitor the progress of this analysis and to view the results when it is complete.
+                    </p>
+                    <p>
+                        This window will automatically close when the analysis is complete.
                     </p>
                 {% endif %}
             </div>
