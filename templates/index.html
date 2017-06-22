@@ -57,7 +57,6 @@
                                   <div><img src="{% static 'geosafe/img/geosafe-menu.png' %}"/></div>
                                   <div><img src="{% static 'geosafe/img/analysis-list.png' %}"/></div>
                                   <div><img src="{% static 'geosafe/img/analysis-result.png' %}"/></div>
-                                  <div><img src="{% static 'geosafe/img/meta-search.png' %}"/></div>
                               </div>
                           </div>
                       </td>
@@ -66,20 +65,20 @@
                               <li>
                                   <b>Perform Analysis</b>
                                   <p>
-                                      Analyze a map according to the given layers (exposure and hazard) and generate
-                                      InaSAFE report
+                                      Perform an InaSAFE analysis using hazard and exposure data hosted on GeoNode.
+                                      Visualize the InaSAFE analysis results as a map and infographic, and as downloadable PDF reports.
                                   </p>
                               </li>
                               <li>
                                   <b>Analysis List</b>
                                   <p>
-                                      Contain saved map analysis for future reference
+                                      Browse previously run InaSAFE analysis results and visualize the map and report products for each analysis.
                                   </p>
                               </li>
                               <li>
                                   <b>Metasearch</b>
                                   <p>
-                                      Search based on Catalog Service for the Web (CSW)
+                                      Search for datasets in other online geospatial data stores publishing their catalogues using the CSW standard.
                                   </p>
                               </li>
                           </ul>
@@ -109,17 +108,16 @@
                                   <div><img src="{% static 'geosafe/img/select-hazard.png' %}"/></div>
                                   <div><img src="{% static 'geosafe/img/select-exposure.png' %}"/></div>
                                   <div><img src="{% static 'geosafe/img/select-impact-layer.png' %}"/></div>
-                                  <div><img src="{% static 'geosafe/img/analysis-being-run.png' %}"/></div>
                               </div>
                           </div>
                       </td>
                       <td>
                           <ul style="margin: 5px 50px;">
                               <li>
-                                  Select an exposure layer (road, structure, population)
+                                  Select an exposure layer (e.g. road, structure, population)
                               </li>
                               <li>
-                                  Select a hazard layer (flood, tsunami, earthquake, volcano, and volcanic ash)
+                                  Select a hazard layer (e.g. flood, tsunami, earthquake, volcano, and volcanic ash)
                               </li>
                               <li>
                                   Select an impact function
