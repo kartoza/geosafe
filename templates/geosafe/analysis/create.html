@@ -1263,7 +1263,7 @@
         $(document).ready(function () {
 
             //check browser compatibility against ECMA Script 5
-            if (Modernizr.json || !Modernizr.es5) {
+            if (!Modernizr.json || !Modernizr.es5) {
                 $('#upgrade-browser').modal('toggle');
             }
 
