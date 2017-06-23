@@ -34,7 +34,10 @@
             </tr>
         </table>
         <p style="text-align: center">
-            <a href="#what-anchor" role="button">{% blocktrans %}<i class="fa fa-arrow-down fa-3x icon-white"></i>{% endblocktrans %}</a>
+            <a href="#what-anchor" role="button" title="What can GeoSAFE do?">{% blocktrans %}<i class="fa fa-arrow-down fa-3x icon-white"></i>{% endblocktrans %}</a>
+            <a href="{% url "geosafe:analysis-create" %}" title="Try It Out">
+                <i class="fa fa-flask fa-3x icon-white" aria-hidden="true"></i>
+            </a>
         </p>
 
   	</div>
@@ -78,7 +81,7 @@
                               <li>
                                   <b>Metasearch</b>
                                   <p>
-                                      Search for datasets in other online geospatial data stores publishing their catalogues using the CSW standard.
+                                      Search for datasets in other online geospatial data stores that publish their catalogues using the CSW standard.
                                   </p>
                               </li>
                           </ul>
@@ -87,7 +90,7 @@
               </table>
         </div>
           <p style="text-align: center">
-              <a href="#how-anchor" role="button">{% blocktrans %}<i class="fa fa-arrow-down icon-blue fa-5x"></i>{% endblocktrans %}</a>
+              <a href="#how-anchor" role="button" title="How to run an analysis?">{% blocktrans %}<i class="fa fa-arrow-down icon-blue fa-5x"></i>{% endblocktrans %}</a>
           </p>
       </div>
     </div>
@@ -232,7 +235,7 @@
         width: 640px;
         height: 320px;
     }
-    
+
     #how-section {
         background-color: #2c689c;
         color: #fff;
@@ -285,11 +288,11 @@
         visibility: hidden;
     }
 
-    .fa-arrow-down.icon-white {
+    .fa-arrow-down.icon-white, .fa-flask.icon-white {
         color: white;
     }
 
-    .fa-arrow-down.icon-white:hover {
+    .fa-arrow-down.icon-white:hover, .fa-flask.icon-white:hover {
         color: #2d6987;
     }
 
