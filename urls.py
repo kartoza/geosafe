@@ -10,7 +10,7 @@ from geosafe.views.analysis import (
     impact_function_filter,
     layer_tiles, layer_metadata, layer_archive, layer_list, rerun_analysis,
     analysis_json, toggle_analysis_saved, download_report, layer_panel,
-    analysis_summary)
+    analysis_summary, cancel_analysis)
 
 urlpatterns = patterns(
     '',
@@ -68,6 +68,12 @@ urlpatterns = patterns(
         r'(?P<analysis_id>\d+)',
         rerun_analysis,
         name='rerun-analysis'
+    ),
+    url(
+        r'^analysis/cancel/'
+        r'(?P<analysis_id>\d+)',
+        cancel_analysis,
+        name='cancel-analysis'
     ),
     url(
         r'^analysis/check/'

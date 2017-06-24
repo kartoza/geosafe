@@ -4,6 +4,7 @@ import os
 import tempfile
 from zipfile import ZipFile
 
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.core.urlresolvers import reverse
 from django.db.models.expressions import F
 from django.db.models.query_utils import Q
@@ -294,17 +295,17 @@ def impact_function_filter(request):
             json.dumps(impact_functions), content_type="application/json")
     except Exception as e:
         LOGGER.exception(e)
-        raise HttpResponseServerError()
+        return HttpResponseServerError()
 
 
 def layer_tiles(request):
     """Ajax request to get layer's url to show in the map.
     """
     if request.method != 'GET':
-        raise HttpResponseBadRequest
+        return HttpResponseBadRequest()
     layer_id = request.GET.get('layer_id')
     if not layer_id:
-        raise HttpResponseBadRequest
+        return HttpResponseBadRequest()
     try:
         layer = Layer.objects.get(id=layer_id)
         context = {
@@ -322,7 +323,7 @@ def layer_tiles(request):
         )
     except Exception as e:
         LOGGER.exception(e)
-        raise HttpResponseServerError
+        return HttpResponseServerError()
 
 
 def layer_metadata(request, layer_id):
@@ -454,6 +455,8 @@ def layer_panel(request, bbox=None):
         return HttpResponseServerError()
 
 
+@login_required
+@user_passes_test(lambda u: u.is_superuser)
 def rerun_analysis(request, analysis_id=None):
     if request.method != 'POST':
         return HttpResponseBadRequest()
@@ -470,6 +473,35 @@ def rerun_analysis(request, analysis_id=None):
         return HttpResponseRedirect(
             reverse('geosafe:analysis-detail', kwargs={'pk': analysis.pk})
         )
+    except Exception as e:
+        LOGGER.exception(e)
+        return HttpResponseServerError()
+
+
+@login_required
+@user_passes_test(lambda u: u.is_superuser)
+def cancel_analysis(request, analysis_id=None):
+    if request.method != 'POST':
+        return HttpResponseBadRequest()
+
+    if not analysis_id:
+        analysis_id = request.POST.get('analysis_id')
+
+    if not analysis_id:
+        return HttpResponseBadRequest()
+
+    try:
+        analysis = Analysis.objects.get(id=analysis_id)
+        result = analysis.get_task_result()
+        try:
+            # to cancel celery task, do revoke
+            result.revoke(terminate=True)
+        except:
+            # in case result is an empty task id
+            pass
+        analysis.delete()
+        return HttpResponseRedirect(
+            reverse('geosafe:analysis-list'))
     except Exception as e:
         LOGGER.exception(e)
         return HttpResponseServerError()

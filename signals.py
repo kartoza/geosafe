@@ -1,12 +1,11 @@
 # coding=utf-8
 
-from django.db.models.signals import post_save
+from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 
 from geonode.layers.models import Layer
 from geosafe.models import Analysis
-from geosafe.tasks.analysis import create_metadata_object, \
-    process_impact_result, prepare_analysis
+from geosafe.tasks.analysis import create_metadata_object, prepare_analysis
 
 __author__ = 'Rizky Maulana Nugraha <lana.pcfre@gmail.com>'
 __date__ = '2/3/16'
@@ -38,3 +37,34 @@ def analysis_post_save(sender, instance, created, **kwargs):
         instance.task_id = async_result.task_id
         instance.task_state = async_result.state
         instance.save()
+
+
+@receiver(post_delete, sender=Analysis)
+def analysis_post_delete(sender, instance, **kwargs):
+    """
+
+    :param sender:
+    :type sender: type(Analysis)
+
+    :param instance:
+    :type instance: Analysis
+
+    :param kwargs:
+    :return:
+    """
+    # Delete report, but don't save, because we want to delete
+    # Analysis
+    try:
+        instance.report_map.delete(save=False)
+    except:
+        pass
+
+    try:
+        instance.report_table.delete(save=False)
+    except:
+        pass
+
+    try:
+        instance.impact_layer.delete()
+    except:
+        pass

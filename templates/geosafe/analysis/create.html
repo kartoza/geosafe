@@ -1349,16 +1349,21 @@
 
             if(hazard_layer_cbo != undefined && exposure_layer_cbo != undefined)
             {
-                num_hazard = hazard_layer_cbo[0].length;
-                num_exposure = exposure_layer_cbo[0].length;
+                var num_hazard = hazard_layer_cbo[0].length;
+                var num_exposure = exposure_layer_cbo[0].length;
                 //show marker for each layers
                 for (var loop_hazard = 0; loop_hazard < num_hazard; loop_hazard++) {
-                    layer_id = hazard_layer_cbo[0][loop_hazard].value;
-                    show_marker(layer_id, "hazard");
+                    var layer_id = hazard_layer_cbo[0][loop_hazard].value;
+                    // first combo option is an empty tag.
+                    if (layer_id != ""){
+                        show_marker(layer_id, "hazard");
+                    }
                 }
                 for (var loop_exposure = 0; loop_exposure < num_exposure; loop_exposure++) {
-                    layer_id = exposure_layer_cbo[0][loop_exposure].value;
-                    show_marker(layer_id, "exposure");
+                    var layer_id = exposure_layer_cbo[0][loop_exposure].value;
+                    if (layer_id != "") {
+                        show_marker(layer_id, "exposure");
+                    }
                 }
             }
 

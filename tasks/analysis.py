@@ -54,12 +54,10 @@ def create_metadata_object(self, layer_id):
             settings.INASAFE_LAYER_DIRECTORY)
         if using_direct_access and not layer.is_remote:
             # If direct disk access were configured, then use it.
-            base_file_path = Analysis.get_base_layer_path(layer)
-            base_file_path = os.path.basename(base_file_path)
-            xml_file_path = base_file_path.split('.')[0] + '.xml'
-            base_dir = settings.INASAFE_LAYER_DIRECTORY
-            layer_url = os.path.join(base_dir, xml_file_path)
-            layer_url = urlparse.urljoin('file://', layer_url)
+            base_file_path = get_layer_path(layer)
+            base_file_path, _ = os.path.splitext(base_file_path)
+            xml_file_path = base_file_path + '.xml'
+            layer_url = urlparse.urljoin('file://', xml_file_path)
         else:
             # InaSAFE Headless celery will download metadata from url
             layer_url = reverse(
@@ -158,13 +156,18 @@ def prepare_analysis(analysis_id):
             exposure,
             function,
             generate_report=True
-        ).set(queue='inasafe-headless-analysis'),
+        ).set(
+            queue='inasafe-headless-analysis').set(
+            time_limit=settings.ANALYSIS_RUN_TIME_LIMIT),
         process_impact_result.s(
             analysis_id
         ).set(queue='geosafe')
     )
     result = tasks_chain.delay()
-    return result
+    # Parent information will be lost later.
+    # What we should save is the run_analysis task result as this is the
+    # chain's parent
+    return result.parent
 
 
 @app.task(
@@ -186,7 +189,11 @@ def process_impact_result(self, impact_url, analysis_id):
     :return: True if success
     :rtype: bool
     """
+    # Track the current task_id
     analysis = Analysis.objects.get(id=analysis_id)
+
+    analysis.task_id = self.request.id
+    analysis.save()
 
     # decide if we are using direct access or not
     impact_url = get_impact_path(impact_url)

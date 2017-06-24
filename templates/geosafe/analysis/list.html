@@ -135,6 +135,14 @@
                                         <button type="submit" class="btn btn-primary">Rerun Analysis</button>
                                     </form>
                                 </div>
+                                {% elif analysis.get_task_state == 'PENDING' and user.is_superuser %}
+                                <div>
+                                    <form action="{% url 'geosafe:cancel-analysis' analysis_id=analysis.id %}" method="post">
+                                        {% csrf_token %}
+                                        <input type="hidden" id="analysis_id" value="{{ analysis.id }}" />
+                                        <button type="submit" class="btn btn-primary">Cancel Analysis</button>
+                                    </form>
+                                </div>
                                 {% endif %}
                             {% endif %}
                         </td>

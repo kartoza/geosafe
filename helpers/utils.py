@@ -83,15 +83,14 @@ def get_layer_path(layer):
     :return: Layer path or url
     :rtype: str
     """
-    using_direct_access = (
-        hasattr(settings, 'INASAFE_LAYER_DIRECTORY') and
-        settings.INASAFE_LAYER_DIRECTORY)
+    using_direct_access = settings.USE_LAYER_FILE_ACCESS
     if using_direct_access and not layer.is_remote:
         base_layer_path = Analysis.get_base_layer_path(layer)
-        basename = os.path.basename(base_layer_path)
+        layers_base_dir = settings.INASAFE_LAYER_DIRECTORY_BASE_PATH
+        relative_path = os.path.relpath(base_layer_path, layers_base_dir)
         layer_url = os.path.join(
             settings.INASAFE_LAYER_DIRECTORY,
-            basename)
+            relative_path)
         layer_url = urlparse.urljoin('file://', layer_url)
     else:
         layer_url = Analysis.get_layer_url(layer)

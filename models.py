@@ -190,6 +190,10 @@ class Analysis(models.Model):
         self.report_table = File(open(filename))
 
     def get_task_result(self):
+        """
+        :return: celery AsyncResult
+        :rtype: celery.result.AsyncResult
+        """
         return AsyncResult(self.task_id)
 
     def get_label_class(self):
@@ -209,9 +213,13 @@ class Analysis(models.Model):
         In this case, the state will always return 'PENDING'. For this, we
         receive the actual result from self.state, which is the cached state
 
-        :return:
+        :return: task state string
+        :rtype: str
         """
         result = self.get_task_result()
+        if not result.task_id:
+            # If no task_id, we don't have any task yet.
+            return 'FAILURE'
         return self.task_state if result.state == 'PENDING' else result.state
 
     def get_default_impact_title(self):
@@ -257,23 +265,6 @@ class Analysis(models.Model):
             force_update=force_update,
             using=using,
             update_fields=update_fields)
-
-    def delete(self, using=None):
-        try:
-            self.report_map.delete()
-        except:
-            pass
-
-        try:
-            self.report_table.delete()
-        except:
-            pass
-
-        try:
-            self.impact_layer.delete()
-        except:
-            pass
-        super(Analysis, self).delete(using=using)
 
 
 # needed to load signals

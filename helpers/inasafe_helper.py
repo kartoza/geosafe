@@ -10,8 +10,7 @@ INASAFE_TESTING_ENVIRONMENT = strtobool(
 
 INASAFE_TESTING_ENVIRONMENT_NOT_CONFIGURED_MESSAGE = (
     'InaSAFE Testing Environment should be configured correctly for the '
-    'remote tasks to work.'
-)
+    'remote tasks to work.')
 
 
 class InaSAFETestData(object):
