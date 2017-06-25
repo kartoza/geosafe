@@ -1,0 +1,473 @@
+{% load bootstrap_tags %}
+{% load staticfiles %}
+{% load i18n avatar_tags %}
+
+{# UX for Side Panel #}
+<script type="text/javascript">
+
+    /**
+     * Function to initialize left side panel for layers.
+     * 
+     * This function is responsible for putting these complicated interactions
+     */
+    function init_layer_panel() {
+        $('img.svg').each(function () {
+            // take all panel's logo
+            var $img = $(this);
+            var imgID = $img.attr('id');
+            var imgClass = $img.attr('class');
+            var imgURL = $img.attr('src');
+
+            $.get(imgURL, function (data) {
+                // Get the SVG tag, ignore the rest
+                var $svg = $(data).find('svg');
+
+                // Add replaced image's ID to the new SVG
+                if (typeof imgID !== 'undefined') {
+                    $svg = $svg.attr('id', imgID);
+                }
+                // Add replaced image's classes to the new SVG
+                if (typeof imgClass !== 'undefined') {
+                    $svg = $svg.attr('class', imgClass + ' replaced-svg');
+                }
+
+                // Remove any invalid XML tags as per http://validator.w3.org
+                $svg = $svg.removeAttr('xmlns:a');
+
+                // Check if the viewport is set, if the viewport is not set the SVG wont't scale.
+                if (!$svg.attr('viewBox') && $svg.attr('height') && $svg.attr('width')) {
+                    $svg.attr('viewBox', '0 0 ' + $svg.attr('height') + ' ' + $svg.attr('width'))
+                }
+
+                // Replace image with new SVG
+                $img.replaceWith($svg);
+
+            }, 'xml');
+
+        });
+        {# Initialize click behaviour of sections #}
+        (function () {
+            var last_click;
+            $(".section").click(function () {
+                {# Show section panel #}
+                {# When clicking a section-panel, show corresponding next menu #}
+                var $section_panel = $(".section-panel", this);
+                if (last_click != this) {
+                    $(".section-panel", last_click).removeClass("show");
+                }
+                {# Only toggled if it's not hovering over its section_panel #}
+                if (!$section_panel.is(":hover")) {
+                    $section_panel.toggleClass("show");
+                }
+
+                last_click = this;
+            });
+        })();
+        var last_click;
+        $(".option>a").click(function () {
+            {# special case when only contains one layer #}
+            var $list_box = $(this).next().filter(".list");
+            if ($(this).hasClass('one')) {
+                {# automatically click the only layer #}
+                $list_box.find("a")[0].click();
+                return;
+            }
+            if (last_click != this) {
+                $(last_click).next().filter(".list").removeClass("show");
+            }
+            $list_box.toggleClass("show");
+
+            {# correcting position for impact #}
+            if ($list_box.closest("#impact-option").length > 0) {
+                var box_height = $list_box.height();
+                var pos_y = -box_height + 40;
+                $list_box.css("top", pos_y);
+            }
+            last_click = this;
+        });
+        var $analysis_form = $(".analysis.section form");
+        $analysis_form.on('submit', function (e) {
+            {# prevent form submit by default. #}
+            {# use modal form instead for confirmation. #}
+            $("#confirm_hazard_title").val(hazard_layer_cbo.find('option:selected').text());
+            $("#confirm_exposure_title").val(exposure_layer_cbo.find('option:selected').text());
+            $("#confirm_impact_title").val(impact_function_cbo.find('option:selected').text());
+            $("#analysis-confirmation-modal").modal();
+            return false;
+        });
+    }
+
+    /**
+     * This function is a change handler to retrieve Impact Function list
+     *
+     * For every change in hazar or exposure combination, a new Impact Function
+     * list needs to be retrieved to take a new possible Impact Function (IF).
+     */
+    {# listen to change handler #}
+    function retrieve_if_list(evt) {
+        var chosen_combination = {
+            'exposure_id': $("#id_exposure_layer").val(),
+            'hazard_id': $("#id_hazard_layer").val()
+        };
+
+        {# create spinning animation #}
+        var if_function = $("#impact-function");
+        if_function.addClass('loading');
+
+        $.get('{% url 'geosafe:impact-function-filter' %}', chosen_combination, function (data) {
+            var select = $("#id_impact_function_id");
+            var ul = $("#impact-function-list").find('ul');
+            select.empty();
+            ul.empty();
+            // clear styles
+            if_function.removeClass("set").removeClass("loading");
+            $("#impact-function-list .selected").removeClass("selected");
+            if (data.length == 0) {
+                console.log('No IF found')
+                $("<option></option>").text("No matching Impact Function").appendTo(select);
+                var $a = $("<p><a></a></p>");
+                $a.text("No matching Impact Function");
+                var $li = $("<li></li>");
+                $li.append($a);
+                $li.appendTo(ul);
+            }
+
+            if (data.length > 1) {
+                if_function.addClass("has-children");
+            }
+
+            for (var i = 0; i < data.length; i++) {
+                var id = data[i]['id'];
+                var name = data[i]['name'];
+                $("<option></option>").val(id).text(name).appendTo(select);
+                var $a = $("<a></a>").attr('href', 'javascript:select_if("' + id + '")').attr('data-id', id).text(name);
+                var $li = $("<li></li>");
+                $li.append($a);
+                $li.appendTo(ul);
+            }
+
+            if (data.length == 1) {
+                {# only for lone data#}
+                select_if(data[0]['id']);
+                show_info_text('InaSAFE Impact Function', 'Automatically select ' + data[0]['name']);
+            }
+            else if (data.length == 0) {
+                {# deselect Impact function#}
+                select_if(undefined);
+            }
+        }).fail(function () {
+            var select = $("#id_impact_function_id");
+            var ul = $("#impact-function-list").find('ul');
+            select.empty();
+            ul.empty();
+            select_if(undefined);
+        });
+    };
+
+
+    /**
+     * Select programmatically, to choose impact function to be executed
+     *
+     * @param function_id The impact function id. A string.
+     */
+    function select_if(function_id) {
+
+        var $if_section = $("#impact-function");
+        var $if_section_list = $("#impact-function-list");
+
+        if (!function_id) {
+            impact_function_cbo.val(undefined);
+            $if_section.removeClass("set");
+            $if_section_list.find("a:contains(" + function_id + ")")
+                .removeClass("selected");
+
+            $(".analysis.section form button[type=submit]").prop("disabled", true);
+            return
+        }
+
+        impact_function_cbo.val(function_id);
+
+        // update styles
+        $if_section.addClass("set");
+        $if_section_list.find("a[data-id=" + function_id + "]").addClass("selected");
+
+        // validate button
+        $(".analysis.section form button[type=submit]").prop("disabled", false);
+    }
+
+    /**
+     * Update exposure layer list in side panel
+     *
+     * @param layer_id: the layer id
+     * @param is_update_map: flag to update the map object too
+     */
+    function update_exposure_layer(layer_id, is_update_map) {
+        {# deselect if it is the same #}
+        var no_layer_id_exists = layer_id != undefined && $(".exposure.section a[data-id='" + layer_id + "']").length == 0;
+        if (exposure_layer_cbo.val() == layer_id || no_layer_id_exists) {
+            update_exposure_layer(undefined);
+            return;
+        }
+
+        //replace marker with rectangle if the image fits the screen
+        if (map._zoom > 10) {
+            map.removeLayer(hazard_exposure_marker_groups);
+            map.addLayer(hazard_exposure_rect_groups);
+
+        } else {
+            map.removeLayer(hazard_exposure_rect_groups);
+            map.addLayer(hazard_exposure_marker_groups);
+        }
+
+
+        exposure_layer_cbo.val(layer_id);
+        retrieve_if_list();
+
+        // update sidebar styles
+        var $exposure_sections = $(".exposure.section").find(".option");
+        // clear styles
+        $exposure_sections.find(">a").removeClass("set");
+        $exposure_sections.find("ul>li>a").removeClass("selected");
+        // find section of the id
+        var $a = $exposure_sections.find("a[data-id=" + layer_id + "]");
+        $a.addClass("selected");
+        var $section = $a.closest(".option");
+        $section.find(">a").addClass("set");
+
+        var $header = $(".exposure.section");
+        var $menu_icon = $(".menu-icon", $header);
+        if ($exposure_sections.find(".set").length == 0) {
+            $header.removeClass("set");
+            $menu_icon.removeClass("set");
+        }
+        else {
+            $header.addClass("set");
+            $menu_icon.addClass("set");
+        }
+
+        if (is_update_map == false) {
+            return;
+        }
+
+        if (layer_id) {
+            if (exposure_layer) {
+                map.removeLayer(exposure_layer);
+            }
+            update_map(layer_id, 'exposure');
+            //at this point, the user has picked a layer, so it's time to remove all markers
+            if (hazard_exposure_marker_groups.getLayers().length != 0) {
+                hazard_exposure_marker_groups.clearLayers();
+            }
+            if (hazard_exposure_rect_groups.getLayers().length != 0) {
+                hazard_exposure_rect_groups.clearLayers();
+            }
+
+            show_info_text('InaSAFE Exposure', $a.text() + ' selected.');
+        } else {
+            map.removeLayer(exposure_layer);
+            show_info_text('InaSAFE Exposure', 'Exposure unselected.');
+        }
+    }
+
+    /**
+     * Update hazard layer list in side panel
+     *
+     * @param layer_id: the layer id
+     * @param is_update_map: flag to update the map object too
+     */
+    function update_hazard_layer(layer_id, is_update_map) {
+
+        {# deselect if it is the same#}
+        var no_layer_id_exists = layer_id != undefined && $(".hazard.section a[data-id='" + layer_id + "']").length == 0;
+        if (hazard_layer_cbo.val() == layer_id || no_layer_id_exists) {
+            update_hazard_layer(undefined);
+            return;
+        }
+
+        //replace marker with rectangle if the image fits the screen
+        if (map._zoom > 10) {
+            map.removeLayer(hazard_exposure_marker_groups);
+            map.addLayer(hazard_exposure_rect_groups);
+
+        } else {
+            map.removeLayer(hazard_exposure_rect_groups);
+            map.addLayer(hazard_exposure_marker_groups);
+        }
+
+        hazard_layer_cbo.val(layer_id);
+        retrieve_if_list();
+
+        // update sidebar styles
+        var $hazard_sections = $(".hazard.section").find(".option");
+        // clear styles
+        $hazard_sections.find(">a").removeClass("set");
+        $hazard_sections.find("ul>li>a").removeClass("selected");
+        // find section of the id
+        var $a = $hazard_sections.find("a[data-id=" + layer_id + "]");
+        $a.addClass("selected");
+        var $section = $a.closest(".option");
+        $section.find(">a").addClass("set");
+
+        var $header = $(".hazard.section");
+        var $menu_icon = $(".menu-icon", $header);
+        if ($hazard_sections.find(".set").length == 0) {
+            $header.removeClass("set");
+            $menu_icon.removeClass("set");
+        }
+        else {
+            $header.addClass("set");
+            $menu_icon.addClass("set");
+        }
+
+        if (is_update_map == false) {
+            return;
+        }
+
+        if (layer_id) {
+            if (hazard_layer) {
+                map.removeLayer(hazard_layer);
+            }
+            update_map(layer_id, 'hazard');
+            //at this point, the user has picked a layer, so it's time to remove all markers
+            if (hazard_exposure_marker_groups.getLayers().length != 0) {
+                hazard_exposure_marker_groups.clearLayers();
+            }
+            if (hazard_exposure_rect_groups.getLayers().length != 0) {
+                hazard_exposure_rect_groups.clearLayers();
+            }
+
+            show_info_text('InaSAFE Hazard', $a.text() + ' selected.');
+        } else {
+            map.removeLayer(hazard_layer);
+            show_info_text('InaSAFE Hazard', 'Hazard unselected.');
+        }
+    }
+
+    /**
+     * Update impact layer list in side panel
+     *
+     * @param layer_id: the layer id
+     * @param is_update_map: flag to update the map object too
+     */
+    function update_impact_layer(layer_id, is_update_map) {
+
+        {# deselect if it is the same #}
+        var no_layer_id_exists = layer_id != undefined && $("#impact-option a[data-id='" + layer_id + "']").length == 0;
+        var same_layer_id = last_impact_id == layer_id && last_impact_id != undefined;
+        if (same_layer_id || no_layer_id_exists) {
+            update_impact_layer(undefined);
+            return;
+        }
+
+        last_impact_id = layer_id;
+        // update sidebar styles
+        var $impact_section = $("#impact-option");
+        var $summary_section = $("#summary-option");
+        // clear styles
+        $impact_section.find(">a").removeClass("set");
+        $impact_section.find("ul>li>a").removeClass("selected");
+
+        $summary_section.find(">a").removeClass("set");
+        // find section of the id
+        var $a = $impact_section.find("a[data-id=" + layer_id + "]");
+        $a.addClass("selected");
+        var $section = $a.closest(".option");
+        $section.find(">a").addClass("set");
+        if ($section.length > 0) {
+            $summary_section.find(">a").addClass("set");
+        }
+
+        var $header = $(".report.section");
+        if ($impact_section.find(".set").length == 0) {
+            $header.removeClass("set");
+        }
+        else {
+            $header.addClass("set");
+        }
+
+        if (is_update_map == false) {
+            return;
+        }
+
+        if (layer_id) {
+            if (impact_layer) {
+                map.removeLayer(impact_layer);
+            }
+            update_map(layer_id, 'impact');
+            show_info_text('InaSAFE Impact', $a.text() + ' selected.');
+        } else {
+            map.removeLayer(impact_layer);
+            show_info_text('InaSAFE Impact', 'Impact unselected.');
+        }
+    }
+
+    /**
+     * Update aggregation layer
+     *
+     * TODO: This logic is not used yet.
+     */
+    function update_aggregation_layer() {
+        var layer_id = aggregation_layer_cbo.val();
+        console.log('aggregation changed to ' + layer_id);
+
+        if (layer_id) {
+            console.log('update aggregation layer');
+            if (aggregation_layer) {
+                console.log('remove previous aggregation layer');
+                console.log(aggregation_layer);
+                map.removeLayer(aggregation_layer);
+            }
+            update_map(layer_id, 'aggregation');
+        } else {
+            console.log('delete aggregation');
+            map.removeLayer(aggregation_layer);
+        }
+    }
+
+    /**
+     * Filter available layer in side panel based on view extent.
+     *
+     * @param bounds: the view extent, a Leaflet Bounds
+     */
+    function filter_layer(bounds) {
+        var bound_param = [
+            bounds.getSouthWest().lng,
+            bounds.getSouthWest().lat,
+            bounds.getNorthEast().lng,
+            bounds.getNorthEast().lat
+        ];
+        var url = '{% url "geosafe:layer-panel" bbox="9,9,9,9" %}';
+        url = url.replace("9%2C9%2C9%2C9", JSON.stringify(bound_param)).replace("9,9,9,9", JSON.stringify(bound_param));
+        show_info_text('Extent Changed', 'Filtering available layer for extent');
+        {# Do layer filters and update side panel again to reflect changes. #}
+        $.get(url, function (data) {
+            var exposure_id = $(".exposure.section a.selected").attr('data-id');
+            var hazard_id = $(".hazard.section a.selected").attr('data-id');
+            var impact_id = $("#impact-option a.selected").attr('data-id');
+            $(".layer-list").replaceWith('<div class="layer-list">' + data + '</data>');
+            $(document).ready(function () {
+                exposure_layer_cbo = $("#id_exposure_layer");
+                hazard_layer_cbo = $("#id_hazard_layer");
+                aggregation_layer_cbo = $("#id_aggregation_layer");
+                last_impact_id = undefined;
+                impact_function_cbo = $("#id_impact_function_id");
+                {# We replace the whole side panel DOM. Not the most elegant way, but the easiest to implement. #}
+                {# If we are able to use angular or react, we might able to refactor this. #}
+                init_layer_panel();
+                update_exposure_layer(exposure_id, false);
+                update_hazard_layer(hazard_id, false);
+                update_impact_layer(impact_id, false);
+                check_layer_empty();
+                {% if not user.username %}
+                    show_info_text('<span class="text-danger">You have not logged in yet</span>', '<span class="alert-danger">Please login to save analysis</span>', 'alert-danger');
+                {% endif %}
+                check_popover();
+            });
+        });
+    }
+
+    {# Apply Layer panel interaction logic when document ready #}
+    $(document).ready(function () {
+        init_layer_panel();
+    });
+</script>
