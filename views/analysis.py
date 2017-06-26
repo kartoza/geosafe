@@ -4,7 +4,10 @@ import os
 import tempfile
 from zipfile import ZipFile
 
+import re
+from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required, user_passes_test
+from django.contrib.gis.geos.geometry import GEOSGeometry
 from django.core.urlresolvers import reverse
 from django.db.models.expressions import F
 from django.db.models.query_utils import Q
@@ -13,6 +16,7 @@ from django.http.response import HttpResponseServerError, HttpResponse, \
 from django.shortcuts import render
 from django.views.generic import (
     ListView, CreateView, DetailView)
+from geonode.utils import bbox_to_wkt
 
 from geonode.layers.models import Layer
 from geosafe.app_settings import settings
@@ -152,7 +156,8 @@ class AnalysisCreateView(CreateView):
             categories = []
             is_section_filtered = False
             for idx, c in enumerate(p.get('categories')):
-                layers, is_filtered = retrieve_layers(p.get('name'), c, bbox=bbox)
+                layers, is_filtered = retrieve_layers(
+                    p.get('name'), c, bbox=bbox)
                 if is_filtered:
                     is_section_filtered = True
                 category = {
@@ -216,7 +221,7 @@ class AnalysisCreateView(CreateView):
         return form_class(**kwargs)
 
     def post(self, request, *args, **kwargs):
-        retval = super(AnalysisCreateView, self).post(request, *args, **kwargs)
+        super(AnalysisCreateView, self).post(request, *args, **kwargs)
 
         form_class = self.get_form_class()
         form = self.get_form(form_class)
@@ -334,10 +339,10 @@ def layer_metadata(request, layer_id):
         return HttpResponseBadRequest()
     try:
         layer = Layer.objects.get(id=layer_id)
-        base_file, _ = layer.get_base_file()
+        base_file, __ = layer.get_base_file()
         if not base_file:
             return HttpResponseServerError()
-        base_file_path, _ = os.path.splitext(base_file.file.path)
+        base_file_path, __ = os.path.splitext(base_file.file.path)
         xml_file_path = base_file_path + '.xml'
         if not os.path.exists(xml_file_path):
             return HttpResponseServerError()
@@ -371,8 +376,8 @@ def layer_archive(request, layer_id):
                     base_name,
                     layer_file.file.read())
 
-        base_file, _ = layer.get_base_file()
-        base_file_name, _ = os.path.splitext(
+        base_file, __ = layer.get_base_file()
+        base_file_name, __ = os.path.splitext(
             os.path.basename(base_file.file.path))
         with open(tmp) as f:
             response = HttpResponse(f.read(), content_type='application/zip')
@@ -386,28 +391,6 @@ def layer_archive(request, layer_id):
         return HttpResponseServerError()
 
 
-def is_bbox_intersects(bbox_1, bbox_2):
-    """
-
-    bbox is in the format: (x0,y0, x1, y1)
-
-    :param bbox_1:
-    :param bbox_2:
-    :return:
-    """
-    points = [
-        (bbox_1[0], bbox_1[1]),
-        (bbox_1[0], bbox_1[3]),
-        (bbox_1[2], bbox_1[1]),
-        (bbox_1[2], bbox_1[3])
-        ]
-    for p in points:
-        if bbox_2[0] <= p[0] << bbox_2[2] and bbox_2[1] <= p[1] <= bbox_2[3]:
-            return True
-
-    return False
-
-
 def layer_list(request, layer_purpose, layer_category=None, bbox=None):
     if request.method != 'GET':
         return HttpResponseBadRequest()
@@ -416,7 +399,8 @@ def layer_list(request, layer_purpose, layer_category=None, bbox=None):
         return HttpResponseBadRequest()
 
     try:
-        layers_object, _ = retrieve_layers(layer_purpose, layer_category, bbox)
+        layers_object, __ = retrieve_layers(
+            layer_purpose, layer_category, bbox)
         layers = []
         for l in layers_object:
             layer_obj = dict()
@@ -449,6 +433,110 @@ def layer_panel(request, bbox=None):
             'user': request.user,
         }
         return render(request, "geosafe/analysis/options_panel.html", context)
+
+    except Exception as e:
+        LOGGER.exception(e)
+        return HttpResponseServerError()
+
+
+def validate_analysis_extent(request):
+    if request.method != 'POST':
+        return HttpResponseBadRequest()
+
+    try:
+        hazard_id = request.POST.get('hazard_id')
+        exposure_id = request.POST.get('exposure_id')
+        view_extent = request.POST.get('view_extent')
+        hazard_layer = Layer.objects.get(id=hazard_id)
+        exposure_layer = Layer.objects.get(id=exposure_id)
+    except Exception as e:
+        LOGGER.exception(e)
+        return HttpResponseBadRequest()
+
+    # calculate extent
+    try:
+        # Check hazard and exposure intersected
+        hazard_srid, hazard_wkt = hazard_layer.geographic_bounding_box.split(
+            ';')
+        hazard_srid = re.findall(r'\d+', hazard_srid)
+        hazard_geom = GEOSGeometry(hazard_wkt, srid=int(hazard_srid[0]))
+        hazard_geom.transform(4326)
+
+        exposure_srid, exposure_wkt = exposure_layer.geographic_bounding_box.\
+            split(';')
+        exposure_srid = re.findall(r'\d+', exposure_srid)
+        exposure_geom = GEOSGeometry(exposure_wkt, srid=int(exposure_srid[0]))
+        exposure_geom.transform(4326)
+
+        analysis_geom = exposure_geom.intersection(hazard_geom)
+
+        if not analysis_geom:
+            # hazard and exposure doesn't intersect
+            message = _("Hazard and exposure does not intersect.")
+            retval = {
+                'is_valid': False,
+                'is_warned': False,
+                'extent': view_extent,
+                'reason': message
+            }
+            return HttpResponse(
+                json.dumps(retval), content_type="application/json")
+
+        # This bbox is in the format [x0,y0,x1,y1]
+        x0, y0, x1, y1 = [float(n) for n in view_extent.split(',')]
+        view_geom = GEOSGeometry(
+            bbox_to_wkt(x0, x1, y0, y1), srid=4326)
+
+        analysis_geom = view_geom.intersection(analysis_geom)
+
+        if not analysis_geom:
+            # previous hazard and exposure intersection doesn't intersect
+            # view extent
+            message = _("View extent does not intersect hazard and exposure.")
+            retval = {
+                'is_valid': False,
+                'is_warned': False,
+                'extent': view_extent,
+                'reason': message
+            }
+            return HttpResponse(
+                json.dumps(retval), content_type="application/json")
+
+        # Check the size of the extent
+        # convert to EPSG:3410 for equal area projection
+        analysis_geom.transform('3410')
+        area = analysis_geom.area
+
+        # Transform back to EPSG:4326
+        analysis_geom.transform('4326')
+
+        area_limit = settings.INASAFE_ANALYSIS_AREA_LIMIT
+        if area > area_limit:
+            # Area exceeded designated area limit.
+            # Give warning but still allows analysis.
+            message = _(
+                'Analysis extent exceeded area limit: {limit} m<sup>2</sup.'
+                'Analysis might take a long time to complete.')
+            retval = {
+                'is_valid': True,
+                'is_warned': True,
+                'extent': view_extent,
+                'reason': message
+            }
+            return HttpResponse(
+                json.dumps(retval), content_type="application/json")
+
+        # convert analysis extent to bbox string again
+        view_extent = ','.join([str(f) for f in analysis_geom.extent])
+        message = _("Analysis will be performed on this given view extent.")
+        retval = {
+            'is_valid': True,
+            'is_warned': False,
+            'extent': view_extent,
+            'reason': message
+        }
+        return HttpResponse(
+            json.dumps(retval), content_type="application/json")
 
     except Exception as e:
         LOGGER.exception(e)

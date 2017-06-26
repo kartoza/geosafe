@@ -125,8 +125,14 @@
         else {
             $("#id_keep").prop('checked', false);
         }
+
+        {# Copy user title #}
         var $user_title = $("#confirm_user_title");
         $("#id_user_title").val($user_title.val());
+
+        {# Copy user extent #}
+        var $user_extent = $("#confirm_user_extent");
+        $("#id_user_extent").val($user_extent.val());
 
         var $analysis_form = $(".analysis.section form");
         $.post($analysis_form.attr('action'), $analysis_form.serialize(), function (data) {
@@ -246,6 +252,17 @@
                 hazard_exposure_rect_groups.addLayer(rect_layer);
             }
         });
+    }
+
+    /**
+     * Check analysis extent
+     */
+    function check_analysis_extent(hazard_id, exposure_id) {
+
+        return {
+            'is_valid': is_valid,
+            'reason': reason
+        }
     }
 
 </script>

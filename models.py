@@ -1,15 +1,14 @@
 from __future__ import absolute_import
 
-import os
 import urlparse
 
-from geosafe.app_settings import settings
+from celery.result import AsyncResult
 from django.core.files.base import File
 from django.core.urlresolvers import reverse
 from django.db import models
-from celery.result import AsyncResult
 
 from geonode.layers.models import Layer
+from geosafe.app_settings import settings
 
 
 # geosafe
@@ -78,6 +77,13 @@ class Analysis(models.Model):
         max_length=255,
         verbose_name='User defined title for analysis',
         help_text='Title to assign after analysis is generated.',
+        blank=True,
+        null=True,
+    )
+    user_extent = models.CharField(
+        max_length=255,
+        verbose_name='Analysis extent',
+        help_text='User defined BBOX for analysis extent',
         blank=True,
         null=True,
     )
@@ -268,4 +274,3 @@ class Analysis(models.Model):
 
 
 # needed to load signals
-from geosafe import signals  # noqa

@@ -1,5 +1,4 @@
 # coding=utf-8
-import os
 
 from django.conf import settings as django_settings
 from django.core.exceptions import ImproperlyConfigured

@@ -2,6 +2,7 @@
 
 from __future__ import absolute_import
 
+import ast
 import logging
 import os
 import urlparse
@@ -147,6 +148,12 @@ def prepare_analysis(analysis_id):
     exposure = get_layer_path(analysis.exposure_layer)
     function = analysis.impact_function_id
 
+    extent = analysis.user_extent
+
+    if extent:
+        # Reformat extent into list(float)
+        extent = ast.literal_eval('[' + extent + ']')
+
     # Execute analysis in chains:
     # - Run analysis
     # - Process analysis result
@@ -155,10 +162,11 @@ def prepare_analysis(analysis_id):
             hazard,
             exposure,
             function,
-            generate_report=True
+            generate_report=True,
+            requested_extent=extent
         ).set(
             queue='inasafe-headless-analysis').set(
-            time_limit=settings.ANALYSIS_RUN_TIME_LIMIT),
+            time_limit=settings.INASAFE_ANALYSIS_RUN_TIME_LIMIT),
         process_impact_result.s(
             analysis_id
         ).set(queue='geosafe')

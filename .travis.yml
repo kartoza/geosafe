@@ -41,35 +41,39 @@ before_install:
 
 install:
   # setup files
+  - pip install flake8
   - pwd
   - cd deployment
-  - cp ansible/development/group_vars/${ALL_FILE} ansible/development/group_vars/all.yml
-  # Replace original reference of geosafe to this geosafe
-  - sed -i 's/\/src\/geosafe/\/..\/geosafe/g' ansible/development/group_vars/all.yml
-  # Run setup-ansible
-  - make setup-ansible ANSIBLE_ARGS="--extra-vars='ansible_sudo_pass=\"\"' --extra-vars='pycharm_version=\"\"' --skip-tags=development"
-  # Overwrite docker-compose.override.yml
-  - cp -f ../../geosafe/scripts/travis/docker-compose.override.yml docker-compose.override.yml
-  # show docker-compose.override.yml for debugging
-  - cat docker-compose.override.yml
-  - cd ../
-  - cd src/geonode
-  - make build
-  - make up
-  - make down
-  - cd ../../deployment
-  - make build
-  - make up
-  - until make sync; do echo "Retrying"; sleep 5; done
-  - docker-compose -p geonodedocker exec django pip install coverage
-  - docker-compose -p geonodedocker ps
+#  - cp ansible/development/group_vars/${ALL_FILE} ansible/development/group_vars/all.yml
+#  # Replace original reference of geosafe to this geosafe
+#  - sed -i 's/\/src\/geosafe/\/..\/geosafe/g' ansible/development/group_vars/all.yml
+#  # Run setup-ansible
+#  - make setup-ansible ANSIBLE_ARGS="--extra-vars='ansible_sudo_pass=\"\"' --extra-vars='pycharm_version=\"\"' --skip-tags=development"
+#  # Overwrite docker-compose.override.yml
+#  - cp -f ../../geosafe/scripts/travis/docker-compose.override.yml docker-compose.override.yml
+#  # show docker-compose.override.yml for debugging
+#  - cat docker-compose.override.yml
+#  - cd ../
+#  - cd src/geonode
+#  - make build
+#  - make up
+#  - make down
+#  - cd ../../deployment
+#  - make build
+#  - make up
+#  - until make sync; do echo "Retrying"; sleep 5; done
+#  - docker-compose -p geonodedocker exec django pip install coverage
+#  - docker-compose -p geonodedocker ps
 
 script:
   # Test Geosafe app
   - pwd
+  - cd ../../geosafe
+  - flake8 .
+  # TODO: implement proper unit testing method for celery
 #  - docker-compose -p geonodedocker exec inasafe-headless /bin/bash -c "cd /home/src/inasafe; source run-env-linux.sh /usr; nosetests -v headless --with-id"
 #  - docker-compose -p geonodedocker exec django coverage run --branch --source=geosafe manage.py test geosafe --noinput --liveserver=0.0.0.0:8000
-  - ls ../../geosafe
+
 
 after_success:
   - codecov

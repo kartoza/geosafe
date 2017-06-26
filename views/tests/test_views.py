@@ -47,4 +47,3 @@ class ViewsTest(LiveServerTestCase):
         self.assertFalse(is_filtered)
 
         hazard.delete()
-

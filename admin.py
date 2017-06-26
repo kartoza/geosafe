@@ -21,7 +21,9 @@ class AnalysisAdmin(admin.ModelAdmin):
         'extent_option',
         'impact_function_id',
         'keep',
-        'task_state'
+        'task_state',
+        'report_map',
+        'report_table'
     )
 
 

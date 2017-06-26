@@ -36,9 +36,9 @@ class RoadSummary(ImpactSummary):
             contain_not = 'not' in key.lower()
             contain_unaffected = 'unaffected' in key.lower()
             if (contain_total or
-                    (contain_affected and
-                         not contain_not and
-                         not contain_unaffected)):
+                    (contain_affected and not
+                     contain_not and not
+                     contain_unaffected)):
                 continue
 
             ret_val[key] = int(self.impact_data.get('impact summary').get(

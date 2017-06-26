@@ -93,6 +93,42 @@
             $("#confirm_exposure_title").val(exposure_layer_cbo.find('option:selected').text());
             $("#confirm_impact_title").val(impact_function_cbo.find('option:selected').text());
             $("#analysis-confirmation-modal").modal();
+            {# Ask GeoSAFE to validate extent #}
+            var data = {
+                'hazard_id': hazard_layer_cbo.find('option:selected').val(),
+                'exposure_id': exposure_layer_cbo.find('option:selected').val(),
+                'view_extent': map.getBounds().toBBoxString()
+            };
+            var $confirm_user_extent = $("#confirm_user_extent");
+            var $confirm_user_extent_message = $("#confirm_user_extent_message");
+            var $confirm_button = $("#analysis-confirmation-modal .modal-footer .btn.btn-primary");
+            $confirm_user_extent.val('-');
+            $confirm_user_extent_message.text('');
+            $confirm_button.prop('disabled', true);
+
+            $.post('{% url "geosafe:validate-analysis-extent" %}', data, function(data){
+                if(data){
+                    var is_valid = data.is_valid;
+                    var is_warned = data.is_warned;
+                    var reason = data.reason;
+                    var extent = data.extent;
+
+                    $confirm_user_extent.val(extent);
+                    var $message = $("#confirm_user_extent_message").text(reason);
+
+                    if(is_valid){
+                        $message.attr('class', 'label label-success');
+                        $confirm_button.prop('disabled', false);
+                    }
+                    else if(is_warned){
+                        $message.attr('class', 'label label-warning');
+                        $confirm_button.prop('disabled', false);
+                    }
+                    else{
+                        $message.attr('class', 'label label-danger');
+                    }
+                }
+            });
             return false;
         });
     }
@@ -123,7 +159,6 @@
             if_function.removeClass("set").removeClass("loading");
             $("#impact-function-list .selected").removeClass("selected");
             if (data.length == 0) {
-                console.log('No IF found')
                 $("<option></option>").text("No matching Impact Function").appendTo(select);
                 var $a = $("<p><a></a></p>");
                 $a.text("No matching Impact Function");

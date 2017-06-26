@@ -2,19 +2,15 @@
 
 from __future__ import absolute_import
 
+import io
+import os
 import re
 import shutil
-import os
-import tempfile
-import io
 import urllib
 import urlparse
-
 from zipfile import ZipFile
 
-import subprocess
 from celery.task import task
-from owslib.wfs import WebFeatureService
 
 from geonode.layers.utils import file_upload
 from geosafe.helpers.utils import download_file

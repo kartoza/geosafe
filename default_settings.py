@@ -50,4 +50,11 @@ GEONODE_BASE_URL = 'http://localhost:8000/'
 
 # Analysis Run Time Limit (in seconds)
 # Task will exit if exceeded this hard limit
-ANALYSIS_RUN_TIME_LIMIT = 600
+INASAFE_ANALYSIS_RUN_TIME_LIMIT = 600
+
+
+# Analysis area limit (in meter squares)
+# Create analysis will display warning if analysis extent
+# exceeded this limit. User will be able to continue analysis
+# with warning that analysis will might take a long time.
+INASAFE_ANALYSIS_AREA_LIMIT = 1000000000

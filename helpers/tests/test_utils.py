@@ -201,3 +201,6 @@ class TestHelpersUtils(LiveServerTestCase):
 
         # Doesn't change anything if not configured
         self.assertEqual(converted_impact_path, impact_url)
+
+        settings.set(
+            'GEOSAFE_IMPACT_OUTPUT_DIRECTORY', geosafe_impact_output_dir)

@@ -1,15 +1,14 @@
 # coding=utf-8
-from geonode.people.models import Profile
-from geosafe.tasks.headless.analysis import filter_impact_function
-
-__author__ = 'ismailsunni'
-
 import logging
 
-from django.forms import models
 from django import forms
+from django.forms import models
+
 from geonode.layers.models import Layer
+from geonode.people.models import Profile
 from geosafe.models import Analysis
+
+__author__ = 'ismailsunni'
 
 LOG = logging.getLogger(__name__)
 
@@ -21,6 +20,7 @@ class AnalysisCreationForm(models.ModelForm):
         model = Analysis
         fields = (
             'user_title',
+            'user_extent',
             'exposure_layer',
             'hazard_layer',
             'aggregation_layer',
@@ -34,6 +34,11 @@ class AnalysisCreationForm(models.ModelForm):
         required=False,
         widget=forms.TextInput(
             attrs={'placeholder': 'Default title generated'})
+    )
+
+    user_extent = forms.CharField(
+        label='Analysis Extent',
+        required=False,
     )
 
     exposure_layer = forms.ModelChoiceField(

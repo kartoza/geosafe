@@ -6,7 +6,8 @@ __author__ = 'Rizky Maulana Nugraha <lana.pcfre@gmail.com>'
 __date__ = '10/14/16'
 
 
-def csw_query_metadata_by_id(csw_url, identifier, username=None, password=None):
+def csw_query_metadata_by_id(
+        csw_url, identifier, username=None, password=None):
     csw = CatalogueServiceWeb(
         csw_url,
         username=username,

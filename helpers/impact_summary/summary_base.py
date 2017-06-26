@@ -3,7 +3,7 @@
 import json
 from collections import OrderedDict
 
-from geonode.layers.models import Layer, LayerFile
+from geonode.layers.models import LayerFile
 
 __author__ = 'Rizky Maulana Nugraha <lana.pcfre@gmail.com>'
 __date__ = '5/17/16'
@@ -20,7 +20,7 @@ class ImpactSummary(object):
         """
 
         :return: Impact Layer
-        :rtype: Layer
+        :rtype: geonode.layers.models.Layer
         """
         return self._impact_layer
 
@@ -91,7 +91,7 @@ class ImpactSummary(object):
         return ret_val
 
     def summary_attributes(self):
-        ret_val = OrderedDict()
+        attrs = OrderedDict()
         if self.is_summary_exists():
             attrs = self.impact_data.get('impact summary').get('attributes')
         return attrs
@@ -126,4 +126,3 @@ class ImpactSummary(object):
             return 'hazard-category-affected'
         else:
             return ''
-
