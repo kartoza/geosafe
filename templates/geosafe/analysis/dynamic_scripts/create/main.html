@@ -24,6 +24,7 @@
     var impact_function_cbo = $("#id_impact_function_id");
     var last_impact_id;
     var slider_exposure_val = 5, slider_hazard_val = 5, slider_impact_val = 5;
+    var not_logged_warning = undefined;
 
     {# Common function for global use #}
 
@@ -77,6 +78,13 @@
      */
     function show_info_text(title, content, context_class) {
         var $info_box = $(".info-box");
+        //add message when a user not login
+        if (not_logged_warning != undefined)
+        {
+            context_class = 'alert-danger';
+            content += not_logged_warning;
+        }
+
         if (context_class) {
             $info_box.addClass(context_class);
         }

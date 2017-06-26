@@ -11,6 +11,14 @@
      * This function is responsible for putting these complicated interactions
      */
     function init_layer_panel() {
+        //when a user has not logged in, show message in show_info_text
+        {% if not user.username %}
+            not_logged_warning = " <span class='alert-danger'> - Please <a href='#' data-toggle='modal' data-target='#SigninModal' role='button' >{% trans "sign in" %} </a> to save analysis </span>"
+        {% else %}
+            //otherwise, no warning message
+            not_logged_warning = undefined;
+        {% endif %}
+
         $('img.svg').each(function () {
             // take all panel's logo
             var $img = $(this);
@@ -493,9 +501,6 @@
                 update_hazard_layer(hazard_id, false);
                 update_impact_layer(impact_id, false);
                 check_layer_empty();
-                {% if not user.username %}
-                    show_info_text('<span class="text-danger">You have not logged in yet</span>', '<span class="alert-danger">Please login to save analysis</span>', 'alert-danger');
-                {% endif %}
                 check_popover();
             });
         });
