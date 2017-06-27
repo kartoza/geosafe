@@ -101,11 +101,12 @@
             var layer_name = data['layer_name'];
             var legend_url = data['legend_url'];
 
+            map.fitBounds([[layer_bbox_y1, layer_bbox_x1], [layer_bbox_y0, layer_bbox_x0]]);
+
             //show legend
             if (is_legend == false) {
                 is_legend = true;
                 $(".legend").toggle(is_legend);
-                map.fitBounds([[layer_bbox_y1, layer_bbox_x1], [layer_bbox_y0, layer_bbox_x0]]);
             }
 
             if (layer_purpose == 'exposure') {
