@@ -245,14 +245,16 @@
             var rect_layer;
             if (category == "hazard") {
                 rect_layer = L.rectangle(bounds, {
-                    color: "#000000",
+                    color: "#2c689c",
                     opacity: 0.3,
+                    fill: false,
                     weight: 1
                 });
             } else if (category == "exposure") {
                 rect_layer = L.rectangle(bounds, {
                     color: "#ff7800",
-                    opacity: 0.8,
+                    opacity: 0.3,
+                    fill: false,
                     weight: 1
                 });
             }
