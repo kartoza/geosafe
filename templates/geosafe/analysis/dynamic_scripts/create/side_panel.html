@@ -307,7 +307,17 @@
 
             show_info_text('InaSAFE Exposure', $a.text() + ' selected.');
         } else {
+            remove_layer(exposure_layer._url);
             map.removeLayer(exposure_layer);
+            $("#exposure-legend-img").removeAttr("src");
+            is_exposure = false;
+            $("#legend-exposure-body").toggle(is_exposure);
+            //if all layers doesn't exist anymore, hide legend
+            if (!is_exposure && !is_hazard & !is_impact)
+            {
+                is_legend = false;
+                $(".legend").toggle(is_legend);
+            }
             show_info_text('InaSAFE Exposure', 'Exposure unselected.');
         }
     }
@@ -381,7 +391,17 @@
 
             show_info_text('InaSAFE Hazard', $a.text() + ' selected.');
         } else {
+            remove_layer(hazard_layer._url);
             map.removeLayer(hazard_layer);
+            $("#hazard-legend-img").removeAttr("src");
+            is_hazard = false;
+            $("#legend-hazard-body").toggle(is_hazard);
+            //if all layers doesn't exist anymore, hide legend
+            if (!is_exposure && !is_hazard & !is_impact)
+            {
+                is_legend = false;
+                $(".legend").toggle(is_legend);
+            }
             show_info_text('InaSAFE Hazard', 'Hazard unselected.');
         }
     }
@@ -439,7 +459,17 @@
             update_map(layer_id, 'impact');
             show_info_text('InaSAFE Impact', $a.text() + ' selected.');
         } else {
+            remove_layer(impact_layer._url);
             map.removeLayer(impact_layer);
+            $("#impact-legend-img").removeAttr("src");
+            is_impact = false;
+            $("#legend-impact-body").toggle(is_impact);
+            //if all layers doesn't exist anymore, hide legend
+            if (!is_exposure && !is_hazard & !is_impact)
+            {
+                is_legend = false;
+                $(".legend").toggle(is_legend);
+            }
             show_info_text('InaSAFE Impact', 'Impact unselected.');
         }
     }
