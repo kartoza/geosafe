@@ -110,7 +110,10 @@
             var layer_name = data['layer_name'];
             var legend_url = data['legend_url'];
 
-            map.fitBounds([[layer_bbox_y1, layer_bbox_x1], [layer_bbox_y0, layer_bbox_x0]]);
+            //zoom when any of the following scenarios don't meet
+            if (!((is_exposure == true && layer_purpose == 'exposure') | (is_hazard == true && layer_purpose == 'hazard') | (is_impact == true && layer_purpose == 'impact') )) {
+                map.fitBounds([[layer_bbox_y1, layer_bbox_x1], [layer_bbox_y0, layer_bbox_x0]]);
+            }
 
             //show legend
             if (is_legend == false) {
