@@ -122,7 +122,7 @@
                     var extent = data.extent;
 
                     $confirm_user_extent.val(extent);
-                    var $message = $("#confirm_user_extent_message").text(reason);
+                    var $message = $("#confirm_user_extent_message").html(reason);
 
                     if(is_valid){
                         $message.attr('class', 'label label-success');

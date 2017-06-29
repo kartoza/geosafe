@@ -517,6 +517,7 @@ def validate_analysis_extent(request):
             message = _(
                 'Analysis extent exceeded area limit: {limit} m<sup>2</sup.'
                 'Analysis might take a long time to complete.')
+            message = message.format(limit=area_limit)
             retval = {
                 'is_valid': True,
                 'is_warned': True,
