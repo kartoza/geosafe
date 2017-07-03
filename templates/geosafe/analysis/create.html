@@ -574,7 +574,8 @@
                     }]
             }).addTo(map);
 
-            {# Showing markers for all available layers #}
+            {# Showing markers for all available layers, except if analysis being run #}
+            {%  if not analysis and analysis.get_task_state != "" %}
             if(hazard_layer_cbo != undefined && exposure_layer_cbo != undefined)
             {
                 var num_hazard = hazard_layer_cbo[0].length;
@@ -595,7 +596,10 @@
                         show_marker(layer_id, "exposure");
                     }
                 }
+                //use markers as the default
+                map.addLayer(hazard_exposure_marker_groups);
             }
+            {% endif %}
 
             var w_width = $(window).width();
             var map_width = w_width - 70;

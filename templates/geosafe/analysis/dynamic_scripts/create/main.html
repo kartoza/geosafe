@@ -238,7 +238,6 @@
             //default use of the marker
             var layer = L.marker([data['layer_bbox_y0'], data['layer_bbox_x0']]);
             hazard_exposure_marker_groups.addLayer(layer);
-            map.addLayer(hazard_exposure_marker_groups);
 
             //use later, particularly if zoom > 10
             bounds = [[data['layer_bbox_y0'], data['layer_bbox_x0']], [data['layer_bbox_y1'], data['layer_bbox_x1']]];

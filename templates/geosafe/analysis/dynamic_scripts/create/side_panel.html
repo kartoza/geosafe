@@ -253,14 +253,16 @@
         }
 
         //replace marker with rectangle if the image fits the screen
-        if (map._zoom > 5) {
-            map.removeLayer(hazard_exposure_marker_groups);
-            map.addLayer(hazard_exposure_rect_groups);
+        {%  if not analysis  and analysis.get_task_state != "" %}
+            if (map.getZoom() > 5) {
+                map.removeLayer(hazard_exposure_marker_groups);
+                map.addLayer(hazard_exposure_rect_groups);
 
-        } else {
-            map.removeLayer(hazard_exposure_rect_groups);
-            map.addLayer(hazard_exposure_marker_groups);
-        }
+            } else {
+                map.removeLayer(hazard_exposure_rect_groups);
+                map.addLayer(hazard_exposure_marker_groups);
+            }
+        {% endif %}
 
 
         exposure_layer_cbo.val(layer_id);
@@ -338,15 +340,17 @@
         }
 
         //replace marker with rectangle if the image fits the screen
-        if (map._zoom > 5) {
-            map.removeLayer(hazard_exposure_marker_groups);
-            map.addLayer(hazard_exposure_rect_groups);
+        //make sure not calling by run analysis page
+        {%  if not analysis  and analysis.get_task_state != "" %}
+            if (map.getZoom() > 5) {
+                map.removeLayer(hazard_exposure_marker_groups);
+                map.addLayer(hazard_exposure_rect_groups);
 
-        } else {
-            map.removeLayer(hazard_exposure_rect_groups);
-            map.addLayer(hazard_exposure_marker_groups);
-        }
-
+            } else {
+                map.removeLayer(hazard_exposure_rect_groups);
+                map.addLayer(hazard_exposure_marker_groups);
+            }
+        {% endif %}
         hazard_layer_cbo.val(layer_id);
         retrieve_if_list();
 
