@@ -82,6 +82,10 @@ def create_metadata_object(self, layer_id):
         # Perhaps layer wasn't saved yet.
         # Retry later
         self.retry(exc=e, countdown=5)
+    except AttributeError as e:
+        # This signal is called too early
+        # We can't get layer file
+        pass
     return True
 
 
