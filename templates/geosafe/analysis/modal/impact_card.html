@@ -22,29 +22,48 @@
             <div class="modal-footer">
                 <div class="container col-xs-12">
                     <div class="row">
-                        {%  if links %}
-                        <a data-toggle="modal" data-target="#download-layer" role="button" class="btn btn-default btn-xs col-xs-3">Download layer</a>
-                        {%  endif %}
-                        <a href="{% url "layer_detail" layername=analysis.impact_layer.service_typename %}" role="button" class="btn btn-default btn-xs col-xs-3">Layer detail</a>
-                    </div>
-                    <div class="row">
-                        <a href="javascript:show_in_iframe('Impact Report', '{% url "geosafe:download-report" analysis_id=analysis.id data_type="map" %}')" role="button" class="btn btn-default btn-xs col-xs-3">Show map report</a>
-                        <a href="javascript:show_in_iframe('Impact Report', '{% url "geosafe:download-report" analysis_id=analysis.id data_type="table" %}')" role="button" class="btn btn-default btn-xs col-xs-3">Show table report</a>
-                        <a href="{% url "geosafe:download-report" analysis_id=analysis.id data_type="reports" %}" role="button" class="btn btn-default btn-xs col-xs-3">Download report</a>
-                        <div class="onoffswitch save-analysis col-xs-3">
-                            <input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox"
+                        <div class="btn-group col-xs-3">
+                            <button type="button" class="btn btn-default dropdown-toggle"
+                                    data-toggle="dropdown"
+                                    aria-haspopup="true" aria-expanded="false">
+                                Download <span class="caret"></span></button>
+                            <ul class="dropdown-menu">
+                                <li>
+                                    <a href="javascript:show_in_iframe('Impact Report', '{% url "geosafe:download-report" analysis_id=analysis.id data_type="map" %}')"
+                                       role="button">Impact report</a></li>
+                                <li>
+                                    <a href="javascript:show_in_iframe('Impact Report', '{% url "geosafe:download-report" analysis_id=analysis.id data_type="table" %}')"
+                                       role="button">Table report</a></li>
+                                <li>
+                                    <a href="{% url "geosafe:download-report" analysis_id=analysis.id data_type="reports" %}"
+                                       role="button">Download report</a></li>
+                            </ul>
+                        </div>
+                        <div class="save-analysis col-xs-3">
+                            <input type="checkbox" name="save_analysis"
                                    id="save_analysis_{{ analysis.id }}"
-                                   {% if analysis.keep %}checked{% endif %}
+                                    {% if analysis.keep %}
+                                   checked
+                                    {% endif %}
+                                    {% if not user.username %}
+                                   disabled
+                                    {% endif %}
                                    data-id="{{ analysis.id }}">
-                            <label class="onoffswitch-label" for="save_analysis_{{ analysis.id }}">
-                                <span class="processing-indicator">
+                            Keep
+                            <span class="processing-indicator">
                                     <i class="fa fa-spinner fa-spin"></i>
                                     PROCESSING
-                                </span>
-                                <span class="onoffswitch-inner"></span>
-{#                                <span class="onoffswitch-switch"></span>#}
-                            </label>
+                            </span>
                         </div>
+                        <button type="button" class="btn btn-default col-xs-3" id="btnclose" data-dismiss="modal">
+                            Close
+                        </button>
+                    </div>
+                    <div class="row col-xs-12">
+                        <span class="analysis-saved"></span>
+                        {% if not user.username %}
+                            <p class="alert-danger">Log in to keep analysis</p>
+                        {% endif %}
                     </div>
                 </div>
             </div>
