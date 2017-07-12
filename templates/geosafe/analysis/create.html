@@ -601,6 +601,7 @@
             {% endif %}
 
             var w_width = $(window).width();
+            var w_height = $(window).height();
             var map_width = w_width - 70;
 
             $("#map").css("width", map_width);
@@ -615,6 +616,7 @@
             hazard_layer_cbo.change(update_hazard_layer);
             aggregation_layer_cbo.change(update_aggregation_layer);
 
+            // Legend
             $(".legend").toggle(is_legend);
             $("#legend-exposure-body").toggle(is_exposure);
             $("#legend-hazard-body").toggle(is_hazard);
@@ -623,6 +625,9 @@
             $("#legend-title").click(function () {
                 $("#legend-body").toggle();
             });
+            // Add scrollbar in case of overflowing in dimension-y
+            $("#legend-body").css("max-height", 0.7*w_height);
+            $("#legend-body").css("overflow-y", "auto")
 
             {# method to prepare map view #}
             {% if analysis %}

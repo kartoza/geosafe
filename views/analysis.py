@@ -17,6 +17,7 @@ from django.shortcuts import render
 from django.views.generic import (
     ListView, CreateView, DetailView)
 from geonode.utils import bbox_to_wkt
+from guardian.shortcuts import get_objects_for_user
 
 from geonode.layers.models import Layer
 from geosafe.app_settings import settings
@@ -39,7 +40,8 @@ LOGGER = logging.getLogger("geosafe")
 logger = logging.getLogger("geonode.geosafe.analysis")
 
 
-def retrieve_layers(purpose, category=None, bbox=None):
+def retrieve_layers(
+        purpose, category=None, bbox=None, authorized_objects=None):
     """List all required layers.
 
     :param purpose: InaSAFE layer purpose that want to be filtered.
@@ -52,6 +54,9 @@ def retrieve_layers(purpose, category=None, bbox=None):
 
     :param bbox: Layer bbox to filter
     :type bbox: (float, float, float, float)
+
+    :param authorized_objects: List of authorized objects (list of dict of id)
+    :type authorized_objects: list
 
     :returns: filtered layer and a status for filtered.
         Status will return True, if it is filtered.
@@ -106,6 +111,8 @@ def retrieve_layers(purpose, category=None, bbox=None):
         metadatas = Metadata.objects.filter(
             layer_purpose=purpose, category=category)
         is_filtered = False
+    # Filter by permissions
+    metadatas = metadatas.filter(layer__id__in=authorized_objects)
     return [m.layer for m in metadatas], is_filtered
 
 
@@ -116,7 +123,7 @@ class AnalysisCreateView(CreateView):
     context_object_name = 'analysis'
 
     @classmethod
-    def options_panel_dict(cls, bbox=None):
+    def options_panel_dict(cls, authorized_objects=None, bbox=None):
         """Prepare a dictionary to be used in the template view
 
         :return: dict containing metadata for options panel
@@ -157,7 +164,11 @@ class AnalysisCreateView(CreateView):
             is_section_filtered = False
             for idx, c in enumerate(p.get('categories')):
                 layers, is_filtered = retrieve_layers(
-                    p.get('name'), c, bbox=bbox)
+                    p.get('name'),
+                    c,
+                    bbox=bbox,
+                    authorized_objects=authorized_objects
+                )
                 if is_filtered:
                     is_section_filtered = True
                 category = {
@@ -179,7 +190,11 @@ class AnalysisCreateView(CreateView):
             }
             sections.append(section)
 
-        impact_layers, is_filtered = retrieve_layers('impact', bbox=bbox)
+        impact_layers, is_filtered = retrieve_layers(
+            'impact',
+            bbox=bbox,
+            authorized_objects=authorized_objects
+        )
         total_impact_layers = len(impact_layers)
         sections.append({
             'name': 'impact',
@@ -197,7 +212,10 @@ class AnalysisCreateView(CreateView):
         return sections
 
     def get_context_data(self, **kwargs):
-        sections = self.options_panel_dict()
+        authorized_objects = get_objects_for_user(
+            self.request.user, 'base.view_resourcebase').values('id')
+        sections = self.options_panel_dict(
+            authorized_objects=authorized_objects)
         try:
             analysis = Analysis.objects.get(id=self.kwargs.get('pk'))
         except:
@@ -421,11 +439,21 @@ def layer_panel(request, bbox=None):
         return HttpResponseBadRequest()
 
     try:
-        sections = AnalysisCreateView.options_panel_dict(bbox=bbox)
+        authorized_objects = get_objects_for_user(
+            request.user, 'base.view_resourcebase').values('id')
+        sections = AnalysisCreateView.options_panel_dict(
+            authorized_objects=authorized_objects,
+            bbox=bbox)
         form = AnalysisCreationForm(
             user=request.user,
-            exposure_layer=retrieve_layers('exposure', bbox=bbox)[0],
-            hazard_layer=retrieve_layers('hazard', bbox=bbox)[0],
+            exposure_layer=retrieve_layers(
+                'exposure',
+                bbox=bbox,
+                authorized_objects=authorized_objects)[0],
+            hazard_layer=retrieve_layers(
+                'hazard',
+                bbox=bbox,
+                authorized_objects=authorized_objects)[0],
             impact_functions=Analysis.impact_function_list())
         context = {
             'sections': sections,
