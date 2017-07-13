@@ -127,6 +127,7 @@
                                 <a href="{% url 'layer_detail' layername=analysis.impact_layer.typename %}">{{ analysis.impact_layer }}</a>
                             {% else %}
                                 <div>Task Status: <span class="label label-{{ analysis.get_label_class }}">{{ analysis.get_task_state }}</span></div>
+                                        {{ analysis.hazard_layer }} on {{ analysis.exposure_layer }}
                                 {% if analysis.get_task_state == 'FAILURE' %}
                                 <div>
                                     <form action="{% url 'geosafe:rerun-analysis' analysis_id=analysis.id %}" method="post">
