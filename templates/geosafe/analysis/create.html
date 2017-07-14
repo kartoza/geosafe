@@ -2,10 +2,9 @@
 {% load bootstrap_tags %}
 {% load staticfiles %}
 {% load i18n avatar_tags %}
-{% load leaflet_tags %}
 
 {% block extra_head %}
-    {% leaflet_css %}
+    <link rel="stylesheet" href="{% static 'geosafe/css/leaflet.css' %}"/>
     <link rel="stylesheet" href="{% static 'geosafe/css/easy-button.css' %}"/>
     <link rel="stylesheet" href="{% static 'geosafe/css/main.css' %}"/>
     <link rel="stylesheet" href="{% static 'geosafe/css/bootstrap-slider.min.css' %}"/>
@@ -358,7 +357,7 @@
             float: right;
             margin: 30px;
             display: block;
-            z-index: 10;
+            z-index: 1000;
             padding: 0px;
             border: 1px solid #6d6c6c;
             border-radius: 5px;
@@ -383,6 +382,10 @@
         }
 
         /* overwrite the assets.min.css in geonode as this property cause misalignment in zoom buttons */
+        .leaflet-top {
+            z-index: 1000;
+        }
+
         .leaflet-control-zoom, .leaflet-control-zoomslider {
             left: 0px !important;
         }
@@ -417,7 +420,7 @@
     {% include "geosafe/analysis/modal/analysis_confirmation.html" %}
     {% include "geosafe/analysis/modal/impact_card.html" %}
     {% include "geosafe/analysis/modal/iframe_modal.html" %}
-    <div id="map" style="width: 100%; height: 100%; position:relative; margin-left: 70px; ">
+    <div id="map" style="width: 100%; height: 100%; position:relative; margin-left: 70px; z-index: 1;">
         <div class="legend" onmouseover="map.dragging.disable()" onmouseout="map.dragging.enable();">
             <div id="legend-title">
                 <a href="#" style="font-style: oblique; text-align: center;"><p>Legend</p></a>
@@ -479,7 +482,7 @@
 {% endblock %}
 
 {% block extra_script %}
-    {% leaflet_js %}
+    <script type="text/javascript" src="{% static 'geosafe/js/leaflet.js' %}"></script>
     <script type="text/javascript" src="{% static 'geosafe/js/easy-button.js' %}"></script>
     <script type="text/javascript" src="{% static 'geosafe/js/analysis.js' %}"></script>
     <script type="text/javascript" src="{% static 'geosafe/js/bootstrap-slider.min.js' %}"></script>
@@ -566,6 +569,7 @@
                     stateName: 'zoom-all',
                     icon: 'fa-globe',
                     title: 'Zoom to global view',
+                    zIndex: 1,
                     onClick: function (control) {
                         zoom_to_box(map, [0, 90, 0, -90]);
                         map._zoom = 2;
