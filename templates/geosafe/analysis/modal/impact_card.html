@@ -22,44 +22,50 @@
             <div class="modal-footer">
                 <div class="container col-xs-12">
                     <div class="row">
-                        <div class="btn-group col-xs-3">
-                            <button type="button" class="btn btn-default dropdown-toggle"
-                                    data-toggle="dropdown"
-                                    aria-haspopup="true" aria-expanded="false">
-                                Download <span class="caret"></span></button>
-                            <ul class="dropdown-menu">
-                                <li>
-                                    <a href="javascript:show_in_iframe('Impact Report', '{% url "geosafe:download-report" analysis_id=analysis.id data_type="map" %}')"
-                                       role="button">Impact report</a></li>
-                                <li>
-                                    <a href="javascript:show_in_iframe('Impact Report', '{% url "geosafe:download-report" analysis_id=analysis.id data_type="table" %}')"
-                                       role="button">Table report</a></li>
-                                <li>
-                                    <a href="{% url "geosafe:download-report" analysis_id=analysis.id data_type="reports" %}"
-                                       role="button">Download report</a></li>
-                            </ul>
+                        <div class="impact-thumbnail col-xs-6">
+                            <img id="impact-layer"/>
                         </div>
-                        <div class="save-analysis col-xs-3">
-                            <input type="checkbox" name="save_analysis"
-                                   id="save_analysis_{{ analysis.id }}"
-                                    {% if analysis.keep %}
-                                   checked
-                                    {% endif %}
-                                    {% if not user.username %}
-                                   disabled
-                                    {% endif %}
-                                   data-id="{{ analysis.id }}">
-                            Keep
-                            <span class="processing-indicator">
+                        <div class="impact-group-button col-xs-6">
+                            <div class="btn-group">
+                                <button type="button" class="btn btn-default dropdown-toggle"
+                                        data-toggle="dropdown"
+                                        aria-haspopup="true" aria-expanded="false">
+                                    Download <span class="caret"></span></button>
+                                <ul class="dropdown-menu">
+                                    <li>
+                                        <a href="javascript:show_in_iframe('Impact Report', '{% url "geosafe:download-report" analysis_id=analysis.id data_type="map" %}')"
+                                           role="button">Impact report</a></li>
+                                    <li>
+                                        <a href="javascript:show_in_iframe('Impact Report', '{% url "geosafe:download-report" analysis_id=analysis.id data_type="table" %}')"
+                                           role="button">Table report</a></li>
+                                    <li>
+                                        <a href="{% url "geosafe:download-report" analysis_id=analysis.id data_type="reports" %}"
+                                           role="button">Download report</a></li>
+                                </ul>
+                            </div>
+                            <div class="save-analysis">
+                                <input type="checkbox" name="save_analysis"
+                                       id="save_analysis_{{ analysis.id }}"
+                                        {% if analysis.keep %}
+                                       checked
+                                        {% endif %}
+                                        {% if not user.username %}
+                                       disabled
+                                        {% endif %}
+                                       data-id="{{ analysis.id }}">
+                                Keep
+                                <span class="processing-indicator">
                                     <i class="fa fa-spinner fa-spin"></i>
                                     PROCESSING
                             </span>
+                            </div>
+                            <button type="button" class="btn btn-default" id="btnclose" data-dismiss="modal">
+                                Close
+                            </button>
                         </div>
-                        <button type="button" class="btn btn-default col-xs-3" id="btnclose" data-dismiss="modal">
-                            Close
-                        </button>
                     </div>
-                    <div class="row col-xs-12">
+
+                    <div class="row">
                         <span class="analysis-saved"></span>
                         {% if not user.username %}
                             <p class="alert-danger">Log in to keep analysis</p>
@@ -96,3 +102,12 @@
         </div>
     </div>
 </div>
+{% block extra_script %}
+    {% if analysis and analysis.get_task_state != "" %}
+        <script type="text/javascript">
+            $.get('{% url 'geosafe:layer-thumbnail' %}', {'layer_id': {{    analysis.impact_layer_id  }}}, function (data) {
+                $("#impact-layer").attr("src", data['layer_thumbnail_url']);
+            });
+        </script>
+    {% endif %}
+{% endblock %}

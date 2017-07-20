@@ -104,6 +104,17 @@
     border-right: none;
     display: flex;
 }
+.impact-thumbnail, .impact-group-button {
+    height: 200px;
+    display: -webkit-flex;
+    display: flex;
+    -webkit-align-items: center;
+    align-items: center;
+    -webkit-justify-content: center;
+    justify-content: center;
+    margin-bottom: 0;
+    margin-top: 0;
+}
 .summary{
     display: flex;
     flex-direction: column;

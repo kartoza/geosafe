@@ -8,7 +8,9 @@ from geosafe.views.analysis import (
     AnalysisCreateView,
     AnalysisDetailView,
     impact_function_filter,
-    layer_tiles, layer_metadata, layer_archive, layer_list, rerun_analysis,
+    layer_tiles,
+    layer_thumbnail,
+    layer_metadata, layer_archive, layer_list, rerun_analysis,
     analysis_json, toggle_analysis_saved, download_report, layer_panel,
     analysis_summary, cancel_analysis, validate_analysis_extent)
 
@@ -38,6 +40,11 @@ urlpatterns = patterns(
         r'^analysis/layer-tiles$',
         layer_tiles,
         name='layer-tiles'
+    ),
+    url(
+        r'^analysis/layer-thumbnail$',
+        layer_thumbnail,
+        name='layer-thumbnail'
     ),
     url(
         r'^analysis/layer-metadata/(?P<layer_id>\d+)',

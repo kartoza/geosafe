@@ -349,6 +349,34 @@ def layer_tiles(request):
         return HttpResponseServerError()
 
 
+def layer_thumbnail(request):
+    """Ajax request to get a url for the thumbnail layer to show in the map.
+    """
+    if request.method != 'GET':
+        return HttpResponseBadRequest()
+    layer_id = request.GET.get('layer_id')
+    if not layer_id:
+        return HttpResponseBadRequest()
+    try:
+        layer = Layer.objects.get(id=layer_id)
+
+        context = {
+            'layer_thumbnail_url': layer.get_thumbnail_url(),
+            'layer_bbox_x0': float(layer.bbox_x0),
+            'layer_bbox_x1': float(layer.bbox_x1),
+            'layer_bbox_y0': float(layer.bbox_y0),
+            'layer_bbox_y1': float(layer.bbox_y1),
+            'layer_name': layer.name
+        }
+
+        return HttpResponse(
+            json.dumps(context), content_type="application/json"
+        )
+    except Exception as e:
+        LOGGER.exception(e)
+        return HttpResponseServerError()
+
+
 def layer_metadata(request, layer_id):
     """request to get layer's xml metadata"""
     if request.method != 'GET':
