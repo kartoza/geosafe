@@ -1,0 +1,29 @@
+<div class="legend" onmouseover="map.dragging.disable()" onmouseout="map.dragging.enable();">
+
+    <div id="legend-title">
+        <a href="#" style="font-style: oblique; text-align: center;"><p>Legend</p></a>
+    </div>
+    <div id="legend-body">
+        <div id="legend-hazard-body">
+            <p>Hazard</p>
+            <p><input class="transparency-slider" type="text" value="5" id="hazard-slider" data-slider-min="1"
+                      data-slider-max="10"
+                      data-slider-step="1" onchange="set_transparency();"></p>
+            <p><img id="hazard-legend-img"/></p>
+        </div>
+        <div id="legend-exposure-body">
+            <p>Exposure</p>
+            <p><input class="transparency-slider" type="text" value="5" id="exposure-slider" data-slider-min="1"
+                      data-slider-max="10"
+                      data-slider-step="1" onchange="set_transparency();"></p>
+            <p><img id="exposure-legend-img"/></p>
+        </div>
+        <div id="legend-impact-body">
+            <p>Impact</p>
+            <p><input class="transparency-slider" type="text" value="5" id="impact-slider" data-slider-min="1"
+                      data-slider-max="10"
+                      data-slider-step="1" onchange="set_transparency();"></p>
+            <p><img id="impact-legend-img"/></p>
+        </div>
+    </div>
+</div>

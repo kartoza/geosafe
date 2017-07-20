@@ -63,7 +63,7 @@
             color: #757575;
             text-align: center;
             font-size: 12px;
-            z-index: 200;
+            z-index: 401;
         }
 
         .options-panel .option {
@@ -294,11 +294,8 @@
         }
 
         .leaflet-top, .leaflet-bottom {
-            z-index: 10;
-        }
-
-        .leaflet-bottom {
             bottom: 46px;
+            z-index: 400;
         }
 
         .status-bar {
@@ -308,6 +305,7 @@
             color: #757575;
             width: 100%;
             height: 46px;
+            z-index: 400;
         }
 
         .info-box {
@@ -350,6 +348,14 @@
             display: inline-block;
         }
 
+        .slow-loading {
+            width: auto;
+            height: auto;
+            position: relative;
+            float: left;
+            z-index: 1000;
+        }
+
         .legend {
             width: auto;
             height: auto;
@@ -382,12 +388,9 @@
         }
 
         /* overwrite the assets.min.css in geonode as this property cause misalignment in zoom buttons */
-        .leaflet-top {
-            z-index: 1000;
-        }
-
         .leaflet-control-zoom, .leaflet-control-zoomslider {
             left: 0px !important;
+            z-index: 500;
         }
 
     </style>
@@ -420,32 +423,11 @@
     {% include "geosafe/analysis/modal/analysis_confirmation.html" %}
     {% include "geosafe/analysis/modal/impact_card.html" %}
     {% include "geosafe/analysis/modal/iframe_modal.html" %}
-    <div id="map" style="width: 100%; height: 100%; position:relative; margin-left: 70px; z-index: 1;">
-        <div class="legend" onmouseover="map.dragging.disable()" onmouseout="map.dragging.enable();">
-            <div id="legend-title">
-                <a href="#" style="font-style: oblique; text-align: center;"><p>Legend</p></a>
-            </div>
-            <div id="legend-body">
-                <div id="legend-hazard-body">
-                    <p>Hazard</p>
-                    <p><input class="transparency-slider" type="text" value="5" id="hazard-slider" data-slider-min="1" data-slider-max="10"
-                              data-slider-step="1" onchange="set_transparency();"></p>
-                    <p><img id="hazard-legend-img"/></p>
-                </div>
-                <div id="legend-exposure-body">
-                    <p>Exposure</p>
-                    <p><input class="transparency-slider" type="text" value="5" id="exposure-slider" data-slider-min="1" data-slider-max="10"
-                              data-slider-step="1" onchange="set_transparency();"></p>
-                    <p><img id="exposure-legend-img"/></p>
-                </div>
-                <div id="legend-impact-body">
-                    <p>Impact</p>
-                    <p><input class="transparency-slider" type="text" value="5" id="impact-slider" data-slider-min="1" data-slider-max="10"
-                              data-slider-step="1" onchange="set_transparency();"></p>
-                    <p><img id="impact-legend-img"/></p>
-                </div>
-            </div>
+    <div id="map" style="width: 100%; height: 100%; position:relative; margin-left: 70px; ">
+        <div class="slow-loading">
+            <i class="fa fa-spinner fa-spin"></i>&nbsp;Please wait while the page is loading....
         </div>
+        {% include "geosafe/analysis/legend.html" %}
         <div class="modal fade" id="upgrade-browser" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
              aria-hidden="true">
             <div class="modal-dialog">
@@ -492,13 +474,32 @@
     {% include  "geosafe/analysis/dynamic_scripts/create/main.html" %}
 
     <script type="text/javascript">
+    window.onload = function() {
+        //page fully loaded, hide the slow-loading notification
+        $(".slow-loading").toggle(false);
+    };
         {# Initialization script of the page. #}
         $(document).ready(function () {
+            $(".slow-loading").toggle(true);
 
             //check browser compatibility against ECMA Script 5
             if (!Modernizr.json || !Modernizr.es5) {
                 $('#upgrade-browser').modal('toggle');
             }
+
+            // Legend
+            $(".legend").toggle(is_legend);
+            $("#legend-exposure-body").toggle(is_exposure);
+            $("#legend-hazard-body").toggle(is_hazard);
+            $("#legend-impact-body").toggle(is_impact);
+            //hide/view legend
+            $("#legend-title").click(function () {
+                $("#legend-body").toggle();
+            });
+
+            // Add scrollbar in case of overflowing in dimension-y
+            $("#legend-body").css("max-height", 0.7 * w_height);
+            $("#legend-body").css("overflow-y", "auto")
 
             {# initialize tooltip #}
             $(function () {
@@ -520,7 +521,6 @@
                 layers: [OpenMapSurfer_Roads],
                 minZoom: 2
             });
-
             {# Zoom first to global world view #}
             zoom_to_box(map, [0, 45, 0, -45]);
 
@@ -619,19 +619,6 @@
             exposure_layer_cbo.change(update_exposure_layer);
             hazard_layer_cbo.change(update_hazard_layer);
             aggregation_layer_cbo.change(update_aggregation_layer);
-
-            // Legend
-            $(".legend").toggle(is_legend);
-            $("#legend-exposure-body").toggle(is_exposure);
-            $("#legend-hazard-body").toggle(is_hazard);
-            $("#legend-impact-body").toggle(is_impact);
-            //hide/view legend
-            $("#legend-title").click(function () {
-                $("#legend-body").toggle();
-            });
-            // Add scrollbar in case of overflowing in dimension-y
-            $("#legend-body").css("max-height", 0.7*w_height);
-            $("#legend-body").css("overflow-y", "auto")
 
             {# method to prepare map view #}
             {% if analysis %}
