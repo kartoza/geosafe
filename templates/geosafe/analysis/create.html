@@ -474,10 +474,11 @@
     {% include  "geosafe/analysis/dynamic_scripts/create/main.html" %}
 
     <script type="text/javascript">
-    window.onload = function() {
-        //page fully loaded, hide the slow-loading notification
-        $(".slow-loading").toggle(false);
-    };
+        window.onload = function() {
+            //page fully loaded, hide the slow-loading notification
+            $(".slow-loading").toggle(false);
+        };
+
         {# Initialization script of the page. #}
         $(document).ready(function () {
             $(".slow-loading").toggle(true);
