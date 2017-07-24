@@ -337,7 +337,7 @@ def layer_tiles(request):
             'layer_bbox_x1': float(layer.bbox_x1),
             'layer_bbox_y0': float(layer.bbox_y0),
             'layer_bbox_y1': float(layer.bbox_y1),
-            'layer_name': layer.name,
+            'layer_name': layer.title,
             'legend_url': layer.get_legend_url()
         }
 
