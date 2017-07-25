@@ -1,7 +1,7 @@
 {% extends 'geonode_base.html' %}
 {% load bootstrap_tags %}
 {% block extra_head %}
-    <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet/v0.7.7/leaflet.css"/>
+    {% leaflet_css %}
 {% endblock extra_head %}
 {% block body_outer %}
     <div class="page-header">
@@ -72,7 +72,7 @@
 {% endblock body_outer %}
 
 {% block extra_script %}
-    <script src="http://cdn.leafletjs.com/leaflet/v0.7.7/leaflet.js"></script>
+    {% leaflet_js %}
     <script>
         (function () {
             // your page initialization code here

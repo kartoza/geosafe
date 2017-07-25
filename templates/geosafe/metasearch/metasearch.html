@@ -2,9 +2,9 @@
 {% load bootstrap_tags %}
 {% load staticfiles %}
 {% load i18n avatar_tags %}
-
+{% load leaflet_tags %}
 {% block extra_head %}
-    <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet/v0.7.7/leaflet.css"/>
+    {% leaflet_css %}
     <link rel="stylesheet" href="{% static 'geosafe/css/easy-button.css' %}"/>
 {% endblock %}
 
@@ -28,7 +28,7 @@
 {% endblock %}
 
 {% block extra_script %}
-    <script src="http://cdn.leafletjs.com/leaflet/v0.7.7/leaflet.js"></script>
+    {% leaflet_js %}
     <script type="text/javascript" src="{% static 'geosafe/js/easy-button.js' %}"></script>
     <script type="text/javascript">
         function show_add_layer_dialog(layer_id) {

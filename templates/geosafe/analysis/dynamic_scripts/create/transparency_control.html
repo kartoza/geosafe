@@ -182,5 +182,11 @@
 
     $(document).ready(function () {
         $(".transparency-slider").bootstrapSlider().on('slide', set_transparency);
+        $(".legend").mouseover(function(){
+           map.dragging.disable();
+        });
+        $(".legend").mouseout(function(){
+           map.dragging.enable();
+        });
     });
 </script>

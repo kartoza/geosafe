@@ -2,9 +2,10 @@
 {% load bootstrap_tags %}
 {% load staticfiles %}
 {% load i18n avatar_tags %}
+{% load leaflet_tags %}
 
 {% block extra_head %}
-    <link rel="stylesheet" href="{% static 'geosafe/css/leaflet.css' %}"/>
+    {% leaflet_css %}
     <link rel="stylesheet" href="{% static 'geosafe/css/easy-button.css' %}"/>
     <link rel="stylesheet" href="{% static 'geosafe/css/main.css' %}"/>
     <link rel="stylesheet" href="{% static 'geosafe/css/bootstrap-slider.min.css' %}"/>
@@ -464,7 +465,7 @@
 {% endblock %}
 
 {% block extra_script %}
-    <script type="text/javascript" src="{% static 'geosafe/js/leaflet.js' %}"></script>
+    {% leaflet_js %}
     <script type="text/javascript" src="{% static 'geosafe/js/easy-button.js' %}"></script>
     <script type="text/javascript" src="{% static 'geosafe/js/analysis.js' %}"></script>
     <script type="text/javascript" src="{% static 'geosafe/js/bootstrap-slider.min.js' %}"></script>
