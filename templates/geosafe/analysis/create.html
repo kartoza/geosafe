@@ -523,8 +523,15 @@
                 layers: [OpenMapSurfer_Roads],
                 minZoom: 2
             });
-            {# Zoom first to global world view #}
-            zoom_to_box(map, [0, 45, 0, -45]);
+
+            {%  if analysis and analysis.user_extent %}
+                {# analysis is executed, zoom to the closest extent #}
+                user_extent_string = [{{ analysis.user_extent }}];
+                zoom_to_box(map, user_extent_string);
+            {% else %}
+                {# the page load for the first time, zoom first to global world view #}
+                zoom_to_box(map, [0, 45, 0, -45]);
+            {% endif %}
 
             {# At the end of map dragging, always filter layer #}
             map.on('moveend', function (e) {
