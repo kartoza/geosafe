@@ -550,6 +550,7 @@ def validate_analysis_extent(request):
                 'is_valid': True,
                 'is_warned': True,
                 'extent': view_extent,
+                'area': area,
                 'reason': message
             }
             return HttpResponse(
@@ -562,6 +563,7 @@ def validate_analysis_extent(request):
             'is_valid': True,
             'is_warned': False,
             'extent': view_extent,
+            'area': area,
             'reason': message
         }
         return HttpResponse(

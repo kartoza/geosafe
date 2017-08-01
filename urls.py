@@ -72,6 +72,11 @@ urlpatterns = patterns(
         name='validate-analysis-extent'
     ),
     url(
+        r'^analysis/extent/calculate/',
+        validate_analysis_extent,
+        name='calculate-area'
+    ),
+    url(
         r'^analysis/rerun/'
         r'(?P<analysis_id>\d+)',
         rerun_analysis,

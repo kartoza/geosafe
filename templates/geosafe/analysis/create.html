@@ -470,6 +470,7 @@
     <script type="text/javascript" src="{% static 'geosafe/js/analysis.js' %}"></script>
     <script type="text/javascript" src="{% static 'geosafe/js/bootstrap-slider.min.js' %}"></script>
     <script type="text/javascript" src="{% static 'geosafe/js/modernizr-custom.js' %}"></script>
+    <script type="text/javascript" src="{% static 'geosafe/js/numeral.min.js' %}"></script>
 
     {# Separate common function and variables in another file for organization reasons #}
     {% include  "geosafe/analysis/dynamic_scripts/create/main.html" %}
@@ -667,7 +668,23 @@
                         setTimeout(check_analysis, 30000);
                     {% endif %}
                 {% endif %}
+                //calculate area is done on the backend
+                //let show the result here
+                var post_data = {
+                    'hazard_id': {{ analysis.hazard_layer_id }},
+                    'exposure_id': {{ analysis.exposure_layer_id }},
+                    'view_extent': '{{ analysis.user_extent }}'
+                };
+                var analysis_url = '{% url 'geosafe:calculate-area' %}';
+                $.post(analysis_url, post_data, function (data) {
+                    if (data) {
+                        area = data['area'] / 1000000;
+                        formatted_area = numeral(area).format('0,0');
+                        $('#analysis_area').text(formatted_area);
+                    }
+                });
             {% endif %}
+
 
         });
     </script>
