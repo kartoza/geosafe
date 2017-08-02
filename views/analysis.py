@@ -541,14 +541,17 @@ def validate_analysis_extent(request):
         area_limit = settings.INASAFE_ANALYSIS_AREA_LIMIT
         if area > area_limit:
             # Area exceeded designated area limit.
-            # Give warning but still allows analysis.
+            # Don't allow analysis when exceeding area limit
             message = _(
-                'Analysis extent exceeded area limit: {limit} m<sup>2</sup.'
-                'Analysis might take a long time to complete.')
+                'Analysis extent exceeded area limit: {limit} km<sup>2</sup>.'
+                '<br />&nbsp;Analysis might take a long time to complete. '
+                '<br />&nbsp;Please reduce extent and try again')
+            # Convert m2 into km2.
+            area_limit = area_limit / 1000000
             message = message.format(limit=area_limit)
             retval = {
-                'is_valid': True,
-                'is_warned': True,
+                'is_valid': False,
+                'is_warned': False,
                 'extent': view_extent,
                 'area': area,
                 'reason': message
