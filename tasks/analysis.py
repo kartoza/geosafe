@@ -6,6 +6,7 @@ import ast
 import logging
 import os
 import urlparse
+from datetime import datetime
 from zipfile import ZipFile
 
 from celery import chain
@@ -253,6 +254,7 @@ def process_impact_result(self, impact_url, analysis_id):
 
                 analysis.task_id = process_impact_result.request.id
                 analysis.task_state = 'SUCCESS'
+                analysis.end_time = datetime.now().strftime('%Y-%m-%d %H:%M')
                 analysis.save()
 
                 if current_impact:

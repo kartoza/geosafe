@@ -6,10 +6,10 @@ from celery.result import AsyncResult
 from django.core.files.base import File
 from django.core.urlresolvers import reverse
 from django.db import models
+from datetime import datetime
 
 from geonode.layers.models import Layer
 from geosafe.app_settings import settings
-
 
 # geosafe
 # list of tags to get to the InaSAFE keywords.
@@ -179,6 +179,16 @@ class Analysis(models.Model):
         blank=True,
         null=True,
         upload_to='analysis/report/'
+    )
+
+    start_time = models.DateTimeField(
+        'start_time',
+        default=datetime.now
+    )
+
+    end_time = models.DateTimeField(
+        'end_time',
+        default=datetime.now
     )
 
     def assign_report_map(self, filename):
