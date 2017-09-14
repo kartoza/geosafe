@@ -32,8 +32,8 @@ class GeoSAFEException(BaseException):
 # Create your models here.
 class Metadata(models.Model):
     """Represent metadata for a layer."""
-    layer = models.OneToOneField(Layer, primary_key=True,
-                                 related_name='metadata')
+    layer = models.OneToOneField(
+        Layer, primary_key=True, related_name='inasafe_metadata')
     layer_purpose = models.CharField(
         verbose_name='Purpose of the Layer',
         max_length=20,
@@ -45,6 +45,12 @@ class Metadata(models.Model):
         verbose_name='The category of layer purpose that describes a kind of'
                      'hazard or exposure this layer is',
         max_length=30,
+        blank=True,
+        null=True,
+        default=''
+    )
+    keywords_xml = models.TextField(
+        verbose_name='Full representation of InaSAFE keywords in xml format',
         blank=True,
         null=True,
         default=''

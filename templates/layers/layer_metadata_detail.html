@@ -1,0 +1,39 @@
+{% extends "metadata_detail.html" %}
+
+{% load i18n %}
+{% load bootstrap_tags %}
+
+
+{% block body_outer %}
+    {{ block.super }}
+
+    {% if resource.inasafe_metadata %}
+        {% with metadata=resource.inasafe_metadata %}
+        <article class="description tab-pane" id="inasafe-info">
+            <span class="subtitle">{% trans "InaSAFE" %}</span>
+            <div class="sep_title"><hr></div>
+
+            <dl class="dl-horizontal">
+
+                {% if metadata.layer_purpose %}
+                <dt>{% trans "Layer Purpose" %}</dt>
+                <dd>{{ metadata.layer_purpose|capfirst }}</dd>
+                {% endif %}
+
+                {% if metadata.category %}
+                <dt>{% trans "Category" %}</dt>
+                <dd>{{ metadata.category|capfirst }}</dd>
+                {% endif %}
+
+                {% if metadata.keywords_xml %}
+                <dt>{% trans "Keywords XML" %}</dt>
+                <dd>
+                    {{ metadata.keywords_xml|escape|urlize|linebreaks|safe }}
+                </dd>
+                {% endif %}
+
+            </dl>
+        </article>
+        {% endwith %}
+    {% endif %}
+{% endblock %}

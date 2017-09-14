@@ -12,7 +12,10 @@ from zipfile import ZipFile
 from celery import chain
 from django.core.urlresolvers import reverse
 from django.db.models.query_utils import Q
+from lxml import etree
+from lxml.etree import XML, Element
 
+from geonode.base.models import ResourceBase
 from geonode.layers.models import Layer
 from geonode.layers.utils import file_upload
 from geosafe.app_settings import settings
@@ -30,6 +33,105 @@ __author__ = 'lucernae'
 
 
 LOGGER = logging.getLogger(__name__)
+
+
+@app.task(
+    name='geosafe.tasks.analysis.inasafe_metadata_fix',
+    queue='geosafe')
+def inasafe_metadata_fix(layer_id):
+    """Attempt to fix problem of InaSAFE metadata.
+
+    This fix is needed to make sure InaSAFE metadata is persisted in GeoNode
+    and is used correctly by GeoSAFE.
+
+    This bug happens because InaSAFE metadata implement wrong schema type in
+    supplementalInformation.
+
+    :param layer_id: layer ID
+    :type layer_id: int
+    :return:
+    """
+
+    # Take InaSAFE keywords from xml metadata *file*
+    try:
+        instance = Layer.objects.get(id=layer_id)
+        xml_file = instance.upload_session.layerfile_set.get(name='xml')
+
+        # if xml file exists, check supplementalInformation field
+        namespaces = {
+            'gmd': 'http://www.isotc211.org/2005/gmd',
+            'gco': 'http://www.isotc211.org/2005/gco'
+        }
+        content = xml_file.file.read()
+        root = XML(content)
+        supplemental_info = root.xpath(
+            '//gmd:supplementalInformation',
+            namespaces=namespaces)[0]
+
+        # Check that it contains InaSAFE metadata
+        inasafe_el = supplemental_info.find('inasafe')
+        inasafe_provenance_el = supplemental_info.find('inasafe_provenance')
+
+        # Take InaSAFE metadata
+        if not inasafe_el:
+            # Do nothing if InaSAFE tag didn't exists
+            return
+
+        # Take root xml from layer metadata_xml field
+        layer_root_xml = XML(instance.metadata_xml)
+        layer_sup_info = layer_root_xml.xpath(
+            '//gmd:supplementalInformation',
+            namespaces=namespaces)[0]
+
+        char_string_tagname = '{%s}CharacterString' % namespaces['gco']
+
+        layer_sup_info_content = layer_sup_info.find(char_string_tagname)
+        if not layer_sup_info_content:
+            # Insert gco:CharacterString value
+            el = Element(char_string_tagname)
+            layer_sup_info.insert(0, el)
+
+        # put InaSAFE keywords after CharacterString
+        layer_inasafe_meta_content = layer_sup_info.find('inasafe')
+        if not layer_inasafe_meta_content:
+            layer_sup_info.insert(1, inasafe_el)
+
+        # provenance only shows up on impact layers
+        layer_inasafe_meta_provenance = layer_sup_info.find(
+            'inasafe_provenance')
+        if not layer_inasafe_meta_provenance and inasafe_provenance_el:
+            layer_sup_info.insert(1, inasafe_provenance_el)
+
+        # write back to resource base so the same thing returned by csw
+        resources = ResourceBase.objects.filter(
+            id=instance.resourcebase_ptr.id)
+        resources.update(
+            metadata_xml=etree.tostring(layer_root_xml, pretty_print=True))
+
+        # update qgis server xml file
+        with open(xml_file.file.path, mode='w') as f:
+            f.write(etree.tostring(layer_root_xml, pretty_print=True))
+
+        qgis_layer = instance.qgis_layer
+        qgis_xml_file = '{prefix}.xml'.format(
+            prefix=qgis_layer.qgis_layer_path_prefix)
+        with open(qgis_xml_file, mode='w') as f:
+            f.write(etree.tostring(layer_root_xml, pretty_print=True))
+
+        # update InaSAFE keywords cache
+
+        metadata, created = Metadata.objects.get_or_create(layer=instance)
+        inasafe_metadata_xml = etree.tostring(inasafe_el, pretty_print=True)
+        if inasafe_provenance_el:
+            inasafe_metadata_xml += '\n'
+            inasafe_metadata_xml += etree.tostring(
+                inasafe_provenance_el, pretty_print=True)
+        metadata.keywords_xml = inasafe_metadata_xml
+        metadata.save()
+
+    except Exception as e:
+        LOGGER.debug(e)
+        pass
 
 
 @app.task(
@@ -106,11 +208,7 @@ def set_layer_purpose(keywords, layer_id):
     :rtype: bool
     """
     layer = Layer.objects.get(id=layer_id)
-    try:
-        metadata = Metadata.objects.get(layer=layer)
-    except Metadata.DoesNotExist:
-        metadata = Metadata()
-        metadata.layer = layer
+    metadata, created = Metadata.objects.get_or_create(layer=layer)
 
     metadata.layer_purpose = keywords.get('layer_purpose', None)
     metadata.category = keywords.get(metadata.layer_purpose, None)

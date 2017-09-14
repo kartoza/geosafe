@@ -44,7 +44,8 @@ class AnalysisCreationForm(models.ModelForm):
     exposure_layer = forms.ModelChoiceField(
         label='Exposure Layer',
         required=True,
-        queryset=Layer.objects.filter(metadata__layer_purpose='exposure'),
+        queryset=Layer.objects.filter(
+            inasafe_metadata__layer_purpose='exposure'),
         widget=forms.Select(
             attrs={'class': 'form-control'})
     )
@@ -52,7 +53,8 @@ class AnalysisCreationForm(models.ModelForm):
     hazard_layer = forms.ModelChoiceField(
         label='Hazard Layer',
         required=True,
-        queryset=Layer.objects.filter(metadata__layer_purpose='hazard'),
+        queryset=Layer.objects.filter(
+            inasafe_metadata__layer_purpose='hazard'),
         widget=forms.Select(
             attrs={'class': 'form-control'})
     )
@@ -60,7 +62,8 @@ class AnalysisCreationForm(models.ModelForm):
     aggregation_layer = forms.ModelChoiceField(
         label='Aggregation Layer',
         required=False,
-        queryset=Layer.objects.filter(metadata__layer_purpose='aggregation'),
+        queryset=Layer.objects.filter(
+            inasafe_metadata__layer_purpose='aggregation'),
         widget=forms.Select(
             attrs={'class': 'form-control'})
     )

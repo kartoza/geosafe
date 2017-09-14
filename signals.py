@@ -5,7 +5,8 @@ from django.dispatch import receiver
 
 from geonode.layers.models import Layer
 from geosafe.models import Analysis
-from geosafe.tasks.analysis import create_metadata_object, prepare_analysis
+from geosafe.tasks.analysis import create_metadata_object, prepare_analysis, \
+    inasafe_metadata_fix
 
 __author__ = 'Rizky Maulana Nugraha <lana.pcfre@gmail.com>'
 __date__ = '2/3/16'
@@ -13,6 +14,18 @@ __date__ = '2/3/16'
 
 @receiver(post_save, sender=Layer)
 def layer_post_save(sender, instance, created, **kwargs):
+    """Signal to handle layer save.
+
+    :param instance:
+    :type instance: Layer
+    :return:
+    """
+
+    # We had a bug that InaSAFE keywords were not properly saved in the
+    # metadata structure. InaSAFE team should fix this. meanwhile we will try
+    # to patch this
+    inasafe_metadata_fix.apply_async(args=[instance.id], countdown=5)
+
     # execute in a different task to let post_save returns and create metadata
     # asyncly
     # set countdown to 5 secs, to make sure it is executed after layer is
