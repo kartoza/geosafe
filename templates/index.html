@@ -10,7 +10,20 @@
   {% block hero %}
   <div class="jumbotron">
   	<div class="container">
-  		<h1>{% trans "GeoSAFE" %}</h1>
+        <table class="tryit">
+            <tr>
+                <td width="80%">
+                    <h1>{% trans "GeoSAFE" %}</h1>
+                </td>
+                <td width="20%">
+                    <div title="Try It Out!">
+                        <a class="btn btn-default" href="{% url "geosafe:analysis-create" %}">
+                            Try It Out!
+                        </a>
+                    </div>
+                </td>
+            </tr>
+        </table>
         <table style="margin: 25px 0px;">
             <tr>
                 <td>
@@ -40,7 +53,6 @@
             To contribute to the GeoSAFE project or to report any issues,
           head over to the <a href="https://github.com/kartoza/geosafe"
                               target="_blank">GeoSAFE</a> repository.
-          <a href="{% url "geosafe:analysis-create" %}">Try It Out!</a>
         </p>
   	</div>
   </div>
@@ -304,6 +316,10 @@
 
     .fa-arrow-down.icon-blue:hover {
         color: #6d6c6c;
+    }
+
+    table.tryit {
+        width: 100%;
     }
 </style>
 {% endblock extra_script %}
