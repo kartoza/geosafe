@@ -223,7 +223,9 @@
         }
 
         {# show run button popover if hazard and exposure were selected #}
-        $run_analysis_popover.popover('show');
+        {% if not analysis %}
+            $run_analysis_popover.popover('show');
+        {% endif %}
 
     }
 
