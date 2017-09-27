@@ -40,7 +40,10 @@
                                            role="button">Table report</a></li>
                                     <li>
                                         <a href="{% url "geosafe:download-report" analysis_id=analysis.id data_type="reports" %}"
-                                           role="button">Download report</a></li>
+                                           role="button">Download Impact & Table reports</a></li>
+                                    <li>
+                                        <a href="{% url "layer_detail" analysis.impact_layer.service_typename %}?show_popup=true"
+                                           role="button">Download Impact Layer</a></li>
                                 </ul>
                             </div>
                             <div class="save-analysis">
@@ -53,7 +56,7 @@
                                        disabled
                                         {% endif %}
                                        data-id="{{ analysis.id }}">
-                                Keep
+                                Save Result &nbsp;
                                 <span class="processing-indicator">
                                     <i class="fa fa-spinner fa-spin"></i>
                                     PROCESSING
