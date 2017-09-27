@@ -73,7 +73,7 @@ def inasafe_metadata_fix(layer_id):
         inasafe_provenance_el = supplemental_info.find('inasafe_provenance')
 
         # Take InaSAFE metadata
-        if not inasafe_el:
+        if inasafe_el is None:
             # Do nothing if InaSAFE tag didn't exists
             return
 
@@ -86,20 +86,25 @@ def inasafe_metadata_fix(layer_id):
         char_string_tagname = '{%s}CharacterString' % namespaces['gco']
 
         layer_sup_info_content = layer_sup_info.find(char_string_tagname)
-        if not layer_sup_info_content:
+        if layer_sup_info_content is None:
             # Insert gco:CharacterString value
             el = Element(char_string_tagname)
             layer_sup_info.insert(0, el)
 
         # put InaSAFE keywords after CharacterString
         layer_inasafe_meta_content = layer_sup_info.find('inasafe')
-        if not layer_inasafe_meta_content:
-            layer_sup_info.insert(1, inasafe_el)
+        if layer_inasafe_meta_content is not None:
+            # Clear existing InaSAFE keywords, replace with new one
+            layer_sup_info.remove(layer_inasafe_meta_content)
+        layer_sup_info.insert(1, inasafe_el)
 
         # provenance only shows up on impact layers
         layer_inasafe_meta_provenance = layer_sup_info.find(
             'inasafe_provenance')
-        if not layer_inasafe_meta_provenance and inasafe_provenance_el:
+        if inasafe_provenance_el is not None:
+            if layer_inasafe_meta_provenance is not None:
+                # Clear existing InaSAFE keywords, replace with new one
+                layer_sup_info.remove(layer_inasafe_meta_provenance)
             layer_sup_info.insert(1, inasafe_provenance_el)
 
         # write back to resource base so the same thing returned by csw
