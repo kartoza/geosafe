@@ -271,7 +271,8 @@ def prepare_analysis(analysis_id):
             exposure,
             function,
             generate_report=True,
-            requested_extent=extent
+            requested_extent=extent,
+            archive_impact=False
         ).set(
             queue='inasafe-headless-analysis').set(
             time_limit=settings.INASAFE_ANALYSIS_RUN_TIME_LIMIT),
@@ -314,64 +315,46 @@ def process_impact_result(self, impact_url, analysis_id):
     # decide if we are using direct access or not
     impact_url = get_impact_path(impact_url)
 
-    # download impact zip
-    impact_path = download_file(impact_url)
+    # download impact layer path
+    impact_path = download_file(impact_url, direct_access=True)
     dir_name = os.path.dirname(impact_path)
     success = False
-    with ZipFile(impact_path) as zf:
-        zf.extractall(path=dir_name)
-        for name in zf.namelist():
-            basename, ext = os.path.splitext(name)
-            if ext in ['.shp', '.tif']:
-                # process this in the for loop to make sure it works only
-                # when we found the layer
-                saved_layer = file_upload(
-                    os.path.join(dir_name, name),
-                    overwrite=True)
-                saved_layer.set_default_permissions()
-                if analysis.user_title:
-                    layer_name = analysis.user_title
-                else:
-                    layer_name = analysis.get_default_impact_title()
-                saved_layer.title = layer_name
-                saved_layer.save()
-                current_impact = None
-                if analysis.impact_layer:
-                    current_impact = analysis.impact_layer
-                analysis.impact_layer = saved_layer
+    is_zipfile = os.path.splitext(impact_path)[1].lower() == '.zip'
+    if is_zipfile:
+        # Extract the layer first
+        with ZipFile(impact_path) as zf:
+            zf.extractall(path=dir_name)
+            for name in zf.namelist():
+                basename, ext = os.path.splitext(name)
+                if ext in ['.shp', '.tif']:
+                    # process this in the for loop to make sure it works only
+                    # when we found the layer
+                    success = process_impact_layer(analysis, basename, dir_name, name)
+                    break
 
-                # check map report and table
-                report_map_path = os.path.join(
-                    dir_name, '%s.pdf' % basename
-                )
-
-                if os.path.exists(report_map_path):
-                    analysis.assign_report_map(report_map_path)
-
-                report_table_path = os.path.join(
-                    dir_name, '%s_table.pdf' % basename
-                )
-
-                if os.path.exists(report_table_path):
-                    analysis.assign_report_table(report_table_path)
-
-                analysis.task_id = process_impact_result.request.id
-                analysis.task_state = 'SUCCESS'
-                analysis.end_time = datetime.now().strftime('%Y-%m-%d %H:%M')
-                analysis.save()
-
-                if current_impact:
-                    current_impact.delete()
-                success = True
-                break
+            # cleanup
+            for name in zf.namelist():
+                filepath = os.path.join(dir_name, name)
+                try:
+                    os.remove(filepath)
+                except:
+                    pass
+    else:
+        # It means it is accessing an shp or tif directly
+        filename = os.path.basename(impact_path)
+        basename, ext = os.path.splitext(filename)
+        success = process_impact_layer(analysis, basename, dir_name, filename)
 
         # cleanup
-        for name in zf.namelist():
+        for name in os.listdir(dir_name):
             filepath = os.path.join(dir_name, name)
-            try:
-                os.remove(filepath)
-            except BaseException:
-                pass
+            is_file = os.path.isfile(filepath)
+            should_delete = name.split('.')[0] == basename
+            if is_file and should_delete:
+                try:
+                    os.remove(filepath)
+                except BaseException:
+                    pass
 
     # cleanup
     try:
@@ -382,4 +365,56 @@ def process_impact_result(self, impact_url, analysis_id):
     if not success:
         LOGGER.info('No impact layer found in %s' % impact_url)
 
+    return success
+
+
+def process_impact_layer(analysis, basename, dir_name, name):
+    """Internal function to actually process the layer.
+
+    :param analysis: Analysis object
+    :type analysis: Analysis
+
+    :param basename: basename (without dirname and extension)
+    :type basename: str
+
+    :param dir_name: dirname
+    :type dir_name: str
+
+    :param name: the name of the layer path
+    :type name: str
+
+    :return: True if success
+    """
+    saved_layer = file_upload(
+        os.path.join(dir_name, name),
+        overwrite=True)
+    saved_layer.set_default_permissions()
+    if analysis.user_title:
+        layer_name = analysis.user_title
+    else:
+        layer_name = analysis.get_default_impact_title()
+    saved_layer.title = layer_name
+    saved_layer.save()
+    current_impact = None
+    if analysis.impact_layer:
+        current_impact = analysis.impact_layer
+    analysis.impact_layer = saved_layer
+    # check map report and table
+    report_map_path = os.path.join(
+        dir_name, '%s.pdf' % basename
+    )
+    if os.path.exists(report_map_path):
+        analysis.assign_report_map(report_map_path)
+    report_table_path = os.path.join(
+        dir_name, '%s_table.pdf' % basename
+    )
+    if os.path.exists(report_table_path):
+        analysis.assign_report_table(report_table_path)
+    analysis.task_id = process_impact_result.request.id
+    analysis.task_state = 'SUCCESS'
+    analysis.end_time = datetime.now().strftime('%Y-%m-%d %H:%M')
+    analysis.save()
+    if current_impact:
+        current_impact.delete()
+    success = True
     return success

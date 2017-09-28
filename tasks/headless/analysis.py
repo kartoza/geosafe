@@ -50,7 +50,8 @@ def filter_impact_function(hazard=None, exposure=None):
     queue='inasafe-headless-analysis')
 def run_analysis(hazard, exposure, function, aggregation=None,
                  generate_report=False,
-                 requested_extent=None,):
+                 requested_extent=None,
+                 archive_impact=False):
     """Run analysis with a given combination
 
     Proxy tasks for celery broker. It is not actually implemented here.
@@ -75,6 +76,10 @@ def run_analysis(hazard, exposure, function, aggregation=None,
     :param requested_extent: An extent of BBOX format list to denote the area
         of analysis
     :type requested_extent: list(float)
+
+    :param archive_impact: Flag to tell that impact Layer will be archived
+        as zip file
+    :type archive_impact: bool
 
     :return: Impact layer url
     :rtype: str
