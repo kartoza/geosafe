@@ -224,7 +224,39 @@
 
         {# show run button popover if hazard and exposure were selected #}
         {% if not analysis %}
-            $run_analysis_popover.popover('show');
+                var analysis_url = '{% url 'geosafe:calculate-area' %}';
+                /*var post_data = {
+                    'hazard_id': {{ analysis.hazard_layer_id }},
+                    'exposure_id': {{ analysis.exposure_layer_id }},
+                    'view_extent': '{{ analysis.user_extent }}'
+                };*/
+                var post_data = {
+                'hazard_id': hazard_layer_cbo.find('option:selected').val(),
+                'exposure_id': exposure_layer_cbo.find('option:selected').val(),
+                'view_extent': map.getBounds().toBBoxString()
+            };
+            var both_selected = 'Hazard and exposure are selected. ';
+            var run_message = '';
+            var allow_message = '';
+
+                $.post(analysis_url, post_data, function (data) {
+                    if (data) {
+                        area = data['area'] / 1000000;
+                        formatted_area = numeral(area).format('0,0');
+
+                        if (data['is_valid']) {
+                            allow_message = 'You can now run analysis.';
+                        } else {
+                            allow_message = 'You can\'t run analysis. Please reduce extent';
+                        }
+                        run_message = both_selected + 'The selected analysis extent is ' + formatted_area + ' m2. ' + allow_message;
+                        $run_analysis_popover.popover({title: "Run Analysis", content: run_message});
+                        $run_analysis_popover.popover('show');
+                    } else {
+                        $run_analysis_popover.popover({title: "Run Analysis", content: "If hazard and exposure were selected, you can run analysis"});
+                        $run_analysis_popover.popover('show');
+                    }
+                });
         {% endif %}
 
     }
