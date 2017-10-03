@@ -182,7 +182,12 @@
                     map.fitBounds([new_sw, new_ne]);
                 }
             {% else %}
-                user_extent_string = [{{ analysis.user_extent }}];
+                // Use case: the user toggle impact layer off and on
+                if (layer_purpose == 'impact') {
+                    user_extent_string = map.getBounds().toBBoxString().split(',');
+                } else {
+                    user_extent_string = [{{ analysis.user_extent }}];
+                }
                 zoom_to_box(map, user_extent_string);
             {% endif %}
         });
