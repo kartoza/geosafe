@@ -18,6 +18,7 @@ from django.views.generic import (
     ListView, CreateView, DetailView)
 from geonode.utils import bbox_to_wkt
 from guardian.shortcuts import get_objects_for_user
+from functools import wraps
 
 from geonode.layers.models import Layer
 from geosafe.app_settings import settings
@@ -38,6 +39,8 @@ LOGGER = logging.getLogger("geosafe")
 
 
 logger = logging.getLogger("geonode.geosafe.analysis")
+# refer to base.models.ResourceBase.Meta.permissions
+_VIEW_PERMS = 'base.view_resourcebase'
 
 
 def retrieve_layers(
@@ -114,6 +117,44 @@ def retrieve_layers(
     # Filter by permissions
     metadatas = metadatas.filter(layer__id__in=authorized_objects)
     return [m.layer for m in metadatas], is_filtered
+
+
+def decorator_sections(f):
+    """Decorator for AnalysisCreateView class
+    """
+    def _decorator(self, **kwargs):
+
+        authorized_objects = get_objects_for_user(
+            self.request.user,
+            _VIEW_PERMS,
+            accept_global_perms=True).values('id')
+        sections = AnalysisCreateView.options_panel_dict(
+            authorized_objects=authorized_objects)
+        kwargs['sections'] = sections
+
+        response = f(self, **kwargs)
+        return response
+
+    return wraps(f)(_decorator)
+
+
+def decorator_sections_panel(f):
+    """Decorator for layer_panel view
+    """
+    def _decorator(request, bbox=None, **kwargs):
+        authorized_objects = get_objects_for_user(
+            request.user, _VIEW_PERMS).values('id')
+        sections = AnalysisCreateView.options_panel_dict(
+            authorized_objects=authorized_objects,
+            bbox=bbox)
+
+        kwargs['sections'] = sections
+        kwargs['authorized_objects'] = authorized_objects
+
+        response = f(request, bbox, **kwargs)
+        return response
+
+    return wraps(f)(_decorator)
 
 
 class AnalysisCreateView(CreateView):
@@ -211,11 +252,13 @@ class AnalysisCreateView(CreateView):
         })
         return sections
 
+    @decorator_sections
     def get_context_data(self, **kwargs):
-        authorized_objects = get_objects_for_user(
-            self.request.user, 'base.view_resourcebase').values('id')
-        sections = self.options_panel_dict(
-            authorized_objects=authorized_objects)
+        if kwargs['sections']:
+            sections = kwargs['sections']
+        else:
+            sections = None
+
         try:
             analysis = Analysis.objects.get(id=self.kwargs.get('pk'))
         except:
@@ -272,6 +315,7 @@ class AnalysisListView(ListView):
     context_object_name = 'analysis_list'
     queryset = Analysis.objects.all().order_by("-impact_layer__date")
 
+    @decorator_sections
     def get_context_data(self, **kwargs):
         context = super(AnalysisListView, self).get_context_data(**kwargs)
         context.update({'user': self.request.user})
@@ -283,6 +327,7 @@ class AnalysisDetailView(DetailView):
     template_name = 'geosafe/analysis/detail.html'
     context_object_name = 'analysis'
 
+    @decorator_sections
     def get_context_data(self, **kwargs):
         context = super(AnalysisDetailView, self).get_context_data(**kwargs)
         return context
@@ -434,16 +479,15 @@ def layer_list(request, layer_purpose, layer_category=None, bbox=None):
         return HttpResponseServerError()
 
 
-def layer_panel(request, bbox=None):
+@decorator_sections_panel
+def layer_panel(request, bbox=None, **kwargs):
     if request.method != 'GET':
         return HttpResponseBadRequest()
 
     try:
-        authorized_objects = get_objects_for_user(
-            request.user, 'base.view_resourcebase').values('id')
-        sections = AnalysisCreateView.options_panel_dict(
-            authorized_objects=authorized_objects,
-            bbox=bbox)
+        # both authorized_objects and sections are obtained from decorator
+        authorized_objects = kwargs['authorized_objects']
+        sections = kwargs['sections']
         form = AnalysisCreationForm(
             user=request.user,
             exposure_layer=retrieve_layers(
