@@ -69,15 +69,15 @@ def analysis_post_delete(sender, instance, **kwargs):
     # Analysis
     try:
         instance.report_map.delete(save=False)
-    except:
+    except BaseException:
         pass
 
     try:
         instance.report_table.delete(save=False)
-    except:
+    except BaseException:
         pass
 
     try:
         instance.impact_layer.delete()
-    except:
+    except BaseException:
         pass

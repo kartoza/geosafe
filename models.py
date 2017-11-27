@@ -200,14 +200,14 @@ class Analysis(models.Model):
     def assign_report_map(self, filename):
         try:
             self.report_map.delete()
-        except:
+        except BaseException:
             pass
         self.report_map = File(open(filename))
 
     def assign_report_table(self, filename):
         try:
             self.report_table.delete()
-        except:
+        except BaseException:
             pass
         self.report_table = File(open(filename))
 

@@ -520,10 +520,25 @@
                 noWrap: true,
                 attribution: 'Imagery from <a href="http://giscience.uni-hd.de/">GIScience Research Group @ University of Heidelberg</a> &mdash; Map data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
             });
+            var osm = L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+            });
+            var base_maps = {
+                'OpenMapSurfer_Roads': OpenMapSurfer_Roads,
+                'OpenStreetMap': osm
+            };
             map = L.map('map', {
-                layers: [OpenMapSurfer_Roads],
+{#                layers: base_maps,#}
                 minZoom: 2
             });
+
+            var layerControl = L.control.layers(
+                base_maps,
+                null,
+                {
+                    'position': 'topleft'
+                }
+            ).addTo(map);
 
             {%  if analysis and analysis.user_extent %}
                 {# analysis is executed, zoom to the closest extent #}

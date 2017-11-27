@@ -370,13 +370,13 @@ def process_impact_result(self, impact_url, analysis_id):
             filepath = os.path.join(dir_name, name)
             try:
                 os.remove(filepath)
-            except:
+            except BaseException:
                 pass
 
     # cleanup
     try:
         os.remove(impact_path)
-    except:
+    except BaseException:
         pass
 
     if not success:

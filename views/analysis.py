@@ -261,7 +261,7 @@ class AnalysisCreateView(CreateView):
 
         try:
             analysis = Analysis.objects.get(id=self.kwargs.get('pk'))
-        except:
+        except BaseException:
             analysis = None
         context = super(AnalysisCreateView, self).get_context_data(**kwargs)
         context.update(
@@ -662,7 +662,7 @@ def cancel_analysis(request, analysis_id=None):
         try:
             # to cancel celery task, do revoke
             result.revoke(terminate=True)
-        except:
+        except BaseException:
             # in case result is an empty task id
             pass
         analysis.delete()

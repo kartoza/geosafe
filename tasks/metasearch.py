@@ -90,7 +90,7 @@ def add_wcs_layer(
     try:
         os.remove(tmpfile)
         os.remove(metadata_file)
-    except:
+    except BaseException:
         pass
     return saved_layer
 
@@ -200,18 +200,18 @@ def add_wfs_layer(
             filepath = os.path.join(dir_name, name)
             try:
                 os.remove(filepath)
-            except:
+            except BaseException:
                 pass
 
         if metadata_file:
             try:
                 os.remove(metadata_file)
-            except:
+            except BaseException:
                 pass
 
     # cleanup
     try:
         os.remove(tmpfile)
-    except:
+    except BaseException:
         pass
     return saved_layer

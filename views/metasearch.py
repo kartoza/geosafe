@@ -190,7 +190,7 @@ def show_add_layer_dialog(request, *args, **kwargs):
                     request,
                     'geosafe/metasearch/modal/add_layer.html',
                     context)
-        except:
+        except BaseException:
             return HttpResponseServerError()
     return HttpResponseServerError()
 
@@ -217,7 +217,7 @@ def show_metadata(request, *args, **kwargs):
                 'geosafe/metasearch/modal/layer_metadata.html',
                 context)
 
-        except:
+        except BaseException:
             return HttpResponseServerError()
     return HttpResponseServerError()
 
@@ -271,7 +271,7 @@ def add_layer(request, *args, **kwargs):
                     bbox=bbox,
                     user=user, password=password)
             result['success'] = True
-        except:
+        except BaseException:
             pass
     return HttpResponse(
         json.dumps(result), content_type='application/json')
