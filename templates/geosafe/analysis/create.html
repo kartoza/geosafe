@@ -517,10 +517,12 @@
             check_popover();
 
             var OpenMapSurfer_Roads = L.tileLayer('http://korona.geog.uni-heidelberg.de/tiles/roads/x={x}&y={y}&z={z}', {
+                zIndex: 0,
                 noWrap: true,
                 attribution: 'Imagery from <a href="http://giscience.uni-hd.de/">GIScience Research Group @ University of Heidelberg</a> &mdash; Map data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
             });
             var osm = L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                zIndex: 0,
                 attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
             });
             var base_maps = {
@@ -528,7 +530,7 @@
                 'OpenStreetMap': osm
             };
             map = L.map('map', {
-{#                layers: base_maps,#}
+                layers: [OpenMapSurfer_Roads],
                 minZoom: 2
             });
 
@@ -536,7 +538,8 @@
                 base_maps,
                 null,
                 {
-                    'position': 'topleft'
+                    'position': 'topleft',
+                    'autoZIndex': false,
                 }
             ).addTo(map);
 
@@ -572,8 +575,12 @@
                     icon: 'fa-arrows-v',
                     title: 'Swap hazard and exposure order',
                     onClick: function (control) {
-                        hazard_layer.setZIndex(0);
-                        exposure_layer.setZIndex(1);
+                        if(hazard_layer) {
+                            hazard_layer.setZIndex(1);
+                        }
+                        if(exposure_layer) {
+                            exposure_layer.setZIndex(2);
+                        }
                         control.state('exposure-top');
                     }
                 }, {
@@ -581,8 +588,12 @@
                     icon: 'fa-arrows-v',
                     title: 'Swap hazard and exposure order',
                     onClick: function (control) {
-                        hazard_layer.setZIndex(1);
-                        exposure_layer.setZIndex(0);
+                        if(hazard_layer) {
+                            hazard_layer.setZIndex(2);
+                        }
+                        if(exposure_layer) {
+                            exposure_layer.setZIndex(1);
+                        }
                         control.state('hazard-top');
                     }
                 }]
