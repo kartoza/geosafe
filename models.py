@@ -1,17 +1,15 @@
 from __future__ import absolute_import
 
-import tempfile
 import urlparse
 
-from django.conf import settings
+from celery.result import AsyncResult
 from django.core.files.base import File
 from django.core.urlresolvers import reverse
 from django.db import models
-from celery.result import AsyncResult
+from datetime import datetime
 
 from geonode.layers.models import Layer
-from geonode.people.models import Profile
-
+from geosafe.app_settings import settings
 
 # geosafe
 # list of tags to get to the InaSAFE keywords.
@@ -34,8 +32,8 @@ class GeoSAFEException(BaseException):
 # Create your models here.
 class Metadata(models.Model):
     """Represent metadata for a layer."""
-    layer = models.OneToOneField(Layer, primary_key=True,
-                                 related_name='metadata')
+    layer = models.OneToOneField(
+        Layer, primary_key=True, related_name='inasafe_metadata')
     layer_purpose = models.CharField(
         verbose_name='Purpose of the Layer',
         max_length=20,
@@ -47,6 +45,12 @@ class Metadata(models.Model):
         verbose_name='The category of layer purpose that describes a kind of'
                      'hazard or exposure this layer is',
         max_length=30,
+        blank=True,
+        null=True,
+        default=''
+    )
+    keywords_xml = models.TextField(
+        verbose_name='Full representation of InaSAFE keywords in xml format',
         blank=True,
         null=True,
         default=''
@@ -79,6 +83,13 @@ class Analysis(models.Model):
         max_length=255,
         verbose_name='User defined title for analysis',
         help_text='Title to assign after analysis is generated.',
+        blank=True,
+        null=True,
+    )
+    user_extent = models.CharField(
+        max_length=255,
+        verbose_name='Analysis extent',
+        help_text='User defined BBOX for analysis extent',
         blank=True,
         null=True,
     )
@@ -176,21 +187,35 @@ class Analysis(models.Model):
         upload_to='analysis/report/'
     )
 
+    start_time = models.DateTimeField(
+        'start_time',
+        default=datetime.now
+    )
+
+    end_time = models.DateTimeField(
+        'end_time',
+        default=datetime.now
+    )
+
     def assign_report_map(self, filename):
         try:
             self.report_map.delete()
-        except:
+        except BaseException:
             pass
         self.report_map = File(open(filename))
 
     def assign_report_table(self, filename):
         try:
             self.report_table.delete()
-        except:
+        except BaseException:
             pass
         self.report_table = File(open(filename))
 
     def get_task_result(self):
+        """
+        :return: celery AsyncResult
+        :rtype: celery.result.AsyncResult
+        """
         return AsyncResult(self.task_id)
 
     def get_label_class(self):
@@ -210,9 +235,13 @@ class Analysis(models.Model):
         In this case, the state will always return 'PENDING'. For this, we
         receive the actual result from self.state, which is the cached state
 
-        :return:
+        :return: task state string
+        :rtype: str
         """
         result = self.get_task_result()
+        if not result.task_id:
+            # If no task_id, we don't have any task yet.
+            return 'FAILURE'
         return self.task_state if result.state == 'PENDING' else result.state
 
     def get_default_impact_title(self):
@@ -246,6 +275,11 @@ class Analysis(models.Model):
         layer_url = urlparse.urljoin(settings.GEONODE_BASE_URL, layer_url)
         return layer_url
 
+    @classmethod
+    def get_base_layer_path(cls, layer):
+        base_file, _ = layer.get_base_file()
+        return base_file.file.path
+
     def save(self, force_insert=False, force_update=False, using=None,
              update_fields=None, run_analysis_flag=True):
         super(Analysis, self).save(
@@ -254,23 +288,5 @@ class Analysis(models.Model):
             using=using,
             update_fields=update_fields)
 
-    def delete(self, using=None):
-        try:
-            self.report_map.delete()
-        except:
-            pass
-
-        try:
-            self.report_table.delete()
-        except:
-            pass
-
-        try:
-            self.impact_layer.delete()
-        except:
-            pass
-        super(Analysis, self).delete(using=using)
-
 
 # needed to load signals
-from geosafe import signals  # noqa

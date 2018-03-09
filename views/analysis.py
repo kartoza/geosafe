@@ -1,11 +1,13 @@
 import json
-
-import os
 import logging
+import os
 import tempfile
 from zipfile import ZipFile
 
-from django.conf import settings
+import re
+from django.utils.translation import ugettext as _
+from django.contrib.auth.decorators import login_required, user_passes_test
+from django.contrib.gis.geos.geometry import GEOSGeometry
 from django.core.urlresolvers import reverse
 from django.db.models.expressions import F
 from django.db.models.query_utils import Q
@@ -14,17 +16,21 @@ from django.http.response import HttpResponseServerError, HttpResponse, \
 from django.shortcuts import render
 from django.views.generic import (
     ListView, CreateView, DetailView)
-
-from geosafe.helpers.impact_summary.polygon_people_summary import \
-    PolygonPeopleSummary
-from geosafe.helpers.impact_summary.summary_base import ImpactSummary
+from geonode.utils import bbox_to_wkt
+from guardian.shortcuts import get_objects_for_user
+from functools import wraps
 
 from geonode.layers.models import Layer
+from geosafe.app_settings import settings
 from geosafe.forms import (AnalysisCreationForm)
+from geosafe.helpers.impact_summary.polygon_people_summary import \
+    PolygonPeopleSummary
 from geosafe.helpers.impact_summary.population_summary import \
     PopulationSummary
 from geosafe.helpers.impact_summary.road_summary import RoadSummary
 from geosafe.helpers.impact_summary.structure_summary import StructureSummary
+from geosafe.helpers.impact_summary.summary_base import ImpactSummary
+from geosafe.helpers.utils import get_layer_path
 from geosafe.models import Analysis, Metadata
 from geosafe.signals import analysis_post_save
 from geosafe.tasks.headless.analysis import filter_impact_function
@@ -33,9 +39,12 @@ LOGGER = logging.getLogger("geosafe")
 
 
 logger = logging.getLogger("geonode.geosafe.analysis")
+# refer to base.models.ResourceBase.Meta.permissions
+_VIEW_PERMS = 'base.view_resourcebase'
 
 
-def retrieve_layers(purpose, category=None, bbox=None):
+def retrieve_layers(
+        purpose, category=None, bbox=None, authorized_objects=None):
     """List all required layers.
 
     :param purpose: InaSAFE layer purpose that want to be filtered.
@@ -48,6 +57,9 @@ def retrieve_layers(purpose, category=None, bbox=None):
 
     :param bbox: Layer bbox to filter
     :type bbox: (float, float, float, float)
+
+    :param authorized_objects: List of authorized objects (list of dict of id)
+    :type authorized_objects: list
 
     :returns: filtered layer and a status for filtered.
         Status will return True, if it is filtered.
@@ -102,7 +114,47 @@ def retrieve_layers(purpose, category=None, bbox=None):
         metadatas = Metadata.objects.filter(
             layer_purpose=purpose, category=category)
         is_filtered = False
+    # Filter by permissions
+    metadatas = metadatas.filter(layer__id__in=authorized_objects)
     return [m.layer for m in metadatas], is_filtered
+
+
+def decorator_sections(f):
+    """Decorator for AnalysisCreateView class
+    """
+    def _decorator(self, **kwargs):
+
+        authorized_objects = get_objects_for_user(
+            self.request.user,
+            _VIEW_PERMS,
+            accept_global_perms=True).values('id')
+        sections = AnalysisCreateView.options_panel_dict(
+            authorized_objects=authorized_objects)
+        kwargs['sections'] = sections
+
+        response = f(self, **kwargs)
+        return response
+
+    return wraps(f)(_decorator)
+
+
+def decorator_sections_panel(f):
+    """Decorator for layer_panel view
+    """
+    def _decorator(request, bbox=None, **kwargs):
+        authorized_objects = get_objects_for_user(
+            request.user, _VIEW_PERMS).values('id')
+        sections = AnalysisCreateView.options_panel_dict(
+            authorized_objects=authorized_objects,
+            bbox=bbox)
+
+        kwargs['sections'] = sections
+        kwargs['authorized_objects'] = authorized_objects
+
+        response = f(request, bbox, **kwargs)
+        return response
+
+    return wraps(f)(_decorator)
 
 
 class AnalysisCreateView(CreateView):
@@ -112,13 +164,25 @@ class AnalysisCreateView(CreateView):
     context_object_name = 'analysis'
 
     @classmethod
-    def options_panel_dict(cls, bbox=None):
+    def options_panel_dict(cls, authorized_objects=None, bbox=None):
         """Prepare a dictionary to be used in the template view
 
         :return: dict containing metadata for options panel
         :rtype: dict
         """
         purposes = [
+            {
+                'name': 'hazard',
+                'categories': ['flood', 'tsunami', 'earthquake', 'volcano',
+                               'volcanic-ash'],
+                'list_titles': [
+                    'Select a flood layer',
+                    'Select a tsunami layer',
+                    'Select an earthquake layer',
+                    'Select a volcano layer',
+                    'Select a volcanic ash layer',
+                ]
+            },
             {
                 'name': 'exposure',
                 'categories': [
@@ -133,18 +197,6 @@ class AnalysisCreateView(CreateView):
                     'Select a structure layer',
                     # 'Select a land_cover layer',
                 ]
-            },
-            {
-                'name': 'hazard',
-                'categories': ['flood', 'tsunami', 'earthquake', 'volcano',
-                               'volcanic-ash'],
-                'list_titles': [
-                    'Select a flood layer',
-                    'Select a tsunami layer',
-                    'Select an earthquake layer',
-                    'Select a volcano layer',
-                    'Select a volcanic ash layer',
-                ]
             }
         ]
         sections = []
@@ -152,7 +204,12 @@ class AnalysisCreateView(CreateView):
             categories = []
             is_section_filtered = False
             for idx, c in enumerate(p.get('categories')):
-                layers, is_filtered = retrieve_layers(p.get('name'), c, bbox=bbox)
+                layers, is_filtered = retrieve_layers(
+                    p.get('name'),
+                    c,
+                    bbox=bbox,
+                    authorized_objects=authorized_objects
+                )
                 if is_filtered:
                     is_section_filtered = True
                 category = {
@@ -174,7 +231,11 @@ class AnalysisCreateView(CreateView):
             }
             sections.append(section)
 
-        impact_layers, is_filtered = retrieve_layers('impact', bbox=bbox)
+        impact_layers, is_filtered = retrieve_layers(
+            'impact',
+            bbox=bbox,
+            authorized_objects=authorized_objects
+        )
         total_impact_layers = len(impact_layers)
         sections.append({
             'name': 'impact',
@@ -191,11 +252,16 @@ class AnalysisCreateView(CreateView):
         })
         return sections
 
+    @decorator_sections
     def get_context_data(self, **kwargs):
-        sections = self.options_panel_dict()
+        if kwargs['sections']:
+            sections = kwargs['sections']
+        else:
+            sections = None
+
         try:
             analysis = Analysis.objects.get(id=self.kwargs.get('pk'))
-        except:
+        except BaseException:
             analysis = None
         context = super(AnalysisCreateView, self).get_context_data(**kwargs)
         context.update(
@@ -216,7 +282,7 @@ class AnalysisCreateView(CreateView):
         return form_class(**kwargs)
 
     def post(self, request, *args, **kwargs):
-        retval = super(AnalysisCreateView, self).post(request, *args, **kwargs)
+        super(AnalysisCreateView, self).post(request, *args, **kwargs)
 
         form_class = self.get_form_class()
         form = self.get_form(form_class)
@@ -249,6 +315,7 @@ class AnalysisListView(ListView):
     context_object_name = 'analysis_list'
     queryset = Analysis.objects.all().order_by("-impact_layer__date")
 
+    @decorator_sections
     def get_context_data(self, **kwargs):
         context = super(AnalysisListView, self).get_context_data(**kwargs)
         context.update({'user': self.request.user})
@@ -260,6 +327,7 @@ class AnalysisDetailView(DetailView):
     template_name = 'geosafe/analysis/detail.html'
     context_object_name = 'analysis'
 
+    @decorator_sections
     def get_context_data(self, **kwargs):
         context = super(AnalysisDetailView, self).get_context_data(**kwargs)
         return context
@@ -279,11 +347,11 @@ def impact_function_filter(request):
             json.dumps([]), content_type="application/json")
 
     try:
-        exposure_layer = Layer.objects.get(id=exposure_id)
         hazard_layer = Layer.objects.get(id=hazard_id)
+        exposure_layer = Layer.objects.get(id=exposure_id)
 
-        hazard_url = Analysis.get_layer_url(hazard_layer)
-        exposure_url = Analysis.get_layer_url(exposure_layer)
+        hazard_url = get_layer_path(hazard_layer)
+        exposure_url = get_layer_path(exposure_layer)
 
         async_result = filter_impact_function.delay(
             hazard_url,
@@ -295,17 +363,17 @@ def impact_function_filter(request):
             json.dumps(impact_functions), content_type="application/json")
     except Exception as e:
         LOGGER.exception(e)
-        raise HttpResponseServerError()
+        return HttpResponseServerError()
 
 
 def layer_tiles(request):
     """Ajax request to get layer's url to show in the map.
     """
     if request.method != 'GET':
-        raise HttpResponseBadRequest
+        return HttpResponseBadRequest()
     layer_id = request.GET.get('layer_id')
     if not layer_id:
-        raise HttpResponseBadRequest
+        return HttpResponseBadRequest()
     try:
         layer = Layer.objects.get(id=layer_id)
         context = {
@@ -313,7 +381,9 @@ def layer_tiles(request):
             'layer_bbox_x0': float(layer.bbox_x0),
             'layer_bbox_x1': float(layer.bbox_x1),
             'layer_bbox_y0': float(layer.bbox_y0),
-            'layer_bbox_y1': float(layer.bbox_y1)
+            'layer_bbox_y1': float(layer.bbox_y1),
+            'layer_name': layer.title,
+            'legend_url': layer.get_legend_url()
         }
 
         return HttpResponse(
@@ -321,7 +391,7 @@ def layer_tiles(request):
         )
     except Exception as e:
         LOGGER.exception(e)
-        raise HttpResponseServerError
+        return HttpResponseServerError()
 
 
 def layer_metadata(request, layer_id):
@@ -332,15 +402,19 @@ def layer_metadata(request, layer_id):
         return HttpResponseBadRequest()
     try:
         layer = Layer.objects.get(id=layer_id)
-        base_file, _ = layer.get_base_file()
+        base_file, __ = layer.get_base_file()
         if not base_file:
             return HttpResponseServerError()
-        base_file_path = base_file.file.path
-        xml_file_path = base_file_path.split('.')[0] + '.xml'
+        base_file_path, __ = os.path.splitext(base_file.file.path)
+        xml_file_path = base_file_path + '.xml'
         if not os.path.exists(xml_file_path):
             return HttpResponseServerError()
         with open(xml_file_path) as f:
-            return HttpResponse(f.read(), content_type='text/xml')
+            response = HttpResponse(f.read(), content_type='text/xml')
+            response['Content-Disposition'] = (
+                'attachment; filename="{filename}.xml"'.format(
+                    filename=base_file_path))
+            return response
 
     except Exception as e:
         LOGGER.exception(e)
@@ -365,34 +439,19 @@ def layer_archive(request, layer_id):
                     base_name,
                     layer_file.file.read())
 
+        base_file, __ = layer.get_base_file()
+        base_file_name, __ = os.path.splitext(
+            os.path.basename(base_file.file.path))
         with open(tmp) as f:
-            return HttpResponse(f.read(), content_type='application/zip')
+            response = HttpResponse(f.read(), content_type='application/zip')
+            response['Content-Disposition'] = (
+                'attachment; filename="{filename}.zip"'.format(
+                    filename=base_file_name))
+            return response
 
     except Exception as e:
         LOGGER.exception(e)
         return HttpResponseServerError()
-
-
-def is_bbox_intersects(bbox_1, bbox_2):
-    """
-
-    bbox is in the format: (x0,y0, x1, y1)
-
-    :param bbox_1:
-    :param bbox_2:
-    :return:
-    """
-    points = [
-        (bbox_1[0], bbox_1[1]),
-        (bbox_1[0], bbox_1[3]),
-        (bbox_1[2], bbox_1[1]),
-        (bbox_1[2], bbox_1[3])
-        ]
-    for p in points:
-        if bbox_2[0] <= p[0] << bbox_2[2] and bbox_2[1] <= p[1] <= bbox_2[3]:
-            return True
-
-    return False
 
 
 def layer_list(request, layer_purpose, layer_category=None, bbox=None):
@@ -403,7 +462,8 @@ def layer_list(request, layer_purpose, layer_category=None, bbox=None):
         return HttpResponseBadRequest()
 
     try:
-        layers_object, _ = retrieve_layers(layer_purpose, layer_category, bbox)
+        layers_object, __ = retrieve_layers(
+            layer_purpose, layer_category, bbox)
         layers = []
         for l in layers_object:
             layer_obj = dict()
@@ -419,16 +479,25 @@ def layer_list(request, layer_purpose, layer_category=None, bbox=None):
         return HttpResponseServerError()
 
 
-def layer_panel(request, bbox=None):
+@decorator_sections_panel
+def layer_panel(request, bbox=None, **kwargs):
     if request.method != 'GET':
         return HttpResponseBadRequest()
 
     try:
-        sections = AnalysisCreateView.options_panel_dict(bbox=bbox)
+        # both authorized_objects and sections are obtained from decorator
+        authorized_objects = kwargs['authorized_objects']
+        sections = kwargs['sections']
         form = AnalysisCreationForm(
             user=request.user,
-            exposure_layer=retrieve_layers('exposure', bbox=bbox)[0],
-            hazard_layer=retrieve_layers('hazard', bbox=bbox)[0],
+            exposure_layer=retrieve_layers(
+                'exposure',
+                bbox=bbox,
+                authorized_objects=authorized_objects)[0],
+            hazard_layer=retrieve_layers(
+                'hazard',
+                bbox=bbox,
+                authorized_objects=authorized_objects)[0],
             impact_functions=Analysis.impact_function_list())
         context = {
             'sections': sections,
@@ -442,6 +511,118 @@ def layer_panel(request, bbox=None):
         return HttpResponseServerError()
 
 
+def validate_analysis_extent(request):
+    if request.method != 'POST':
+        return HttpResponseBadRequest()
+
+    try:
+        hazard_id = request.POST.get('hazard_id')
+        exposure_id = request.POST.get('exposure_id')
+        view_extent = request.POST.get('view_extent')
+        hazard_layer = Layer.objects.get(id=hazard_id)
+        exposure_layer = Layer.objects.get(id=exposure_id)
+    except Exception as e:
+        LOGGER.exception(e)
+        return HttpResponseBadRequest()
+
+    # calculate extent
+    try:
+        # Check hazard and exposure intersected
+        hazard_srid, hazard_wkt = hazard_layer.geographic_bounding_box.split(
+            ';')
+        hazard_srid = re.findall(r'\d+', hazard_srid)
+        hazard_geom = GEOSGeometry(hazard_wkt, srid=int(hazard_srid[0]))
+        hazard_geom.transform(4326)
+
+        exposure_srid, exposure_wkt = exposure_layer.geographic_bounding_box.\
+            split(';')
+        exposure_srid = re.findall(r'\d+', exposure_srid)
+        exposure_geom = GEOSGeometry(exposure_wkt, srid=int(exposure_srid[0]))
+        exposure_geom.transform(4326)
+
+        analysis_geom = exposure_geom.intersection(hazard_geom)
+
+        if not analysis_geom:
+            # hazard and exposure doesn't intersect
+            message = _("Hazard and exposure does not intersect.")
+            retval = {
+                'is_valid': False,
+                'is_warned': False,
+                'extent': view_extent,
+                'reason': message
+            }
+            return HttpResponse(
+                json.dumps(retval), content_type="application/json")
+
+        # This bbox is in the format [x0,y0,x1,y1]
+        x0, y0, x1, y1 = [float(n) for n in view_extent.split(',')]
+        view_geom = GEOSGeometry(
+            bbox_to_wkt(x0, x1, y0, y1), srid=4326)
+
+        analysis_geom = view_geom.intersection(analysis_geom)
+
+        if not analysis_geom:
+            # previous hazard and exposure intersection doesn't intersect
+            # view extent
+            message = _("View extent does not intersect hazard and exposure.")
+            retval = {
+                'is_valid': False,
+                'is_warned': False,
+                'extent': view_extent,
+                'reason': message
+            }
+            return HttpResponse(
+                json.dumps(retval), content_type="application/json")
+
+        # Check the size of the extent
+        # convert to EPSG:3410 for equal area projection
+        analysis_geom.transform('3410')
+        area = analysis_geom.area
+
+        # Transform back to EPSG:4326
+        analysis_geom.transform('4326')
+
+        area_limit = settings.INASAFE_ANALYSIS_AREA_LIMIT
+        if area > area_limit:
+            # Area exceeded designated area limit.
+            # Don't allow analysis when exceeding area limit
+            message = _(
+                'Analysis extent exceeded area limit: {limit} km<sup>2</sup>.'
+                '<br />&nbsp;Analysis might take a long time to complete. '
+                '<br />&nbsp;Please reduce extent and try again')
+            # Convert m2 into km2.
+            area_limit = area_limit / 1000000
+            message = message.format(limit=area_limit)
+            retval = {
+                'is_valid': False,
+                'is_warned': False,
+                'extent': view_extent,
+                'area': area,
+                'reason': message
+            }
+            return HttpResponse(
+                json.dumps(retval), content_type="application/json")
+
+        # convert analysis extent to bbox string again
+        view_extent = ','.join([str(f) for f in analysis_geom.extent])
+        message = _("Analysis will be performed on this given view extent.")
+        retval = {
+            'is_valid': True,
+            'is_warned': False,
+            'extent': view_extent,
+            'area': area,
+            'reason': message
+        }
+        return HttpResponse(
+            json.dumps(retval), content_type="application/json")
+
+    except Exception as e:
+        LOGGER.exception(e)
+        return HttpResponseServerError()
+
+
+@login_required
+@user_passes_test(lambda u: u.is_superuser)
 def rerun_analysis(request, analysis_id=None):
     if request.method != 'POST':
         return HttpResponseBadRequest()
@@ -458,6 +639,35 @@ def rerun_analysis(request, analysis_id=None):
         return HttpResponseRedirect(
             reverse('geosafe:analysis-detail', kwargs={'pk': analysis.pk})
         )
+    except Exception as e:
+        LOGGER.exception(e)
+        return HttpResponseServerError()
+
+
+@login_required
+@user_passes_test(lambda u: u.is_superuser)
+def cancel_analysis(request, analysis_id=None):
+    if request.method != 'POST':
+        return HttpResponseBadRequest()
+
+    if not analysis_id:
+        analysis_id = request.POST.get('analysis_id')
+
+    if not analysis_id:
+        return HttpResponseBadRequest()
+
+    try:
+        analysis = Analysis.objects.get(id=analysis_id)
+        result = analysis.get_task_result()
+        try:
+            # to cancel celery task, do revoke
+            result.revoke(terminate=True)
+        except BaseException:
+            # in case result is an empty task id
+            pass
+        analysis.delete()
+        return HttpResponseRedirect(
+            reverse('geosafe:analysis-list'))
     except Exception as e:
         LOGGER.exception(e)
         return HttpResponseServerError()

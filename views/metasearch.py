@@ -1,26 +1,22 @@
 # coding=utf-8
 import json
-import os
-
-import shutil
 import logging
 import urllib
 import urlparse
 
-from django.http.response import HttpResponse, HttpResponseServerError, JsonResponse
+from django.http.response import (
+    HttpResponse,
+    HttpResponseServerError,
+    JsonResponse)
 from django.shortcuts import render
-from owslib.iso import MD_Metadata
-from owslib.wcs import WebCoverageService
-
-from geonode.layers.utils import file_upload
-from geosafe.tasks.analysis import download_file
 from owslib import fes
-from owslib.csw import CatalogueServiceWeb, CswRecord
+from owslib.csw import CatalogueServiceWeb
+from owslib.iso import MD_Metadata
 
 from geosafe.forms import MetaSearchForm
-from geosafe.tasks import metasearch
-
 from geosafe.helpers.metasearch.csw_helper import csw_query_metadata_by_id
+from geosafe.helpers.utils import download_file
+from geosafe.tasks import metasearch
 
 __author__ = 'Rizky Maulana Nugraha <lana.pcfre@gmail.com>'
 
@@ -81,7 +77,6 @@ def csw_ajax(request, *args, **kwargs):
                 password=password)
             result = csw.identification.type
             if result == 'CSW':
-                page = int(request.GET['page'])
                 offset = int(request.GET['offset'])
                 per_page = int(request.GET['perPage'])
                 csw.getrecords2(
@@ -98,9 +93,12 @@ def csw_ajax(request, *args, **kwargs):
                     if isinstance(rec, MD_Metadata):
                         res['id'] = rec.identifier
                         res['title'] = rec.identification.title
-                        res['inasafe_keywords'] = rec.identification.supplementalinformation
+                        res['inasafe_keywords'] = rec.identification.\
+                            supplementalinformation
                         if res['inasafe_keywords']:
-                            res['inasafe_layer'] = '<inasafe_keywords/>' in res['inasafe_keywords']
+                            res['inasafe_layer'] = (
+                                '<inasafe_keywords/>' in
+                                res['inasafe_keywords'])
                         result.append(res)
             json_result = {
                 'records': result,
@@ -192,7 +190,7 @@ def show_add_layer_dialog(request, *args, **kwargs):
                     request,
                     'geosafe/metasearch/modal/add_layer.html',
                     context)
-        except Exception as e:
+        except BaseException:
             return HttpResponseServerError()
     return HttpResponseServerError()
 
@@ -219,7 +217,7 @@ def show_metadata(request, *args, **kwargs):
                 'geosafe/metasearch/modal/layer_metadata.html',
                 context)
 
-        except Exception as e:
+        except BaseException:
             return HttpResponseServerError()
     return HttpResponseServerError()
 
@@ -273,7 +271,7 @@ def add_layer(request, *args, **kwargs):
                     bbox=bbox,
                     user=user, password=password)
             result['success'] = True
-        except Exception as e:
+        except BaseException:
             pass
     return HttpResponse(
         json.dumps(result), content_type='application/json')
@@ -304,7 +302,8 @@ def wfs_proxy(request, *args, **kwargs):
             fragment=None
         )
         LOGGER.info('Proxy to url: %s' % parsed_url.geturl())
-        tmpfile = download_file(parsed_url.geturl(), user=user, password=password)
+        tmpfile = download_file(
+            parsed_url.geturl(), user=user, password=password)
         with open(tmpfile) as f:
             return HttpResponse(f.read(), content_type='application/json')
     return HttpResponseServerError()

@@ -10,6 +10,20 @@ __date__ = '2/3/16'
 LOGGER = logging.getLogger(__name__)
 
 
+class RemoteTaskException(Exception):
+    """Custom Exception for remote function.
+
+    This exception will be raised if the function were executed directly,
+    instead of using celery.
+    """
+
+    def __init__(self, *args, **kwargs):
+        self.message = (
+            'This function is intended to be executed by '
+            'celery task remotely')
+        super(RemoteTaskException, self).__init__(*args, **kwargs)
+
+
 @app.task(
     name='headless.tasks.inasafe_wrapper.filter_impact_function',
     queue='inasafe-headless')
@@ -28,14 +42,16 @@ def filter_impact_function(hazard=None, exposure=None):
     :return: The list of Impact Function ID
     :rtype: list(str)
     """
-    LOGGER.info('This function is intended to be executed by celery task')
+    raise RemoteTaskException()
 
 
 @app.task(
     name='headless.tasks.inasafe_wrapper.run_analysis',
     queue='inasafe-headless-analysis')
 def run_analysis(hazard, exposure, function, aggregation=None,
-                 generate_report=False):
+                 generate_report=False,
+                 requested_extent=None,
+                 archive_impact=False):
     """Run analysis with a given combination
 
     Proxy tasks for celery broker. It is not actually implemented here.
@@ -57,10 +73,18 @@ def run_analysis(hazard, exposure, function, aggregation=None,
     :param generate_report: set True to generate pdf report
     :type generate_report: bool
 
+    :param requested_extent: An extent of BBOX format list to denote the area
+        of analysis
+    :type requested_extent: list(float)
+
+    :param archive_impact: Flag to tell that impact Layer will be archived
+        as zip file
+    :type archive_impact: bool
+
     :return: Impact layer url
     :rtype: str
     """
-    LOGGER.info('This function is intended to be executed by celery task')
+    raise RemoteTaskException()
 
 
 @app.task(
@@ -82,4 +106,4 @@ def read_keywords_iso_metadata(metadata_url, keyword=None):
         only the requested keyword key if given
     :rtype: dict, str
     """
-    LOGGER.info('This function is intended to be executed by celery task')
+    raise RemoteTaskException()

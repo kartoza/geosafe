@@ -8,7 +8,7 @@
                 <div class="category">Total Roads (m)</div>
             </div>
             <div class="col-xs-4">
-                {% with analysis.exposure_layer.metadata.category as c %}
+                {% with analysis.exposure_layer.inasafe_metadata.category as c %}
                 <img src="{% static "geosafe/img/"|add:c|add:".svg" %}" alt="{{ c }}" class="svg"/>
                 {% endwith %}
             </div>
@@ -19,7 +19,7 @@
                 <div class="category">Roads Affected (m)</div>
             </div>
             <div class="col-xs-4">
-                {% with analysis.hazard_layer.metadata.category as c %}
+                {% with analysis.hazard_layer.inasafe_metadata.category as c %}
                 <img src="{% static "geosafe/img/"|add:c|add:".svg" %}" alt="{{ c }}" class="svg"/>
                 {% endwith %}
             </div>

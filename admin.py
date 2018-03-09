@@ -12,12 +12,18 @@ class MetadataAdmin(admin.ModelAdmin):
 
 
 class AnalysisAdmin(admin.ModelAdmin):
+
     list_display = (
+        'id',
         'exposure_layer',
         'hazard_layer',
         'aggregation_layer',
         'extent_option',
         'impact_function_id',
+        'keep',
+        'task_state',
+        'report_map',
+        'report_table'
     )
 
 

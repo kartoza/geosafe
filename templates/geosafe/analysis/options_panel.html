@@ -8,13 +8,13 @@
         <div class="option">
             <h4 class="section-title">{{ s.name|capfirst }}</h4>
             <a id="{{ s.name }}-section-link" href="#" class="menu-icon {% if s.total_layers > 0 %}has-children{% endif %}"
-                {% if s.name == 'exposure' %}
-                data-toggle="popover" data-trigger="manual" title="Select Exposure"
-                data-content="To get started, choose an exposure dataset that you want to use."
-                >
-                {% elif s.name == 'hazard' %}
+                {% if s.name == 'hazard' %}
                 data-toggle="popover" data-trigger="manual" title="Select Hazard"
-                data-content="Now select hazard layer."
+                data-content="To get started, select hazard layer that you want to use."
+                >
+                {% elif s.name == 'exposure' %}
+                data-toggle="popover" data-trigger="manual" title="Select Exposure"
+                data-content="Now choose an exposure dataset."
                 >
                 {% endif %}
                 {% if s.total_layers > 0 %}
@@ -80,9 +80,7 @@
                 {{ form|as_bootstrap }}
             </div>
             <button id="run-analysis-submit-button" type="submit" class="btn btn-primary" disabled
-                data-toggle="popover" data-trigger="manual" title="Run Analysis"
-                data-content="If hazard and exposure were selected, you can run analysis."
-                >
+                data-toggle="popover" data-trigger="manual">
                 Run
             </button>
         </form>
@@ -117,17 +115,15 @@
         <div id="summary-option" class="option">
             <a href="javascript:show_analysis_summary()"
                 title="Show Analysis Summary">
-                <i class="fa fa-file"></i>
+                <img src="{% static "geosafe/img/show-summary.svg" %}" alt="Show Analysis Summary" class="svg"/>
+            </a>
+        </div>
+        <div class="option">
+            <a href="{% url "geosafe:analysis-create" %}" title="Start Again">
+                <i class="fa fa-undo" aria-hidden="true"></i>
             </a>
         </div>
     </div>
+
     {% endif %}
 {% endfor %}
-{#<div class="report section">#}
-{#    <h4 class="section-title">Report</h4>#}
-{#    <div class="option">#}
-{#        <a href="{% url "geosafe:analysis-list" %}"#}
-{#           title="Go To Analysis List"><i class="fa fa-map"></i>#}
-{#        </a>#}
-{#    </div>#}
-{#</div>#}

@@ -1,15 +1,14 @@
 # coding=utf-8
-from geonode.people.models import Profile
-from geosafe.tasks.headless.analysis import filter_impact_function
-
-__author__ = 'ismailsunni'
-
 import logging
 
-from django.forms import models
 from django import forms
+from django.forms import models
+
 from geonode.layers.models import Layer
+from geonode.people.models import Profile
 from geosafe.models import Analysis
+
+__author__ = 'ismailsunni'
 
 LOG = logging.getLogger(__name__)
 
@@ -21,6 +20,7 @@ class AnalysisCreationForm(models.ModelForm):
         model = Analysis
         fields = (
             'user_title',
+            'user_extent',
             'exposure_layer',
             'hazard_layer',
             'aggregation_layer',
@@ -36,10 +36,16 @@ class AnalysisCreationForm(models.ModelForm):
             attrs={'placeholder': 'Default title generated'})
     )
 
+    user_extent = forms.CharField(
+        label='Analysis Extent',
+        required=False,
+    )
+
     exposure_layer = forms.ModelChoiceField(
         label='Exposure Layer',
         required=True,
-        queryset=Layer.objects.filter(metadata__layer_purpose='exposure'),
+        queryset=Layer.objects.filter(
+            inasafe_metadata__layer_purpose='exposure'),
         widget=forms.Select(
             attrs={'class': 'form-control'})
     )
@@ -47,7 +53,8 @@ class AnalysisCreationForm(models.ModelForm):
     hazard_layer = forms.ModelChoiceField(
         label='Hazard Layer',
         required=True,
-        queryset=Layer.objects.filter(metadata__layer_purpose='hazard'),
+        queryset=Layer.objects.filter(
+            inasafe_metadata__layer_purpose='hazard'),
         widget=forms.Select(
             attrs={'class': 'form-control'})
     )
@@ -55,7 +62,8 @@ class AnalysisCreationForm(models.ModelForm):
     aggregation_layer = forms.ModelChoiceField(
         label='Aggregation Layer',
         required=False,
-        queryset=Layer.objects.filter(metadata__layer_purpose='aggregation'),
+        queryset=Layer.objects.filter(
+            inasafe_metadata__layer_purpose='aggregation'),
         widget=forms.Select(
             attrs={'class': 'form-control'})
     )

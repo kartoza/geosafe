@@ -1,4 +1,4 @@
-{% extends 'site_base.html' %}
+{% extends 'geonode_base.html' %}
 {% load staticfiles %}
 {% block extra_head %}
     <link rel="stylesheet" href="{% static 'geosafe/css/main.css' %}" />
@@ -124,15 +124,24 @@
                             {% if not analysis.get_task_result %}
                                 Analysis not yet running
                             {% elif analysis.get_task_state == 'SUCCESS' %}
-                                <a href="{% url 'layer_detail' layername=analysis.impact_layer.typename %}">{{ analysis.impact_layer }}</a>
+                                <a href="{% url 'layer_detail' layername=analysis.impact_layer.typename %}"> {{ analysis.impact_layer }} <br /> Duration: {{ analysis.start_time|timesince:analysis.end_time }} </a>
                             {% else %}
                                 <div>Task Status: <span class="label label-{{ analysis.get_label_class }}">{{ analysis.get_task_state }}</span></div>
+                                        {{ analysis.hazard_layer }} on {{ analysis.exposure_layer }} <br />Start Time: {{ analysis.start_time }}
                                 {% if analysis.get_task_state == 'FAILURE' %}
                                 <div>
                                     <form action="{% url 'geosafe:rerun-analysis' analysis_id=analysis.id %}" method="post">
                                         {% csrf_token %}
                                         <input type="hidden" id="analysis_id" value="{{ analysis.id }}" />
                                         <button type="submit" class="btn btn-primary">Rerun Analysis</button>
+                                    </form>
+                                </div>
+                                {% elif analysis.get_task_state == 'PENDING' and user.is_superuser %}
+                                <div>
+                                    <form action="{% url 'geosafe:cancel-analysis' analysis_id=analysis.id %}" method="post">
+                                        {% csrf_token %}
+                                        <input type="hidden" id="analysis_id" value="{{ analysis.id }}" />
+                                        <button type="submit" class="btn btn-primary">Cancel Analysis</button>
                                     </form>
                                 </div>
                                 {% endif %}

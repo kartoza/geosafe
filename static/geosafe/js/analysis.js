@@ -20,6 +20,11 @@ function toggle_analysis_saved(url, id){
             $checkbox.parent().removeClass("processing");
             $checkbox.prop("checked", data.is_saved);
             $checkbox.prop("disabled", false);
+            if(data.is_saved) {
+                $(".analysis-saved").text("Analysis is saved");
+            } else {
+                $(".analysis-saved").text("Analysis will not be saved");
+            }
         }
     });
 }

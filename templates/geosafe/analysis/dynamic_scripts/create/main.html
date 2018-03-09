@@ -1,0 +1,323 @@
+{% load bootstrap_tags %}
+{% load staticfiles %}
+{% load i18n avatar_tags %}
+<script type="text/javascript">
+
+    /* Global window variable */
+
+    var map;
+    var exposure_layer;
+    var hazard_layer;
+    var impact_layer;
+    var layer_stack = []; //let utilise this variable for keeping track of 3 layers: boney-bun
+    var hazard_exposure_marker_groups = L.layerGroup();
+    var hazard_exposure_rect_groups = L.layerGroup();
+    var aggregation_layer;
+    var is_legend = false;
+    var is_hazard = false;
+    var is_exposure = false;
+    var is_impact = false;
+
+    var exposure_layer_cbo = $("#id_exposure_layer");
+    var hazard_layer_cbo = $("#id_hazard_layer");
+    var aggregation_layer_cbo = $("#id_aggregation_layer");
+    var impact_function_cbo = $("#id_impact_function_id");
+    var last_impact_id;
+    var slider_exposure_val = 5, slider_hazard_val = 5, slider_impact_val = 5;
+    var not_logged_warning = undefined;
+
+    {# Common function for global use #}
+
+    /**
+     * Zoom to the current extent provided.
+     *
+     * @param map: leaflet map object
+     * @param bbox: format: js array of [xmin,ymin,xmax,ymax]
+     */
+    function zoom_to_box(map, bbox) {
+        var bounds = [
+            [bbox[1], bbox[0]],
+            [bbox[3], bbox[2]]
+        ];
+        map.fitBounds(bounds);
+    }
+
+    /**
+     * Display a little warning if no layer is selected.
+     */
+    function check_layer_empty() {
+        var exp_count = $(".exposure.section .option .list ul li").length;
+        var haz_count = $(".hazard.section .option .list ul li").length;
+
+        if (exp_count + haz_count == 0) {
+            show_info_text(
+                '<span class="text-danger">Extent Changed</span>',
+                '<span class="alert-danger">No usable layer in current extent</span>',
+                'alert-danger');
+        }
+        else if (exp_count == 0) {
+            show_info_text(
+                '<span class="text-danger">Extent Changed</span>',
+                '<span class="alert-danger">No usable exposure layer in current extent</span>',
+                'alert-danger');
+        }
+        else if (haz_count == 0) {
+            show_info_text(
+                '<span class="text-danger">Extent Changed</span>',
+                '<span class="alert-danger">No usable hazard layer in current extent</span>',
+                'alert-danger');
+        }
+    }
+
+    /**
+     * Display warning at the bottom
+     *
+     * @param title
+     * @param content
+     * @param context_class: bootstrap context class to apply
+     */
+    function show_info_text(title, content, context_class) {
+        var $info_box = $(".info-box");
+        //add message when a user not login
+        if (not_logged_warning != undefined)
+        {
+            context_class = 'alert-danger';
+            content += not_logged_warning;
+        }
+
+        if (context_class) {
+            $info_box.addClass(context_class);
+        }
+        else {
+            $info_box.attr('class', 'info-box text-center panel-body');
+        }
+        $info_box.find(".info-title").html(title);
+        $info_box.find(".info-text").html(content);
+    }
+
+    /**
+     * Dismiss warning text at the bottom
+     *
+     * @param title
+     */
+    function dissmiss_info_text(title) {
+        if ($(".info-box .info-title").text() == title) {
+            show_info_text("", "");
+        }
+    }
+
+    /**
+     * Specific warning that the analysis extent is too big.
+     */
+    function warn_analysis_zoom_limit() {
+        var zoom_level = map.getZoom();
+        var title = 'Analysis Extent Too Big'
+        if (zoom_level < 10) {
+            show_info_text(title, 'You might want to zoom in to perform analysis.');
+        }
+        else {
+            dissmiss_info_text(title);
+        }
+    }
+
+    /**
+     * Send request to run analysis.
+     *
+     * The request detail itself is given from modal form.
+     */
+    function run_analysis() {
+        var $keep = $("#confirm_save_analysis");
+        if ($keep && $keep.prop('checked')) {
+            $("#id_keep").prop('checked', true);
+        }
+        else {
+            $("#id_keep").prop('checked', false);
+        }
+
+        {# Copy user title #}
+        var $user_title = $("#confirm_user_title");
+        $("#id_user_title").val($user_title.val());
+
+        {# Copy user extent #}
+        var $user_extent = $("#confirm_user_extent");
+        $("#id_user_extent").val($user_extent.val());
+
+        var $analysis_form = $(".analysis.section form");
+        $.post($analysis_form.attr('action'), $analysis_form.serialize(), function (data) {
+            if (data && data.success) {
+                window.location.href = data.redirect;
+            }
+        });
+    }
+
+    /**
+     * Show the analysis summary infographic.
+     *
+     * A general infographic about the analysis.
+     */
+    function show_analysis_summary() {
+        if (last_impact_id == undefined) {
+            show_info_text('Show Analysis Summary', 'Please select desired impact layer first, before viewing analysis summary.')
+            return;
+        }
+        var selected_impact_id = last_impact_id;
+        var url = '{% url "geosafe:analysis-summary" impact_id=-1 %}';
+        url = url.replace("-1", selected_impact_id);
+        $.get(url, function (data) {
+            if (data) {
+                $("#impact-card-modal").replaceWith(data);
+                $("#impact-card-modal").modal();
+                var impact_layer_title = $("#impact-option a[data-id='" + selected_impact_id + "']").text();
+                show_info_text('Show Analysis Summary', 'Showing summary for ' + impact_layer_title);
+
+                $(document).ready(function () {
+
+                    $(".save-analysis input").change(function () {
+                        var id = $(this).attr('data-id');
+                        var urlpattern = '{% url "geosafe:toggle-analysis-saved" analysis_id=-1 %}';
+                        toggle_analysis_saved(urlpattern, id);
+                    });
+                });
+            }
+        });
+    }
+
+    /**
+     * Show url inside frame
+     *
+     * Useful to display PDF report
+     *
+     * @param title
+     * @param url
+     */
+    function show_in_iframe(title, url) {
+        var $iframe_modal = $("#iframe-modal");
+        $iframe_modal.find("#iframe_label").text(title);
+        $iframe_modal.find("iframe").attr('src', url);
+        $iframe_modal.modal();
+    }
+
+    /**
+     * Check popover tooltips status.
+     *
+     * Useful for displaying tooltip to explain what to do.
+     */
+    function check_popover() {
+        var $exposure_popover = $("#exposure-section-link");
+        var $hazard_popover = $("#hazard-section-link");
+        var $run_analysis_popover = $("#run-analysis-submit-button");
+
+        $('body').on('click', function () {
+            $('[data-toggle="popover"]').popover('hide');
+        });
+
+        {# show hazard popover when document first loaded #}
+        if (!$hazard_popover.hasClass('set')) {
+            $hazard_popover.popover('show');
+            return;
+        }
+        {# show exposure popover if hazard is selected #}
+        if (!$exposure_popover.hasClass('set')) {
+            $exposure_popover.popover('show');
+            return;
+        }
+
+        {# show run button popover if hazard and exposure were selected #}
+        {% if not analysis %}
+                var analysis_url = '{% url 'geosafe:calculate-area' %}';
+                /*var post_data = {
+                    'hazard_id': {{ analysis.hazard_layer_id }},
+                    'exposure_id': {{ analysis.exposure_layer_id }},
+                    'view_extent': '{{ analysis.user_extent }}'
+                };*/
+                var post_data = {
+                'hazard_id': hazard_layer_cbo.find('option:selected').val(),
+                'exposure_id': exposure_layer_cbo.find('option:selected').val(),
+                'view_extent': map.getBounds().toBBoxString()
+            };
+            var both_selected = 'Hazard and exposure are selected. ';
+            var run_message = '';
+            var allow_message = '';
+
+                $.post(analysis_url, post_data, function (data) {
+                    if (data) {
+                        area = data['area'] / 1000000;
+                        formatted_area = numeral(area).format('0,0');
+
+                        if (data['is_valid']) {
+                            allow_message = 'You can now run analysis.';
+                        } else {
+                            allow_message = 'You can\'t run analysis. Please reduce extent';
+                        }
+                        run_message = both_selected + 'The selected analysis extent is ' + formatted_area + ' m2. ' + allow_message;
+                        $run_analysis_popover.popover({title: "Run Analysis", content: run_message});
+                        $run_analysis_popover.popover('show');
+                    } else {
+                        $run_analysis_popover.popover({title: "Run Analysis", content: "If hazard and exposure were selected, you can run analysis"});
+                        $run_analysis_popover.popover('show');
+                    }
+                });
+        {% endif %}
+
+    }
+
+    /**
+     * Generate both markers and rectangles in one go to save bandwidth
+     *
+     * @param layer_id
+     * @param category
+     */
+    function show_marker(layer_id, category) {
+        $.get('{% url 'geosafe:layer-tiles' %}', {'layer_id': layer_id}, function (data) {
+
+            //default use of the marker
+            var marker = L.marker([data['layer_bbox_y0'], data['layer_bbox_x0']], {
+                title:data['layer_name']
+            });
+            marker.on('click', function (event) {
+                zoom_to_box(map, [data['layer_bbox_x0'], data['layer_bbox_y0'], data['layer_bbox_x1'], data['layer_bbox_y1']]);
+
+            });
+            hazard_exposure_marker_groups.addLayer(marker);
+
+            //use later, particularly if zoom > 10
+            bounds = [[data['layer_bbox_y0'], data['layer_bbox_x0']], [data['layer_bbox_y1'], data['layer_bbox_x1']]];
+            var rect_layer;
+
+            if (category == "hazard") {
+                rect_layer = L.rectangle(bounds, {
+                    color: "#2c689c",
+                    opacity: 0.3,
+                    fill: false,
+                    weight: 1
+                });
+            } else if (category == "exposure") {
+                rect_layer = L.rectangle(bounds, {
+                    color: "#ff7800",
+                    opacity: 0.3,
+                    fill: false,
+                    weight: 1
+                });
+            }
+            if(rect_layer != undefined) {
+                rect_layer.bindTooltip(data['layer_name'], {sticky: true});
+                hazard_exposure_rect_groups.addLayer(rect_layer);
+            }
+        });
+    }
+
+    /**
+     * Check analysis extent
+     */
+    function check_analysis_extent(hazard_id, exposure_id) {
+
+        return {
+            'is_valid': is_valid,
+            'reason': reason
+        }
+    }
+
+</script>
+
+{% include "geosafe/analysis/dynamic_scripts/create/side_panel.html" %}
+{% include "geosafe/analysis/dynamic_scripts/create/transparency_control.html" %}

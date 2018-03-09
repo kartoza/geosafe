@@ -2,22 +2,18 @@
 
 from __future__ import absolute_import
 
+import io
+import os
 import re
 import shutil
-import os
-import tempfile
-import io
 import urllib
 import urlparse
-
 from zipfile import ZipFile
 
-import subprocess
-from celery.app import shared_task
-from owslib.wfs import WebFeatureService
+from celery.task import task
 
 from geonode.layers.utils import file_upload
-from geosafe.tasks.analysis import download_file
+from geosafe.helpers.utils import download_file
 
 __author__ = 'Rizky Maulana Nugraha <lana.pcfre@gmail.com>'
 __date__ = '7/29/16'
@@ -40,7 +36,7 @@ def cleanup_metadata(metadata_string):
     return metadata_string.replace(inasafe_keywords, new_inasafe_keywords)
 
 
-@shared_task(
+@task(
     name='geosafe.tasks.metasearch.add_wcs_layer',
     queue='geosafe')
 def add_wcs_layer(
@@ -94,12 +90,12 @@ def add_wcs_layer(
     try:
         os.remove(tmpfile)
         os.remove(metadata_file)
-    except:
+    except BaseException:
         pass
     return saved_layer
 
 
-@shared_task(
+@task(
     name='geosafe.tasks.metasearch.add_wfs_layer',
     queue='geosafe')
 def add_wfs_layer(
@@ -204,18 +200,18 @@ def add_wfs_layer(
             filepath = os.path.join(dir_name, name)
             try:
                 os.remove(filepath)
-            except:
+            except BaseException:
                 pass
 
         if metadata_file:
             try:
                 os.remove(metadata_file)
-            except:
+            except BaseException:
                 pass
 
     # cleanup
     try:
         os.remove(tmpfile)
-    except:
+    except BaseException:
         pass
     return saved_layer
