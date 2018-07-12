@@ -26,7 +26,6 @@ from geosafe.helpers.utils import (
     get_impact_path)
 from geosafe.models import Analysis, Metadata
 from geosafe.tasks.headless.analysis import (
-    read_keywords_iso_metadata,
     run_analysis)
 
 __author__ = 'lucernae'

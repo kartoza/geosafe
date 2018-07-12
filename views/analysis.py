@@ -33,7 +33,6 @@ from geosafe.helpers.impact_summary.summary_base import ImpactSummary
 from geosafe.helpers.utils import get_layer_path
 from geosafe.models import Analysis, Metadata
 from geosafe.signals import analysis_post_save
-from geosafe.tasks.headless.analysis import filter_impact_function
 
 LOGGER = logging.getLogger("geosafe")
 
@@ -276,7 +275,10 @@ class AnalysisCreateView(CreateView):
     def get_form(self, form_class):
         kwargs = self.get_form_kwargs()
         kwargs.update({
-            'impact_functions': Analysis.impact_function_list()
+            # need to update function
+
+            # 'impact_functions': Analysis.impact_function_list()
+            'impact_functions': []
         })
         logger.error(kwargs)
         return form_class(**kwargs)
@@ -353,11 +355,15 @@ def impact_function_filter(request):
         hazard_url = get_layer_path(hazard_layer)
         exposure_url = get_layer_path(exposure_layer)
 
-        async_result = filter_impact_function.delay(
-            hazard_url,
-            exposure_url)
+        # need to update function
 
-        impact_functions = async_result.get()
+        # async_result = filter_impact_function.delay(
+        #     hazard_url,
+        #     exposure_url)
+        #
+        # impact_functions = async_result.get()
+
+        impact_functions = []
 
         return HttpResponse(
             json.dumps(impact_functions), content_type="application/json")
