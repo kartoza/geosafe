@@ -26,7 +26,7 @@ from geosafe.helpers.utils import (
     get_impact_path)
 from geosafe.models import Analysis, Metadata
 from geosafe.tasks.headless.analysis import (
-    run_analysis)
+    get_keywords, run_analysis)
 
 __author__ = 'lucernae'
 
@@ -160,12 +160,9 @@ def create_metadata_object(self, layer_id):
         using_direct_access = (
             hasattr(settings, 'INASAFE_LAYER_DIRECTORY') and
             settings.INASAFE_LAYER_DIRECTORY)
-        if using_direct_access and not layer.is_remote:
+        if using_direct_access and not layer.remote_service:
             # If direct disk access were configured, then use it.
-            base_file_path = get_layer_path(layer)
-            base_file_path, _ = os.path.splitext(base_file_path)
-            xml_file_path = base_file_path + '.xml'
-            layer_url = urlparse.urljoin('file://', xml_file_path)
+            layer_url = urlparse.urljoin('file://', get_layer_path(layer))
         else:
             # InaSAFE Headless celery will download metadata from url
             layer_url = reverse(
@@ -175,12 +172,11 @@ def create_metadata_object(self, layer_id):
         # Execute in chain:
         # - Get InaSAFE keywords from InaSAFE worker
         # - Set Layer metadata according to InaSAFE keywords
-        read_keywords_iso_metadata_queue = read_keywords_iso_metadata.queue
+        get_keywords_queue = get_keywords.queue
         set_layer_purpose_queue = set_layer_purpose.queue
         tasks_chain = chain(
-            read_keywords_iso_metadata.s(
-                layer_url, ('layer_purpose', 'hazard', 'exposure')).set(
-                queue=read_keywords_iso_metadata_queue),
+            get_keywords.s(layer_url).set(
+                queue=get_keywords_queue),
             set_layer_purpose.s(layer_id).set(
                 queue=set_layer_purpose_queue)
         )

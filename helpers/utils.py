@@ -84,7 +84,7 @@ def get_layer_path(layer):
     :rtype: str
     """
     using_direct_access = settings.USE_LAYER_FILE_ACCESS
-    if using_direct_access and not layer.is_remote:
+    if using_direct_access and not layer.remote_service:
         base_layer_path = Analysis.get_base_layer_path(layer)
         layers_base_dir = settings.INASAFE_LAYER_DIRECTORY_BASE_PATH
         relative_path = os.path.relpath(base_layer_path, layers_base_dir)
