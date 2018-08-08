@@ -72,13 +72,14 @@ def download_file(url, direct_access=False, user=None, password=None):
     return tmpfile
 
 
-def get_layer_path(layer):
+def get_layer_path(layer, base=None):
     """Helper function to get path for InaSAFE worker.
 
     :param layer: geonode layer
     :type layer: geonode.layers.models.Layer
 
-    :p
+    :param base: Base path
+    :type base: basestring
 
     :return: Layer path or url
     :rtype: str
@@ -91,7 +92,7 @@ def get_layer_path(layer):
         layer_url = os.path.join(
             settings.INASAFE_LAYER_DIRECTORY,
             relative_path)
-        layer_url = urlparse.urljoin('file://', layer_url)
+        layer_url = urlparse.urljoin(base, layer_url)
     else:
         layer_url = Analysis.get_layer_url(layer)
     return layer_url

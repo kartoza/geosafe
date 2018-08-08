@@ -124,6 +124,13 @@ class Analysis(models.Model):
         blank=False,
         null=False
     )
+    impact_function_name = models.CharField(
+        max_length=255,
+        verbose_name='Name of Impact Function',
+        help_text='The name of Impact Function used in the analysis.',
+        blank=True,
+        null=True
+    )
     extent_option = models.IntegerField(
         choices=EXTENT_CHOICES,
         default=HAZARD_EXPOSURE_CODE,
@@ -262,6 +269,15 @@ class Analysis(models.Model):
 
     @classmethod
     def get_base_layer_path(cls, layer):
+        """Helper function to get path of the layer.
+
+        :param layer:
+        :type layer: geonode.layers.models.Layer
+
+        :return: Layer path or url
+        :rtype: str
+        """
+        # TODO: return layer.qgis_layer.qgis_layer_name
         base_file, _ = layer.get_base_file()
         return base_file.file.path
 

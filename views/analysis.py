@@ -231,7 +231,7 @@ class AnalysisCreateView(CreateView):
             sections.append(section)
 
         impact_layers, is_filtered = retrieve_layers(
-            'impact',
+            'impact_analysis',
             bbox=bbox,
             authorized_objects=authorized_objects
         )

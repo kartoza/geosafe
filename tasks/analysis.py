@@ -26,7 +26,7 @@ from geosafe.helpers.utils import (
     get_impact_path)
 from geosafe.models import Analysis, Metadata
 from geosafe.tasks.headless.analysis import (
-    get_keywords, run_analysis)
+    get_keywords, run_analysis, RESULT_SUCCESS)
 
 __author__ = 'lucernae'
 
@@ -249,13 +249,6 @@ def prepare_analysis(analysis_id):
 
     hazard = get_layer_path(analysis.hazard_layer)
     exposure = get_layer_path(analysis.exposure_layer)
-    function = analysis.impact_function_id
-
-    extent = analysis.user_extent
-
-    if extent:
-        # Reformat extent into list(float)
-        extent = ast.literal_eval('[' + extent + ']')
 
     # Execute analysis in chains:
     # - Run analysis
@@ -263,17 +256,13 @@ def prepare_analysis(analysis_id):
     tasks_chain = chain(
         run_analysis.s(
             hazard,
-            exposure,
-            function,
-            generate_report=True,
-            requested_extent=extent,
-            archive_impact=False
+            exposure
         ).set(
-            queue='inasafe-headless-analysis').set(
+            queue=run_analysis.queue).set(
             time_limit=settings.INASAFE_ANALYSIS_RUN_TIME_LIMIT),
         process_impact_result.s(
             analysis_id
-        ).set(queue='geosafe')
+        ).set(queue=process_impact_result.queue)
     )
     result = tasks_chain.delay()
     # Parent information will be lost later.
@@ -286,14 +275,15 @@ def prepare_analysis(analysis_id):
     name='geosafe.tasks.analysis.process_impact_result',
     queue='geosafe',
     bind=True)
-def process_impact_result(self, impact_url, analysis_id):
+def process_impact_result(self, impact_result, analysis_id):
     """Extract impact analysis after running it via InaSAFE-Headless celery
 
     :param self: Task instance
     :type self: celery.task.Task
 
-    :param impact_url: impact url returned from analysis
-    :type impact_url: str
+    :param impact_result: A dictionary of output's layer key and Uri with
+        status and message.
+    :type impact_result: dict
 
     :param analysis_id: analysis id of the object
     :type analysis_id: int
@@ -307,50 +297,53 @@ def process_impact_result(self, impact_url, analysis_id):
     analysis.task_id = self.request.id
     analysis.save()
 
-    # decide if we are using direct access or not
-    impact_url = get_impact_path(impact_url)
+    if impact_result['status'] == RESULT_SUCCESS:
+        impact_url = impact_result['output']['impact_analysis']
 
-    # download impact layer path
-    impact_path = download_file(impact_url, direct_access=True)
-    dir_name = os.path.dirname(impact_path)
-    success = False
-    is_zipfile = os.path.splitext(impact_path)[1].lower() == '.zip'
-    if is_zipfile:
-        # Extract the layer first
-        with ZipFile(impact_path) as zf:
-            zf.extractall(path=dir_name)
-            for name in zf.namelist():
-                basename, ext = os.path.splitext(name)
-                if ext in ['.shp', '.tif']:
-                    # process this in the for loop to make sure it works only
-                    # when we found the layer
-                    success = process_impact_layer(
-                        analysis, basename, dir_name, name)
-                    break
+        # decide if we are using direct access or not
+        impact_url = get_impact_path(impact_url)
+
+        # download impact layer path
+        impact_path = download_file(impact_url, direct_access=True)
+        dir_name = os.path.dirname(impact_path)
+        success = False
+        is_zipfile = os.path.splitext(impact_path)[1].lower() == '.zip'
+        if is_zipfile:
+            # Extract the layer first
+            with ZipFile(impact_path) as zf:
+                zf.extractall(path=dir_name)
+                for name in zf.namelist():
+                    basename, ext = os.path.splitext(name)
+                    if ext in ['.shp', '.tif']:
+                        # process this in the for loop to make sure it works only
+                        # when we found the layer
+                        success = process_impact_layer(
+                            analysis, basename, dir_name, name)
+                        break
+
+                # cleanup
+                for name in zf.namelist():
+                    filepath = os.path.join(dir_name, name)
+                    try:
+                        os.remove(filepath)
+                    except BaseException:
+                        pass
+        else:
+            # It means it is accessing an shp or tif directly
+            filename = os.path.basename(impact_path)
+            basename, ext = os.path.splitext(filename)
+            success = process_impact_layer(analysis, basename, dir_name, filename)
 
             # cleanup
-            for name in zf.namelist():
+            for name in os.listdir(dir_name):
                 filepath = os.path.join(dir_name, name)
-                try:
-                    os.remove(filepath)
-                except BaseException:
-                    pass
-    else:
-        # It means it is accessing an shp or tif directly
-        filename = os.path.basename(impact_path)
-        basename, ext = os.path.splitext(filename)
-        success = process_impact_layer(analysis, basename, dir_name, filename)
-
-        # cleanup
-        for name in os.listdir(dir_name):
-            filepath = os.path.join(dir_name, name)
-            is_file = os.path.isfile(filepath)
-            should_delete = name.split('.')[0] == basename
-            if is_file and should_delete:
-                try:
-                    os.remove(filepath)
-                except BaseException:
-                    pass
+                is_file = os.path.isfile(filepath)
+                should_delete = name.split('.')[0] == basename
+                if is_file and should_delete:
+                    try:
+                        os.remove(filepath)
+                    except BaseException:
+                        pass
 
     # cleanup
     try:

@@ -22,6 +22,7 @@ USE_LAYER_FILE_ACCESS = literal_eval(os.environ.get(
 # accessed by InaSAFE Headless Celery Worker
 INASAFE_LAYER_DIRECTORY = os.environ.get(
     'INASAFE_LAYER_DIRECTORY', '/home/geosafe/media/')
+# TODO: change `inasafe layer setting` and mount point from `uploaded` to `qgis_layer`
 INASAFE_LAYER_DIRECTORY_BASE_PATH = os.environ.get(
     'INASAFE_LAYER_DIRECTORY_BASE_PATH', '/usr/src/app/geonode/uploaded/')
 
