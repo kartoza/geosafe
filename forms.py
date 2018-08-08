@@ -24,7 +24,6 @@ class AnalysisCreationForm(models.ModelForm):
             'exposure_layer',
             'hazard_layer',
             'aggregation_layer',
-            'impact_function_id',
             'extent_option',
             'keep',
         )
@@ -68,11 +67,6 @@ class AnalysisCreationForm(models.ModelForm):
             attrs={'class': 'form-control'})
     )
 
-    impact_function_id = forms.ChoiceField(
-        label='Impact Function ID',
-        required=True,
-    )
-
     keep = forms.BooleanField(
         label='Save Analysis',
         required=False,
@@ -82,16 +76,11 @@ class AnalysisCreationForm(models.ModelForm):
         self.user = kwargs.pop('user', None)
         exposure_layer = kwargs.pop('exposure_layer', None)
         hazard_layer = kwargs.pop('hazard_layer', None)
-        impact_function_ids = kwargs.pop('impact_functions', None)
         super(AnalysisCreationForm, self).__init__(*args, **kwargs)
         if exposure_layer:
             self.fields['exposure_layer'].queryset = exposure_layer
         if hazard_layer:
             self.fields['hazard_layer'].queryset = hazard_layer
-        if impact_function_ids:
-            self.fields['impact_function_id'].choices = [
-                (impact_function['id'], impact_function['name'])
-                for impact_function in impact_function_ids]
 
     def save(self, commit=True):
         instance = super(AnalysisCreationForm, self).save(commit=False)
