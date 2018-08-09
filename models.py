@@ -124,13 +124,6 @@ class Analysis(models.Model):
         blank=False,
         null=False
     )
-    impact_function_name = models.CharField(
-        max_length=255,
-        verbose_name='Name of Impact Function',
-        help_text='The name of Impact Function used in the analysis.',
-        blank=True,
-        null=True
-    )
     extent_option = models.IntegerField(
         choices=EXTENT_CHOICES,
         default=HAZARD_EXPOSURE_CODE,
@@ -257,6 +250,13 @@ class Analysis(models.Model):
             self.exposure_layer.name
         )
         return layer_name
+
+    def impact_function_name(self):
+        # Set impact function name from provenance data
+        from geosafe.tasks.headless.analysis import get_keywords
+        from geosafe.helpers.utils import get_layer_path
+        keywords = get_keywords.delay(get_layer_path(self.impact_layer)).get()
+        return keywords['provenance_data']['impact_function_name']
 
     @classmethod
     def get_layer_url(cls, layer):
