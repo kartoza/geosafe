@@ -10,6 +10,9 @@ __date__ = '2/3/16'
 LOGGER = logging.getLogger(__name__)
 
 
+RESULT_SUCCESS = 0
+
+
 class RemoteTaskException(Exception):
     """Custom Exception for remote function.
 

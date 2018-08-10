@@ -251,6 +251,13 @@ class Analysis(models.Model):
         )
         return layer_name
 
+    def impact_function_name(self):
+        # Set impact function name from provenance data
+        from geosafe.tasks.headless.analysis import get_keywords
+        from geosafe.helpers.utils import get_layer_path
+        keywords = get_keywords.delay(get_layer_path(self.impact_layer)).get()
+        return keywords['provenance_data']['impact_function_name']
+
     @classmethod
     def get_layer_url(cls, layer):
         layer_id = layer.id
@@ -262,6 +269,15 @@ class Analysis(models.Model):
 
     @classmethod
     def get_base_layer_path(cls, layer):
+        """Helper function to get path of the layer.
+
+        :param layer:
+        :type layer: geonode.layers.models.Layer
+
+        :return: Layer path or url
+        :rtype: str
+        """
+        # TODO: return layer.qgis_layer.qgis_layer_name
         base_file, _ = layer.get_base_file()
         return base_file.file.path
 
