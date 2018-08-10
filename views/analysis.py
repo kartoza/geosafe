@@ -274,12 +274,6 @@ class AnalysisCreateView(CreateView):
 
     def get_form(self, form_class):
         kwargs = self.get_form_kwargs()
-        kwargs.update({
-            # need to update function
-
-            # 'impact_functions': Analysis.impact_function_list()
-            'impact_functions': []
-        })
         logger.error(kwargs)
         return form_class(**kwargs)
 
@@ -333,43 +327,6 @@ class AnalysisDetailView(DetailView):
     def get_context_data(self, **kwargs):
         context = super(AnalysisDetailView, self).get_context_data(**kwargs)
         return context
-
-
-def impact_function_filter(request):
-    """Ajax Request for filtered available IF
-    """
-    if request.method != 'GET':
-        return HttpResponseBadRequest()
-
-    exposure_id = request.GET.get('exposure_id')
-    hazard_id = request.GET.get('hazard_id')
-
-    if not (exposure_id and hazard_id):
-        return HttpResponse(
-            json.dumps([]), content_type="application/json")
-
-    try:
-        hazard_layer = Layer.objects.get(id=hazard_id)
-        exposure_layer = Layer.objects.get(id=exposure_id)
-
-        hazard_url = get_layer_path(hazard_layer)
-        exposure_url = get_layer_path(exposure_layer)
-
-        # need to update function
-
-        # async_result = filter_impact_function.delay(
-        #     hazard_url,
-        #     exposure_url)
-        #
-        # impact_functions = async_result.get()
-
-        impact_functions = []
-
-        return HttpResponse(
-            json.dumps(impact_functions), content_type="application/json")
-    except Exception as e:
-        LOGGER.exception(e)
-        return HttpResponseServerError()
 
 
 def layer_tiles(request):
@@ -503,8 +460,7 @@ def layer_panel(request, bbox=None, **kwargs):
             hazard_layer=retrieve_layers(
                 'hazard',
                 bbox=bbox,
-                authorized_objects=authorized_objects)[0],
-            impact_functions=Analysis.impact_function_list())
+                authorized_objects=authorized_objects)[0])
         context = {
             'sections': sections,
             'form': form,

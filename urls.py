@@ -7,7 +7,6 @@ from geosafe.views.analysis import (
     AnalysisListView,
     AnalysisCreateView,
     AnalysisDetailView,
-    impact_function_filter,
     layer_tiles,
     layer_metadata,
     layer_archive,
@@ -26,11 +25,6 @@ urlpatterns = patterns(
         r'^analysis/(?:/user/(?P<user>\d*))?$',
         AnalysisListView.as_view(),
         name='analysis-list'
-    ),
-    url(
-        r'^analysis/impact-function-filter$',
-        impact_function_filter,
-        name='impact-function-filter'
     ),
     url(
         r'^analysis/(?P<pk>\d+)$',

@@ -142,103 +142,6 @@
     }
 
     /**
-     * This function is a change handler to retrieve Impact Function list
-     *
-     * For every change in hazar or exposure combination, a new Impact Function
-     * list needs to be retrieved to take a new possible Impact Function (IF).
-     */
-    {# listen to change handler #}
-    function retrieve_if_list(evt) {
-        var chosen_combination = {
-            'exposure_id': $("#id_exposure_layer").val(),
-            'hazard_id': $("#id_hazard_layer").val()
-        };
-
-        {# create spinning animation #}
-        var if_function = $("#impact-function");
-        if_function.addClass('loading');
-
-        $.get('{% url 'geosafe:impact-function-filter' %}', chosen_combination, function (data) {
-            var select = $("#id_impact_function_id");
-            var ul = $("#impact-function-list").find('ul');
-            select.empty();
-            ul.empty();
-            // clear styles
-            if_function.removeClass("set").removeClass("loading");
-            $("#impact-function-list .selected").removeClass("selected");
-            if (data.length == 0) {
-                $("<option></option>").text("No matching Impact Function").appendTo(select);
-                var $a = $("<p><a></a></p>");
-                $a.text("No matching Impact Function");
-                var $li = $("<li></li>");
-                $li.append($a);
-                $li.appendTo(ul);
-            }
-
-            if (data.length > 1) {
-                if_function.addClass("has-children");
-            }
-
-            for (var i = 0; i < data.length; i++) {
-                var id = data[i]['id'];
-                var name = data[i]['name'];
-                $("<option></option>").val(id).text(name).appendTo(select);
-                var $a = $("<a></a>").attr('href', 'javascript:select_if("' + id + '")').attr('data-id', id).text(name);
-                var $li = $("<li></li>");
-                $li.append($a);
-                $li.appendTo(ul);
-            }
-
-            if (data.length == 1) {
-                {# only for lone data#}
-                select_if(data[0]['id']);
-                show_info_text('InaSAFE Impact Function', 'Automatically select ' + data[0]['name']);
-            }
-            else if (data.length == 0) {
-                {# deselect Impact function#}
-                select_if(undefined);
-            }
-        }).fail(function () {
-            var select = $("#id_impact_function_id");
-            var ul = $("#impact-function-list").find('ul');
-            select.empty();
-            ul.empty();
-            select_if(undefined);
-        });
-    };
-
-
-    /**
-     * Select programmatically, to choose impact function to be executed
-     *
-     * @param function_id The impact function id. A string.
-     */
-    function select_if(function_id) {
-
-        var $if_section = $("#impact-function");
-        var $if_section_list = $("#impact-function-list");
-
-        if (!function_id) {
-            impact_function_cbo.val(undefined);
-            $if_section.removeClass("set");
-            $if_section_list.find("a:contains(" + function_id + ")")
-                .removeClass("selected");
-
-            $(".analysis.section form button[type=submit]").prop("disabled", true);
-            return
-        }
-
-        impact_function_cbo.val(function_id);
-
-        // update styles
-        $if_section.addClass("set");
-        $if_section_list.find("a[data-id=" + function_id + "]").addClass("selected");
-
-        // validate button
-        $(".analysis.section form button[type=submit]").prop("disabled", false);
-    }
-
-    /**
      * Update exposure layer list in side panel
      *
      * @param layer_id: the layer id
@@ -266,7 +169,6 @@
 
 
         exposure_layer_cbo.val(layer_id);
-        retrieve_if_list();
 
         // update sidebar styles
         var $exposure_sections = $(".exposure.section").find(".option");
@@ -352,7 +254,6 @@
             }
         {% endif %}
         hazard_layer_cbo.val(layer_id);
-        retrieve_if_list();
 
         // update sidebar styles
         var $hazard_sections = $(".hazard.section").find(".option");
