@@ -254,15 +254,11 @@ def prepare_analysis(analysis_id):
     # - Run analysis
     # - Process analysis result
     tasks_chain = chain(
-        run_analysis.s(
-            hazard,
-            exposure
-        ).set(
+        run_analysis.s(hazard, exposure).set(
             queue=run_analysis.queue).set(
             time_limit=settings.INASAFE_ANALYSIS_RUN_TIME_LIMIT),
-        process_impact_result.s(
-            analysis_id
-        ).set(queue=process_impact_result.queue)
+        process_impact_result.s(analysis_id).set(
+            queue=process_impact_result.queue)
     )
     result = tasks_chain.delay()
     # Parent information will be lost later.

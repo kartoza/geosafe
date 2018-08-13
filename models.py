@@ -277,9 +277,7 @@ class Analysis(models.Model):
         :return: Layer path or url
         :rtype: str
         """
-        # TODO: return layer.qgis_layer.qgis_layer_name
-        base_file, _ = layer.get_base_file()
-        return base_file.file.path
+        return layer.qgis_layer.qgis_layer_name
 
     def save(self, force_insert=False, force_update=False, using=None,
              update_fields=None, run_analysis_flag=True):
