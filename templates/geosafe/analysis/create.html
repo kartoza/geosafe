@@ -494,6 +494,7 @@
             $(".legend").toggle(is_legend);
             $("#legend-exposure-body").toggle(is_exposure);
             $("#legend-hazard-body").toggle(is_hazard);
+            $("#legend-aggregation-body").toggle(is_aggregation);
             $("#legend-impact-body").toggle(is_impact);
             //hide/view legend
             $("#legend-title").click(function () {
@@ -619,6 +620,7 @@
             {
                 var num_hazard = hazard_layer_cbo[0].length;
                 var num_exposure = exposure_layer_cbo[0].length;
+                var num_aggregation = aggregation_layer_cbo[0].length;
                 //show marker for each layers
                 var layer_id;
                 for (var loop_hazard = 0; loop_hazard < num_hazard; loop_hazard++) {
@@ -633,6 +635,13 @@
                     // first combo option is an empty tag.
                     if (layer_id != "") {
                         show_marker(layer_id, "exposure");
+                    }
+                }
+                for (var loop_aggregation = 0; loop_aggregation < num_aggregation; loop_aggregation++) {
+                    layer_id = aggregation_layer_cbo[0][loop_aggregation].value;
+                    // first combo option is an empty tag.
+                    if (layer_id != "") {
+                        show_marker(layer_id, "aggregation");
                     }
                 }
                 //use markers as the default
@@ -658,6 +667,7 @@
                 {# we are viewing analysis. set desired settings #}
                 update_hazard_layer({{ analysis.hazard_layer_id }});
                 update_exposure_layer({{ analysis.exposure_layer_id }});
+                update_aggregation_layer({{ analysis.aggregation_layer_id }});
                 {# check if impact process is done #}
                 {% if analysis.get_task_state == 'SUCCESS' %}
                     update_impact_layer({{ analysis.impact_layer_id }});
@@ -696,6 +706,7 @@
                 var post_data = {
                     'hazard_id': {{ analysis.hazard_layer_id }},
                     'exposure_id': {{ analysis.exposure_layer_id }},
+                    'aggregation_id': {{ analysis.aggregation_layer_id }},
                     'view_extent': '{{ analysis.user_extent }}'
                 };
                 var analysis_url = '{% url 'geosafe:calculate-area' %}';

@@ -196,38 +196,59 @@ class AnalysisCreateView(CreateView):
                     'Select a structure layer',
                     # 'Select a land_cover layer',
                 ]
+            },
+            {
+                'name': 'aggregation',
+                'list_title': 'Select an aggregation layer'
             }
         ]
         sections = []
         for p in purposes:
-            categories = []
             is_section_filtered = False
-            for idx, c in enumerate(p.get('categories')):
+            if p['name'] == 'aggregation':
                 layers, is_filtered = retrieve_layers(
                     p.get('name'),
-                    c,
                     bbox=bbox,
                     authorized_objects=authorized_objects
                 )
                 if is_filtered:
                     is_section_filtered = True
-                category = {
-                    'name': c,
+                section = {
+                    'name': p.get('name'),
                     'layers': layers,
                     'total_layers': len(layers),
                     'filter_status': (
-                        'filtered' if is_filtered else 'unfiltered'),
-                    'list_title': p.get('list_titles')[idx]
+                        'filtered' if is_section_filtered else 'unfiltered'),
+                    'list_title': p.get('list_title')
                 }
-                categories.append(category)
-            section = {
-                'name': p.get('name'),
-                'total_layers': sum(
-                    [len(c['layers']) for c in categories]),
-                'filter_status': (
-                    'filtered' if is_section_filtered else 'unfiltered'),
-                'categories': categories
-            }
+            else:
+                categories = []
+                for idx, c in enumerate(p.get('categories')):
+                    layers, is_filtered = retrieve_layers(
+                        p.get('name'),
+                        c,
+                        bbox=bbox,
+                        authorized_objects=authorized_objects
+                    )
+                    if is_filtered:
+                        is_section_filtered = True
+                    category = {
+                        'name': c,
+                        'layers': layers,
+                        'total_layers': len(layers),
+                        'filter_status': (
+                            'filtered' if is_filtered else 'unfiltered'),
+                        'list_title': p.get('list_titles')[idx]
+                    }
+                    categories.append(category)
+                section = {
+                    'name': p.get('name'),
+                    'total_layers': sum(
+                        [len(c['layers']) for c in categories]),
+                    'filter_status': (
+                        'filtered' if is_section_filtered else 'unfiltered'),
+                    'categories': categories
+                }
             sections.append(section)
 
         impact_layers, is_filtered = retrieve_layers(
@@ -483,6 +504,10 @@ def validate_analysis_extent(request):
         view_extent = request.POST.get('view_extent')
         hazard_layer = Layer.objects.get(id=hazard_id)
         exposure_layer = Layer.objects.get(id=exposure_id)
+        aggregation_layer = None
+        if request.POST.get('aggregation_id'):
+            aggregation_id = request.POST.get('aggregation_id')
+            aggregation_layer = Layer.objects.get(id=aggregation_id)
     except Exception as e:
         LOGGER.exception(e)
         return HttpResponseBadRequest()
@@ -503,6 +528,14 @@ def validate_analysis_extent(request):
         exposure_geom.transform(4326)
 
         analysis_geom = exposure_geom.intersection(hazard_geom)
+
+        if aggregation_layer:
+            aggregation_srid, aggregation_wkt = aggregation_layer.geographic_bounding_box. \
+                split(';')
+            aggregation_srid = re.findall(r'\d+', aggregation_srid)
+            aggregation_geom = GEOSGeometry(aggregation_wkt, srid=int(aggregation_srid[0]))
+            aggregation_geom.transform(4326)
+            analysis_geom = analysis_geom.intersection(aggregation_geom)
 
         if not analysis_geom:
             # hazard and exposure doesn't intersect

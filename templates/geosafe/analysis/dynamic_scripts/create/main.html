@@ -8,14 +8,15 @@
     var map;
     var exposure_layer;
     var hazard_layer;
+    var aggregation_layer;
     var impact_layer;
     var layer_stack = []; //let utilise this variable for keeping track of 3 layers: boney-bun
     var hazard_exposure_marker_groups = L.layerGroup();
     var hazard_exposure_rect_groups = L.layerGroup();
-    var aggregation_layer;
     var is_legend = false;
     var is_hazard = false;
     var is_exposure = false;
+    var is_aggregation = false;
     var is_impact = false;
 
     var exposure_layer_cbo = $("#id_exposure_layer");
@@ -23,7 +24,7 @@
     var aggregation_layer_cbo = $("#id_aggregation_layer");
     var impact_function_cbo = $("#id_impact_function_id");
     var last_impact_id;
-    var slider_exposure_val = 5, slider_hazard_val = 5, slider_impact_val = 5;
+    var slider_exposure_val = 5, slider_hazard_val = 5, slider_aggregation_val = 5, slider_impact_val = 5;
     var not_logged_warning = undefined;
 
     {# Common function for global use #}
@@ -202,9 +203,10 @@
      *
      * Useful for displaying tooltip to explain what to do.
      */
-    function check_popover() {
+    function check_popover(skip_aggregation) {
         var $exposure_popover = $("#exposure-section-link");
         var $hazard_popover = $("#hazard-section-link");
+        var $aggregation_popover = $("#aggregation-section-link");
         var $run_analysis_popover = $("#run-analysis-submit-button");
 
         $('body').on('click', function () {
@@ -221,6 +223,17 @@
             $exposure_popover.popover('show');
             return;
         }
+        {# show aggregation popover if exposure is selected #}
+        if (!$aggregation_popover.hasClass('set') && !skip_aggregation) {
+            $aggregation_popover.popover({
+                placement: 'right',
+                html: true,
+                title: 'Select Aggregation <a onclick="check_popover(true);" class="close" data-dismiss="alert">&times;</a>',
+                content: 'Now choose an aggregation dataset. This is optional, you can skip this.'
+            });
+            $aggregation_popover.popover('show');
+            return;
+        }
 
         {# show run button popover if hazard and exposure were selected #}
         {% if not analysis %}
@@ -233,6 +246,7 @@
             var post_data = {
                 'hazard_id': hazard_layer_cbo.find('option:selected').val(),
                 'exposure_id': exposure_layer_cbo.find('option:selected').val(),
+                'aggregation_id': aggregation_layer_cbo.find('option:selected').val(),
                 'view_extent': map.getBounds().toBBoxString()
             };
             var both_selected = 'Hazard and exposure are selected. ';
@@ -293,6 +307,13 @@
                     weight: 1
                 });
             } else if (category == "exposure") {
+                rect_layer = L.rectangle(bounds, {
+                    color: "#ff7800",
+                    opacity: 0.3,
+                    fill: false,
+                    weight: 1
+                });
+            } else if (category == "aggregation") {
                 rect_layer = L.rectangle(bounds, {
                     color: "#ff7800",
                     opacity: 0.3,

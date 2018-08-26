@@ -99,6 +99,7 @@
             {# use modal form instead for confirmation. #}
             $("#confirm_hazard_title").val(hazard_layer_cbo.find('option:selected').text());
             $("#confirm_exposure_title").val(exposure_layer_cbo.find('option:selected').text());
+            $("#confirm_aggregation_title").val(aggregation_layer_cbo.find('option:selected').text());
             $("#confirm_impact_title").val(impact_function_cbo.find('option:selected').text());
             $("#analysis-confirmation-modal").modal();
             {# Ask GeoSAFE to validate extent #}
@@ -380,25 +381,86 @@
     }
 
     /**
-     * Update aggregation layer
+     * Update aggregation layer list in side panel
      *
-     * TODO: This logic is not used yet.
+     * @param layer_id: the layer id
+     * @param is_update_map: flag to update the map object too
      */
-    function update_aggregation_layer() {
-        var layer_id = aggregation_layer_cbo.val();
-        console.log('aggregation changed to ' + layer_id);
+    function update_aggregation_layer(layer_id, is_update_map) {
+        {# deselect if it is the same#}
+        var no_layer_id_exists = layer_id != undefined && $(".aggregation.section a[data-id='" + layer_id + "']").length == 0;
+        if (aggregation_layer_cbo.val() == layer_id || no_layer_id_exists) {
+            update_aggregation_layer(undefined);
+            return;
+        }
+
+        //replace marker with rectangle if the image fits the screen
+        //make sure not calling by run analysis page
+        {%  if not analysis  and analysis.get_task_state != "" %}
+            if (map.getZoom() > 5) {
+                map.removeLayer(hazard_exposure_marker_groups);
+                map.addLayer(hazard_exposure_rect_groups);
+
+            } else {
+                map.removeLayer(hazard_exposure_rect_groups);
+                map.addLayer(hazard_exposure_marker_groups);
+            }
+        {% endif %}
+        aggregation_layer_cbo.val(layer_id);
+
+        // update sidebar styles
+        var $aggregation_sections = $(".aggregation.section").find(".option");
+        // clear styles
+        $aggregation_sections.find(">a").removeClass("set");
+        $aggregation_sections.find("ul>li>a").removeClass("selected");
+        // find section of the id
+        var $a = $aggregation_sections.find("a[data-id=" + layer_id + "]");
+        $a.addClass("selected");
+        var $section = $a.closest(".option");
+        $section.find(">a").addClass("set");
+
+        var $header = $(".aggregation.section");
+        var $menu_icon = $(".menu-icon", $header);
+        if ($aggregation_sections.find(".set").length == 0) {
+            $header.removeClass("set");
+            $menu_icon.removeClass("set");
+        }
+        else {
+            $header.addClass("set");
+            $menu_icon.addClass("set");
+        }
+
+        if (is_update_map == false) {
+            return;
+        }
 
         if (layer_id) {
-            console.log('update aggregation layer');
             if (aggregation_layer) {
-                console.log('remove previous aggregation layer');
-                console.log(aggregation_layer);
                 map.removeLayer(aggregation_layer);
             }
             update_map(layer_id, 'aggregation');
+            //at this point, the user has picked a layer, so it's time to remove all markers
+            if (hazard_exposure_marker_groups.getLayers().length != 0) {
+                hazard_exposure_marker_groups.clearLayers();
+            }
+            if (hazard_exposure_rect_groups.getLayers().length != 0) {
+                hazard_exposure_rect_groups.clearLayers();
+            }
+
+            show_info_text('InaSAFE Aggregation', $a.text() + ' selected.');
         } else {
-            console.log('delete aggregation');
+            remove_layer(aggregation_layer._url);
             map.removeLayer(aggregation_layer);
+            $("#aggregation-legend-img").removeAttr("src");
+            is_aggregation = false;
+            $("#legend-aggregation-body").toggle(is_aggregation);
+            //if all layers doesn't exist anymore, hide legend
+            if (!is_exposure && !is_hazard & !is_impact)
+            {
+                is_legend = false;
+                $(".legend").toggle(is_legend);
+            }
+            show_info_text('InaSAFE Aggregation', 'Aggregation unselected.');
         }
     }
 
@@ -421,6 +483,7 @@
         $.get(url, function (data) {
             var exposure_id = $(".exposure.section a.selected").attr('data-id');
             var hazard_id = $(".hazard.section a.selected").attr('data-id');
+            var aggregation_id = $(".aggregation.section a.selected").attr('data-id');
             var impact_id = $("#impact-option a.selected").attr('data-id');
             $(".layer-list").replaceWith('<div class="layer-list">' + data + '</data>');
             $(document).ready(function () {
@@ -434,6 +497,7 @@
                 init_layer_panel();
                 update_exposure_layer(exposure_id, false);
                 update_hazard_layer(hazard_id, false);
+                update_aggregation_layer(aggregation_id, false);
                 update_impact_layer(impact_id, false);
                 check_layer_empty();
                 check_popover();

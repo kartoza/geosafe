@@ -16,13 +16,33 @@
                 data-toggle="popover" data-trigger="manual" title="Select Exposure"
                 data-content="Now choose an exposure dataset."
                 >
+                {% elif s.name == 'aggregation' %}
+                data-toggle="popover" data-trigger="manual"
+                >
                 {% endif %}
                 {% if s.total_layers > 0 %}
                 <span class="badge">{{ s.total_layers }}</span>
                 {% endif %}
                 <img src="{% static "geosafe/img/"|add:s.name|add:"-menu.svg" %}" alt="{{ s.name }}-icon" class="svg"/>
             </a>
+            {% if s.name == 'aggregation' %}
+            <div class="list floating-box" id="{{ s.name }}-list">
+                <h4 class="list-title">{{ s.list_title }}
+                </h4>
+                <ul>
+                    {% for e in s.layers %}
+                        <li>
+                            <a href="javascript:update_{{ s.name }}_layer({{ e.id }})" data-id="{{ e.id }}">{{ e.title }}</a>
+                        </li>
+                    {% empty %}
+                        <p>No {{ c.name }} layer for the extent.</p>
+                        <a href="{% url "layer_upload" %}" class="btn btn-default">Upload Layer</a>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
         </div>
+        {% if not s.name == 'aggregation' %}
         <div class="section-panel">
             <div class="filtered-status {{ s.filter_status }}">
                 <span class="filtered-text">Filtered</span>
@@ -55,6 +75,7 @@
             </div>
             {% endfor %}
         </div>
+        {% endif %}
     </div>
     {% else %}
     {# for impact #}
