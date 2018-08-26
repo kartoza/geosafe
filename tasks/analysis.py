@@ -249,12 +249,15 @@ def prepare_analysis(analysis_id):
 
     hazard = get_layer_path(analysis.hazard_layer)
     exposure = get_layer_path(analysis.exposure_layer)
+    aggregation = (
+        get_layer_path(analysis.aggregation_layer) if (
+            analysis.aggregation_layer) else None)
 
     # Execute analysis in chains:
     # - Run analysis
     # - Process analysis result
     tasks_chain = chain(
-        run_analysis.s(hazard, exposure).set(
+        run_analysis.s(hazard, exposure, aggregation).set(
             queue=run_analysis.queue).set(
             time_limit=settings.INASAFE_ANALYSIS_RUN_TIME_LIMIT),
         process_impact_result.s(analysis_id).set(
