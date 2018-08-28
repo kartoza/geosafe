@@ -55,6 +55,23 @@
                             </div>
                         {% endif %}
                     </p>
+
+                    <p>Impact Map Report:
+                        {% if analysis.report_map %}
+                            <a class="download-link" href="{% url 'geosafe:download-report' analysis_id=analysis.id data_type='map' %}" target="_blank">Map Report</a>
+                        {% else %}
+                            There is no map report generated for this Impact Layer
+                        {% endif %}
+                    </p>
+
+                    <p>Impact Table Report:
+                        {% if analysis.report_table %}
+                            <a class="download-link" href="{% url 'geosafe:download-report' analysis_id=analysis.id data_type='table' %}" target="_blank">Table Report</a>
+                        {% else %}
+                            There is no table report generated for this Impact Layer
+                        {% endif %}
+                    </p>
+
                     {% if analysis.get_task_result %}
                         {% if analysis.get_task_result.successful or analysis.get_task_result.failed %}
                             <p>

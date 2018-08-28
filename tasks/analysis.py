@@ -303,12 +303,12 @@ def process_impact_result(self, impact_result, analysis_id):
         # generate report when analysis has ran successfully
         async = generate_report.delay(impact_url)
         with allow_join_result():
-            report_metadata = (
-                async.get().get('output', {}).get('pdf_product_tag', {}))
+            report_metadata = async.get().get('output', {})
 
-        for report_key, report_url in report_metadata.iteritems():
-            report_url = download_file(report_url, direct_access=True)
-            report_metadata[report_key] = report_url
+        for product_key, products in report_metadata.iteritems():
+            for report_key, report_url in products.iteritems():
+                report_url = download_file(report_url, direct_access=True)
+                report_metadata[product_key][report_key] = report_url
 
         # decide if we are using direct access or not
         impact_url = get_impact_path(impact_url)
@@ -434,21 +434,24 @@ def process_impact_report(analysis, report_metadata):
     try:
         # extract report (map and table report)
         map_reports = [
-            'inasafe-map-report-portrait',
-            'inasafe-map-report-landscape',
+            'inasafe-map-report-portrait',  # pdf product
+            'inasafe-map-report-landscape',  # pdf product
         ]
         table_reports = [
-            'impact-report-pdf'
+            'impact-report',  # html product
+            'impact-report-pdf'  # pdf product
         ]
 
         # upload using document upload form post request
         #TODO: find out how to upload document using post request
 
         # assign report to analysis model
-        if os.path.exists(report_metadata[map_reports[0]]):
-            analysis.assign_report_map(report_metadata[map_reports[0]])
-        if os.path.exists(report_metadata[table_reports[0]]):
-            analysis.assign_report_table(report_metadata[table_reports[0]])
+        if os.path.exists(report_metadata['pdf_product_tag'][map_reports[0]]):
+            analysis.assign_report_map(
+                report_metadata['pdf_product_tag'][map_reports[0]])
+        if os.path.exists(report_metadata['pdf_product_tag'][table_reports[1]]):
+            analysis.assign_report_table(
+                report_metadata['pdf_product_tag'][table_reports[1]])
         analysis.save()
 
         # reference to impact layer

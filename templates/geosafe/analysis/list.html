@@ -148,19 +148,19 @@
                             {% endif %}
                         </td>
                         <td>
+                            <div>
+                                <a class="download-link" href="{% url 'geosafe:analysis-create' pk=analysis.id %}">Analysis Page</a>
+                            </div>
                             {% if analysis.report_map %}
                                 <div>
-                                    <a class="download-link" href="{% url 'geosafe:download-report' analysis_id=analysis.id data_type='map' %}">Map Report</a>
+                                    <a class="download-link" href="{% url 'geosafe:download-report' analysis_id=analysis.id data_type='map' %}" target="_blank">Map Report</a>
                                 </div>
                             {% endif %}
                             {% if analysis.report_table %}
                                 <div>
-                                    <a class="download-link" href="{% url 'geosafe:download-report' analysis_id=analysis.id data_type='table' %}">Table Report</a>
+                                    <a class="download-link" href="{% url 'geosafe:download-report' analysis_id=analysis.id data_type='table' %}" target="_blank">Table Report</a>
                                 </div>
                             {% endif %}
-                            <div>
-                                <a class="download-link" href="{% url 'geosafe:analysis-create' pk=analysis.id %}">Analysis Page</a>
-                            </div>
                         </td>
                         {% if user.username %}
                         <td>
