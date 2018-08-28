@@ -691,6 +691,29 @@ def analysis_json(request, analysis_id):
         return HttpResponseServerError()
 
 
+def impact_json(request, impact_id):
+    """Return the detail of an impact layer
+
+    :param request:
+    :param impact_layer_id:
+    :return:
+    """
+    if request.method != 'GET':
+        return HttpResponseBadRequest()
+
+    try:
+        analysis = Analysis.objects.get(impact_layer_id=impact_id)
+        retval = {
+            'analysis_id': analysis.id,
+            'impact_id': analysis.impact_layer_id
+        }
+        return HttpResponse(
+            json.dumps(retval), content_type="application/json")
+    except Exception as e:
+        LOGGER.exception(e)
+        return HttpResponseServerError()
+
+
 def toggle_analysis_saved(request, analysis_id):
     """Toggle the state of keep of analysis
 

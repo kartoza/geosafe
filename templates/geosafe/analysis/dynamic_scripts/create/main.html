@@ -184,6 +184,29 @@
     }
 
     /**
+     * Open the Impact Report PDF product.
+     *
+     * A summary about the analysis.
+     */
+    function open_impact_report() {
+        if (last_impact_id == undefined) {
+            show_info_text('Show Analysis Summary', 'Please select desired impact layer first, before viewing analysis summary.')
+            return;
+        }
+        var selected_impact_id = last_impact_id;
+        var check_impact_url = '{% url 'geosafe:check-impact' impact_id=-1 %}';
+        check_impact_url = check_impact_url.replace("-1", selected_impact_id);
+
+        $.get(check_impact_url, function (data) {
+            if (data && data.analysis_id) {
+                var url = '{% url 'geosafe:download-report' analysis_id=-1 data_type='table' %}';
+                url = url.replace("-1", data.analysis_id);
+                window.open(url);
+            }
+        });
+    }
+
+    /**
      * Show url inside frame
      *
      * Useful to display PDF report

@@ -12,7 +12,7 @@ from geosafe.views.analysis import (
     layer_archive,
     layer_list, rerun_analysis,
     analysis_json, toggle_analysis_saved, download_report, layer_panel,
-    analysis_summary, cancel_analysis, validate_analysis_extent)
+    analysis_summary, cancel_analysis, validate_analysis_extent, impact_json)
 
 urlpatterns = patterns(
     '',
@@ -89,6 +89,12 @@ urlpatterns = patterns(
         name='check-analysis'
     ),
     url(
+        r'^analysis/check-impact/'
+        r'(?P<impact_id>[-\d]+)',
+        impact_json,
+        name='check-impact'
+    ),
+    url(
         r'^analysis/toggle-saved/'
         r'(?P<analysis_id>[-\d]+)',
         toggle_analysis_saved,
@@ -96,7 +102,7 @@ urlpatterns = patterns(
     ),
     url(
         r'^analysis/report/'
-        r'(?P<analysis_id>\d+)/'
+        r'(?P<analysis_id>[-\d]+)/'
         r'(?P<data_type>(map|table|reports|all))',
         download_report,
         name='download-report'
