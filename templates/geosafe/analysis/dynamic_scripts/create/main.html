@@ -10,7 +10,8 @@
     var hazard_layer;
     var aggregation_layer;
     var impact_layer;
-    var layer_stack = []; //let utilise this variable for keeping track of 3 layers: boney-bun
+    var raster_layer_stack = []; //let utilise this variable for keeping track of 3 layers: boney-bun
+    var vector_layer_stack = [];
     var hazard_exposure_marker_groups = L.layerGroup();
     var hazard_exposure_rect_groups = L.layerGroup();
     var is_legend = false;

@@ -12,7 +12,7 @@ from geosafe.views.analysis import (
     layer_archive,
     layer_list, rerun_analysis,
     analysis_json, toggle_analysis_saved, download_report, layer_panel,
-    analysis_summary, cancel_analysis, validate_analysis_extent, impact_json)
+    analysis_summary, cancel_analysis, validate_analysis_extent, impact_json, layer_geojson)
 
 urlpatterns = patterns(
     '',
@@ -30,6 +30,11 @@ urlpatterns = patterns(
         r'^analysis/(?P<pk>\d+)$',
         AnalysisDetailView.as_view(),
         name='analysis-detail'
+    ),
+    url(
+        r'^analysis/layer-geojson$',
+        layer_geojson,
+        name='layer-geojson'
     ),
     url(
         r'^analysis/layer-tiles$',

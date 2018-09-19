@@ -77,8 +77,8 @@
             });
         if (layer != null) {
             // add layer if doesn't exist
-            if ($.inArray(layer_tiles_url, layer_stack) == -1) {
-                layer_stack.push(layer_tiles_url);
+            if ($.inArray(layer_tiles_url, raster_layer_stack) == -1) {
+                raster_layer_stack.push(layer_tiles_url);
                 map.addLayer(layer);
             } else {
                 // update layer by removed the old one, replace with the new properties
@@ -96,12 +96,39 @@
     }
 
     /**
-     * Remove layer only if it exist in layer_stack.
+     * Add geojson layer if it doesn't exist in layer_stack.
      *
-     * @param layer_id: layer object
+     * @param layer_id: id of the layer object
+     */
+    function add_geojson_layer(layer_id, style) {
+        $.get('{% url 'geosafe:layer-geojson' %}', {'layer_id': layer_id}, function (data) {
+            if (data) {
+                var geojson = JSON.parse(data);
+                var layer = L.geoJson(geojson, {
+                    style: style,
+                    onEachFeature: onEachFeature
+                });
+                if (layer != null) {
+                    // there should be only one vector layer active on the map
+                    while (vector_layer_stack.length > 0) {
+                        var deleted_layer = vector_layer_stack.pop();
+                        map.removeLayer(deleted_layer);
+                    }
+                    vector_layer_stack.push(layer);
+                    map.addLayer(layer);
+                    return layer;
+                }
+             }
+        });
+    }
+
+    /**
+     * Remove layer from layer_stack.
+     *
+     * @param targeted_tiles_url: url of the layer tiles
      */
     function remove_layer(targeted_tiles_url) {
-        layer_stack.splice($.inArray(targeted_tiles_url, layer_stack),1);
+        raster_layer_stack.splice($.inArray(targeted_tiles_url, raster_layer_stack),1);
     }
 
     /**
@@ -160,6 +187,82 @@
                 $("#legend-aggregation-name").text(layer_name);
                 $("#aggregation-legend-img").attr("src", legend_url);
                 aggregation_layer.setZIndex(3);
+
+                // add vector layer for feature selection
+                $.get('{% url 'geosafe:layer-geojson' %}', {'layer_id': layer_id}, function (data) {
+                    if(data) {
+                        function highlightFeature(e) {
+                            if ($.inArray(e.target, selected_features) == -1) {
+                                var current_layer = e.target;
+                                current_layer.setStyle({
+                                    weight: 5,
+                                    opacity: 1,
+                                    color: '#666'
+                                });
+                                if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
+                                    current_layer.bringToFront();
+                                }
+                            }
+                        }
+
+                        function resetHighlight(e) {
+                            if ($.inArray(e.target, selected_features) == -1) {
+                                geojson_layer.resetStyle(e.target);
+                            }
+                        }
+
+                        function deselectFeature(feature) {
+                            var index = $.inArray(feature, selected_features);
+                            if (index > -1) {
+                                selected_features.splice(index, 1);
+                                geojson_layer.resetStyle(feature);
+                            }
+                        }
+
+                        function selectFeature(e) {
+                            // Zoom to the feature
+                            // map.fitBounds(e.target.getBounds());
+
+                            if ($.inArray(e.target, selected_features) > -1) {
+                                // Remove feature from selection
+                                deselectFeature(e.target);
+                            }
+                            else {
+                                // Change border style
+                                var selected_feature = e.target;
+                                selected_feature.setStyle({
+                                    weight: 5,
+                                    opacity: 1,
+                                    color: '#FFFB00'
+                                });
+                                selected_features.push(selected_feature);
+                            }
+                        }
+
+                        function onEachFeature(feature, layer) {
+                            layer.on({
+                                mouseover: highlightFeature,
+                                mouseout: resetHighlight,
+                                click: selectFeature
+                            });
+                        }
+
+                        function style(feature) {
+                            return {
+                                weight: 2,
+                                opacity: 0,
+                                fillOpacity: 0
+                            };
+                        }
+
+                        var selected_features = [];
+                        var geojson = JSON.parse(data);
+                        var geojson_layer = L.geoJson(geojson, {
+                            style: style,
+                            onEachFeature: onEachFeature
+                        }).addTo(map);
+                    }
+                });
 
             } else if (layer_purpose == 'impact') {
                 if (is_impact == false) {

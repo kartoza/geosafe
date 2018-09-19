@@ -3,6 +3,7 @@ import logging
 import os
 import re
 import tempfile
+import requests
 from functools import wraps
 from zipfile import ZipFile
 
@@ -14,10 +15,14 @@ from django.db.models.expressions import F
 from django.db.models.query_utils import Q
 from django.http.response import HttpResponseServerError, HttpResponse, \
     HttpResponseBadRequest, HttpResponseRedirect
+from django.shortcuts import render, get_object_or_404
 from django.shortcuts import render
 from django.utils.translation import ugettext as _
 from django.views.generic import (
     ListView, CreateView, DetailView)
+
+from geonode.qgis_server.helpers import qgis_server_endpoint
+from geonode.qgis_server.models import QGISServerLayer
 from guardian.shortcuts import get_objects_for_user
 
 from geonode.layers.models import Layer
@@ -358,6 +363,37 @@ class AnalysisDetailView(DetailView):
     def get_context_data(self, **kwargs):
         context = super(AnalysisDetailView, self).get_context_data(**kwargs)
         return context
+
+
+def layer_geojson(request):
+    """Ajax request to get layer's content as geojson.
+    """
+    if request.method != 'GET':
+        return HttpResponseBadRequest()
+    layer_id = request.GET.get('layer_id')
+    if not layer_id:
+        return HttpResponseBadRequest()
+    try:
+        layer = Layer.objects.get(id=layer_id)
+        qgis_layer = get_object_or_404(QGISServerLayer, layer=layer)
+        params = {
+            'SERVICE': 'WFS',
+            'REQUEST': 'GetFeature',
+            'MAP': qgis_layer.qgis_project_path,
+            'TYPENAME': layer.name,
+            'OUTPUTFORMAT': 'GeoJSON'
+        }
+        qgis_server_url = qgis_server_endpoint(True)
+        response = requests.get(qgis_server_url, params=params)
+
+        return HttpResponse(
+            # json.dumps(response.content), content_type="application/json"
+            response.content, content_type=response.headers.get('content-type')
+        )
+
+    except Exception as e:
+        LOGGER.exception(e)
+        return HttpResponseServerError()
 
 
 def layer_tiles(request):
