@@ -3,16 +3,22 @@
 from __future__ import absolute_import
 
 import ast
+import glob
+import json
 import logging
 import os
+import shutil
+import tempfile
 import urlparse
 from datetime import datetime
 from zipfile import ZipFile
 
+import requests
 from celery import chain
 from celery.result import allow_join_result
 from django.core.urlresolvers import reverse
 from django.db.models.query_utils import Q
+from geonode.qgis_server.helpers import qgis_server_endpoint
 from lxml import etree
 from lxml.etree import XML, Element
 
@@ -24,7 +30,7 @@ from geosafe.celery import app
 from geosafe.helpers.utils import (
     download_file,
     get_layer_path,
-    get_impact_path)
+    get_impact_path, copy_inasafe_metadata)
 from geosafe.models import Analysis, Metadata
 from geosafe.tasks.headless.analysis import (
     get_keywords, generate_report, run_analysis, RESULT_SUCCESS)
@@ -241,6 +247,93 @@ def clean_impact_result():
             i.delete()
 
 
+def prepare_aggregation_filter(analysis_id):
+    """Filter current aggregation layer.
+
+    :param analysis_id: analysis id of the object
+    :type analysis_id: int
+
+    :return: uri path of filtered aggregation layer
+    :rtype: basestring
+    """
+    analysis = Analysis.objects.get(id=analysis_id)
+    if not analysis.aggregation_layer:
+        return None
+    aggregation_layer = analysis.aggregation_layer.qgis_layer
+
+    endpoint = qgis_server_endpoint(internal=True)
+
+    # construct WFS filter query_params
+    query_string = {
+        'MAP': aggregation_layer.qgis_project_path,
+        'SERVICE': 'WFS',
+        'REQUEST': 'GetFeature',
+        'TYPENAME': aggregation_layer.layer.name,
+        'OUTPUTFORMAT': 'GeoJSON'
+    }
+    filter_string = None
+    if analysis.aggregation_filter:
+        try:
+            filter_dict = json.loads(analysis.aggregation_filter)
+
+            property_name = filter_dict['property_name']
+            property_values = filter_dict['values']
+
+            like_statement = []
+            for val in property_values:
+                like_statement.append(
+                    '<PropertyIsLike>'
+                    '<PropertyName>{name}</PropertyName>'
+                    '<Literal>{value}</Literal>'
+                    '</PropertyIsLike>'.format(name=property_name, value=val)
+                )
+            filter_string = '<Filter>{filter}</Filter>'.format(
+                filter=''.join(like_statement))
+
+        except BaseException as e:
+            LOGGER.error(e)
+            # something happened, don't use filter
+            filter_string = None
+
+    if filter_string:
+        query_string['FILTER'] = filter_string
+
+    response = requests.get(endpoint, params=query_string)
+    if response.ok:
+        try:
+            # try parse geojson
+            geojson = response.json()
+            # if successful, create temporary inasafe layer
+            prefix_name = '{layer_name}_'.format(
+                layer_name=aggregation_layer.qgis_layer_name)
+            # the files needs to be at the same dir where aggregation layer is
+            dirname = os.path.dirname(aggregation_layer.base_layer_path)
+            temp_aggregation = tempfile.mkstemp(
+                    prefix=prefix_name,
+                    suffix='.geojson',
+                    dir=dirname)
+            with open(temp_aggregation, mode='w+b') as f:
+                # Re dump just to be safe
+                f.write(json.dumps(geojson))
+            filename, _ = os.path.splitext(os.path.basename(temp_aggregation))
+            # copy metadata
+            copy_inasafe_metadata(
+                aggregation_layer.base_layer_path, dirname, filename)
+
+            # Update filtered aggregation location
+            Analysis.objects.filter(id=analysis_id).update(
+                filtered_aggregation=temp_aggregation)
+
+            # Return temporary path
+            return get_layer_path(temp_aggregation)
+        except BaseException as e:
+            LOGGER.error(e)
+            # Failed to filter aggregation layer somehow
+
+    # when everything fails
+    return get_layer_path(analysis.aggregation_layer)
+
+
 def prepare_analysis(analysis_id):
     """Prepare and run analysis
 
@@ -258,6 +351,10 @@ def prepare_analysis(analysis_id):
         get_layer_path(analysis.aggregation_layer) if (
             analysis.aggregation_layer) else None)
 
+    # Create temporary aggregation layer if aggregation filter exists
+    if aggregation:
+        aggregation = prepare_aggregation_filter(analysis_id)
+
     # Execute analysis in chains:
     # - Run analysis
     # - Process analysis result
@@ -266,7 +363,9 @@ def prepare_analysis(analysis_id):
             queue=run_analysis.queue).set(
             time_limit=settings.INASAFE_ANALYSIS_RUN_TIME_LIMIT),
         process_impact_result.s(analysis_id).set(
-            queue=process_impact_result.queue)
+            queue=process_impact_result.queue),
+        clean_up_temp_aggregation.s(analysis_id).set(
+            queue=clean_up_temp_aggregation.queue)
     )
     result = tasks_chain.delay()
     # Parent information will be lost later.
@@ -372,6 +471,26 @@ def process_impact_result(self, impact_result, analysis_id):
         LOGGER.info('No impact layer found in %s' % impact_url)
 
     return success
+
+
+@app.task(
+    name='geosafe.tasks.analysis.clean_up_temp_aggregation',
+    queue='geosafe')
+def clean_up_temp_aggregation(process_impact_result, analysis_id):
+    """Clean up generated aggregation filter regardless of analysis result.
+
+    :param process_impact_result:
+    :param analysis_id:
+    :return:
+    """
+    # check does analysis uses aggregation filter
+    analysis = Analysis.objects.get(id=analysis_id)
+    filtered_aggregation = analysis.filtered_aggregation
+    if filtered_aggregation and os.path.exists(filtered_aggregation):
+        basename, _ = os.path.splitext(filtered_aggregation)
+        for p in glob.glob('{basename}.*'.format(basename=basename)):
+            os.remove(p)
+    return True
 
 
 def process_impact_layer(analysis, basename, dir_name, name):

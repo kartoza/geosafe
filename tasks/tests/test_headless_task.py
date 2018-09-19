@@ -23,21 +23,22 @@ dir_path = os.path.dirname(os.path.realpath(__file__))
 
 # Layers
 earthquake_layer_uri = os.path.join(
-    dir_path, 'data', 'input_layers', 'earthquake.asc')
+    dir_path, 'data', 'input_layers', 'data/hazard/earthquake.asc')
 shakemap_layer_uri = os.path.join(
-    dir_path, 'data', 'input_layers', 'grid-use_ascii.tif')
+    dir_path, 'data', 'input_layers', 'data/hazard/grid-use_ascii.tif')
 ash_layer_uri = os.path.join(
-    dir_path, 'data', 'input_layers', 'ash_fall.tif')
+    dir_path, 'data', 'input_layers', 'data/hazard/ash_fall.tif')
 place_layer_uri = os.path.join(
-    dir_path, 'data', 'input_layers', 'places.geojson')
+    dir_path, 'data', 'input_layers', 'data/exposure/places.geojson')
 aggregation_layer_uri = os.path.join(
-    dir_path, 'data', 'input_layers', 'small_grid.geojson')
+    dir_path, 'data', 'input_layers', 'data/aggregation/small_grid.geojson')
 population_multi_fields_layer_uri = os.path.join(
-    dir_path, 'data', 'input_layers', 'population_multi_fields.geojson')
+    dir_path, 'data', 'input_layers',
+    'data/exposure/population_multi_fields.geojson')
 buildings_layer_uri = os.path.join(
-    dir_path, 'data', 'input_layers', 'buildings.geojson')
+    dir_path, 'data', 'input_layers', 'data/exposure/buildings.geojson')
 flood_layer_uri = os.path.join(
-    dir_path, 'data', 'input_layers', 'flood_data.json')
+    dir_path, 'data', 'input_layers', 'data/hazard/flood_data.json')
 
 # Map template
 custom_map_template_basename = 'custom-inasafe-map-report-landscape'

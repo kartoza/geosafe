@@ -24,6 +24,7 @@ class AnalysisCreationForm(models.ModelForm):
             'exposure_layer',
             'hazard_layer',
             'aggregation_layer',
+            'aggregation_filter',
             'extent_option',
             'keep',
         )
@@ -67,6 +68,24 @@ class AnalysisCreationForm(models.ModelForm):
             attrs={'class': 'form-control'})
     )
 
+    aggregation_filter = forms.CharField(
+        required=False,
+        widget=forms.HiddenInput()
+    )
+    # Filter format:
+    # This field should contain JSON object with the following format:
+    #     {
+    #         'property_name': <the name of the property to filter>
+    #         'values': <list of values for this property>
+    #     }
+    #
+    # Example:
+    #
+    #     {
+    #         'property_name': 'area_name',
+    #         'values': ['area 1', 'area 2', 'area 3']
+    #     }
+
     keep = forms.BooleanField(
         label='Save Analysis',
         required=False,
@@ -76,11 +95,14 @@ class AnalysisCreationForm(models.ModelForm):
         self.user = kwargs.pop('user', None)
         exposure_layer = kwargs.pop('exposure_layer', None)
         hazard_layer = kwargs.pop('hazard_layer', None)
+        aggregation_layer = kwargs.pop('aggregation_layer', None)
         super(AnalysisCreationForm, self).__init__(*args, **kwargs)
         if exposure_layer:
             self.fields['exposure_layer'].queryset = exposure_layer
         if hazard_layer:
             self.fields['hazard_layer'].queryset = hazard_layer
+        if aggregation_layer:
+            self.fields['aggregation_layer'].queryset = aggregation_layer
 
     def save(self, commit=True):
         instance = super(AnalysisCreationForm, self).save(commit=False)
@@ -88,6 +110,11 @@ class AnalysisCreationForm(models.ModelForm):
             instance.user = self.user
         else:
             instance.user = Profile.objects.get(username='AnonymousUser')
+        # validate aggregation filter
+        if instance.aggregation_layer:
+            if not instance.aggregation_filter:
+                # Standardize to empty value
+                instance.aggregation_filter = None
         instance.save()
         return instance
 

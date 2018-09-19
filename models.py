@@ -117,12 +117,24 @@ class Analysis(models.Model):
         null=True,
         related_name='aggregation_layer'
     )
+    aggregation_filter = models.TextField(
+        verbose_name='Serialized JSON of selected aggregation area name',
+        help_text='List of aggregation area being used in aggregation layer',
+        blank=True,
+        null=True,
+    )
+    filtered_aggregation = models.CharField(
+        max_length=255,
+        verbose_name='Temporary file location of filtered aggregation',
+        blank=True,
+        null=True
+    )
     impact_function_id = models.CharField(
         max_length=100,
         verbose_name='ID of Impact Function',
         help_text='The ID of Impact Function used in the analysis.',
-        blank=False,
-        null=False
+        blank=True,
+        null=True
     )
     extent_option = models.IntegerField(
         choices=EXTENT_CHOICES,

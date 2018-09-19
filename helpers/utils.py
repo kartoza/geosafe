@@ -7,6 +7,7 @@ import urlparse
 
 import re
 import requests
+from geonode.layers.models import Layer
 
 from geosafe.app_settings import settings
 from geosafe.models import Analysis
@@ -75,8 +76,8 @@ def download_file(url, direct_access=False, user=None, password=None):
 def get_layer_path(layer, base=None):
     """Helper function to get path for InaSAFE worker.
 
-    :param layer: geonode layer
-    :type layer: geonode.layers.models.Layer
+    :param layer: geonode layer or simply the layer path
+    :type layer: geonode.layers.models.Layer | basestring
 
     :param base: Base path
     :type base: basestring
@@ -86,8 +87,17 @@ def get_layer_path(layer, base=None):
     """
     using_direct_access = settings.USE_LAYER_FILE_ACCESS
     if using_direct_access and not layer.remote_service:
-        base_layer_path = Analysis.get_base_layer_path(layer)
         layers_base_dir = settings.INASAFE_LAYER_DIRECTORY_BASE_PATH
+        if isinstance(layer, Layer):
+            base_layer_path = Analysis.get_base_layer_path(layer)
+        elif isinstance(layer, basestring):
+            # Validate if it is actually resolvable by InaSAFE Headless
+            base_layer_path = layer
+            if not base_layer_path.startswith(layers_base_dir):
+                raise AttributeError(
+                    'Layer path possibly not reachable by InaSAFE Headless')
+        else:
+            raise AttributeError('Unexpected layer type')
         relative_path = os.path.relpath(base_layer_path, layers_base_dir)
         layer_url = os.path.join(
             settings.INASAFE_LAYER_DIRECTORY,
@@ -130,3 +140,34 @@ def get_impact_path(impact_url):
                 'URI scheme not recognized %s' % impact_url)
 
     return impact_url
+
+
+def copy_inasafe_metadata(inasafe_layer_path, target_dir, filename=None):
+    """
+
+    :param inasafe_layer_path: Original layer to copy from. It has to be
+        InaSAFE Layer
+    :param target_dir: Target directory for the metadata to copy
+    :param filename: The base name of the metadata file. If left empty, then
+        it will use original basename
+
+    :return: True if success
+    """
+    original_basename, _ = os.path.splitext(
+        os.path.basename(inasafe_layer_path))
+    if not filename:
+        # use original filename
+        filename = original_basename
+
+    xml_path = os.path.join(
+        os.path.dirname(inasafe_layer_path),
+        '{name}.xml'.format(name=original_basename)
+    )
+
+    target_path = os.path.join(
+        target_dir,
+        '{name}.xml'.format(name=filename)
+    )
+
+    shutil.copy(xml_path, target_path)
+    return True

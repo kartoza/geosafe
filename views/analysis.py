@@ -5,6 +5,8 @@ import tempfile
 from zipfile import ZipFile
 
 import re
+
+from django.contrib.auth.models import AnonymousUser
 from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.gis.geos.geometry import GEOSGeometry
@@ -97,12 +99,15 @@ def retrieve_layers(
         )
         metadatas = Metadata.objects.filter(
             Q(layer_purpose=purpose),
-            Q(category=category),
             intersect
         )
-        layer_count = Metadata.objects.filter(
-            layer_purpose=purpose,
-            category=category).count()
+        metadatas_count_filter = Metadata.objects.filter(
+            layer_purpose=purpose)
+        if category:
+            metadatas = metadatas.filter(category=category)
+            metadatas_count_filter = metadatas_count_filter.filter(
+                category=category)
+        layer_count = metadatas_count_filter.count()
         if len(metadatas) == layer_count:
             # it means unfiltered by bbox
             is_filtered = False
@@ -111,11 +116,18 @@ def retrieve_layers(
             is_filtered = True
     else:
         metadatas = Metadata.objects.filter(
-            layer_purpose=purpose, category=category)
+            layer_purpose=purpose)
+        if category:
+            metadatas = metadatas.filter(category=category)
         is_filtered = False
     # Filter by permissions
+    if not authorized_objects:
+        # default to anonymous user permission
+        user = AnonymousUser()
+        authorized_objects = get_objects_for_user(
+            user, _VIEW_PERMS).values('id')
     metadatas = metadatas.filter(layer__id__in=authorized_objects)
-    return [m.layer for m in metadatas], is_filtered
+    return Layer.objects.filter(inasafe_metadata__in=metadatas), is_filtered
 
 
 def decorator_sections(f):
@@ -480,6 +492,10 @@ def layer_panel(request, bbox=None, **kwargs):
                 authorized_objects=authorized_objects)[0],
             hazard_layer=retrieve_layers(
                 'hazard',
+                bbox=bbox,
+                authorized_objects=authorized_objects)[0],
+            aggregation_layer=retrieve_layers(
+                'aggregation',
                 bbox=bbox,
                 authorized_objects=authorized_objects)[0])
         context = {

@@ -22,18 +22,11 @@ class InaSAFETestData(object):
         :return: path to safe package
         :rtype: str
         """
-        # SAFE_PACKAGE were defined in Travis
-        # Change this to your InaSAFE Safe module location
-        # If you want to run tests.
-        message = (
-            'SAFE_PACKAGE were defined in Travis. '
-            'Change this to your InaSAFE Safe module '
-            'location If you want to run tests.')
-        safe_package = os.environ.get(
-            'SAFE_PACKAGE', '/usr/src/inasafe/safe')
-        if not os.path.exists(safe_package):
-            raise ImproperlyConfigured(message)
-        return os.path.join(safe_package, 'test', 'data', *args)
+        safe_test_data = os.path.join(
+            os.path.dirname(__file__),
+            '../tasks/tests/data')
+        safe_test_data = os.path.abspath(safe_test_data)
+        return os.path.join(safe_test_data, *args)
 
     @classmethod
     def hazard(cls, *args):
@@ -52,3 +45,12 @@ class InaSAFETestData(object):
         :rtype: str
         """
         return cls.path_finder('exposure', *args)
+
+    @classmethod
+    def aggregation(cls, *args):
+        """Resolve path to exposure test data.
+
+        :return: path to safe package
+        :rtype: str
+        """
+        return cls.path_finder('aggregation', *args)
