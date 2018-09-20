@@ -1,14 +1,13 @@
 import json
 import logging
 import os
+import re
 import tempfile
+from functools import wraps
 from zipfile import ZipFile
 
-import re
-
-from django.contrib.auth.models import AnonymousUser
-from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required, user_passes_test
+from django.contrib.auth.models import AnonymousUser
 from django.contrib.gis.geos.geometry import GEOSGeometry
 from django.core.urlresolvers import reverse
 from django.db.models.expressions import F
@@ -16,13 +15,13 @@ from django.db.models.query_utils import Q
 from django.http.response import HttpResponseServerError, HttpResponse, \
     HttpResponseBadRequest, HttpResponseRedirect
 from django.shortcuts import render
+from django.utils.translation import ugettext as _
 from django.views.generic import (
     ListView, CreateView, DetailView)
-from geonode.utils import bbox_to_wkt
 from guardian.shortcuts import get_objects_for_user
-from functools import wraps
 
 from geonode.layers.models import Layer
+from geonode.utils import bbox_to_wkt
 from geosafe.app_settings import settings
 from geosafe.forms import (AnalysisCreationForm)
 from geosafe.helpers.impact_summary.polygon_people_summary import \
@@ -32,7 +31,6 @@ from geosafe.helpers.impact_summary.population_summary import \
 from geosafe.helpers.impact_summary.road_summary import RoadSummary
 from geosafe.helpers.impact_summary.structure_summary import StructureSummary
 from geosafe.helpers.impact_summary.summary_base import ImpactSummary
-from geosafe.helpers.utils import get_layer_path
 from geosafe.models import Analysis, Metadata
 from geosafe.signals import analysis_post_save
 
@@ -546,10 +544,11 @@ def validate_analysis_extent(request):
         analysis_geom = exposure_geom.intersection(hazard_geom)
 
         if aggregation_layer:
-            aggregation_srid, aggregation_wkt = aggregation_layer.geographic_bounding_box. \
-                split(';')
+            aggregation_srid, aggregation_wkt = aggregation_layer.\
+                geographic_bounding_box.split(';')
             aggregation_srid = re.findall(r'\d+', aggregation_srid)
-            aggregation_geom = GEOSGeometry(aggregation_wkt, srid=int(aggregation_srid[0]))
+            aggregation_geom = GEOSGeometry(
+                aggregation_wkt, srid=int(aggregation_srid[0]))
             aggregation_geom.transform(4326)
             analysis_geom = analysis_geom.intersection(aggregation_geom)
 

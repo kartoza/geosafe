@@ -2,9 +2,6 @@
 import os
 from distutils.util import strtobool
 
-from django.core.exceptions import ImproperlyConfigured
-
-
 INASAFE_TESTING_ENVIRONMENT = strtobool(
     os.environ.get('INASAFE_TESTING_ENVIRONMENT', 'False'))
 

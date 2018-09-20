@@ -1,7 +1,9 @@
 # coding=utf-8
+import logging
 import os
 import shutil
 import tempfile
+import time
 import urllib
 import urlparse
 
@@ -10,7 +12,9 @@ import requests
 from geonode.layers.models import Layer
 
 from geosafe.app_settings import settings
-from geosafe.models import Analysis
+from geosafe.models import Analysis, Metadata
+
+LOGGER = logging.getLogger(__file__)
 
 
 def download_file(url, direct_access=False, user=None, password=None):
@@ -85,7 +89,11 @@ def get_layer_path(layer, base=None):
     :return: Layer path or url
     :rtype: str
     """
-    using_direct_access = settings.USE_LAYER_FILE_ACCESS
+    using_direct_access = True if (
+        settings.USE_LAYER_FILE_ACCESS and
+        settings.INASAFE_LAYER_DIRECTORY_BASE_PATH and
+        settings.INASAFE_LAYER_DIRECTORY
+    ) else False
     if using_direct_access and not layer.remote_service:
         layers_base_dir = settings.INASAFE_LAYER_DIRECTORY_BASE_PATH
         if isinstance(layer, Layer):
@@ -171,3 +179,28 @@ def copy_inasafe_metadata(inasafe_layer_path, target_dir, filename=None):
 
     shutil.copy(xml_path, target_path)
     return True
+
+
+def wait_metadata(layer, wait_time=1, retry_count=20):
+    """Wait for InaSAFE metadata to be processed.
+
+    :param layer: GeoNode Layer
+    :type layer: geonode.layers.models.Layer
+
+    :param wait_time: Number of seconds to wait
+    :type wait_time: int
+
+    :param retry_count: Number of retries
+    :type retry_count: int
+    """
+    metadata_created = False
+    retries = 0
+    while not metadata_created and retries < retry_count:
+        try:
+            metadata = Metadata.objects.get(layer=layer)
+            if metadata.layer_purpose and metadata.keywords_xml:
+                # Check if metadata is properly populated
+                metadata_created = True
+        except Metadata.DoesNotExist:
+            time.sleep(wait_time)
+        retries += 1

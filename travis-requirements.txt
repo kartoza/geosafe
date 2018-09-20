@@ -1,0 +1,4 @@
+docker-compose==1.22.0
+ansible==2.3.1.0
+codecov
+flake8

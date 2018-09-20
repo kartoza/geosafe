@@ -12,7 +12,7 @@ from geosafe.helpers.inasafe_helper import InaSAFETestData
 from geosafe.helpers.utils import (
     download_file,
     get_layer_path,
-    get_impact_path)
+    get_impact_path, wait_metadata)
 from geosafe.models import Analysis
 
 
@@ -25,8 +25,10 @@ class TestHelpersUtils(LiveServerTestCase):
         """Test downloading file directly using url."""
 
         data_helper = InaSAFETestData()
-        filename = data_helper.hazard('flood_multipart_polygons.shp')
+        filename = data_helper.hazard('flood_data.geojson')
         hazard = file_upload(filename)
+
+        wait_metadata(hazard)
 
         # download zipped layer
         hazard_layer_url = Analysis.get_layer_url(hazard)
@@ -51,10 +53,12 @@ class TestHelpersUtils(LiveServerTestCase):
         hazard_layer_xml = urlparse.urljoin(
             settings.GEONODE_BASE_URL, hazard_layer_xml)
 
-        downloaded_file = downloaded_file(hazard_layer_xml)
+        downloaded_file = download_file(hazard_layer_xml)
 
         # check that file is donwloaded
         self.assertTrue(os.path.exists(downloaded_file))
+
+        basename, ext = os.path.splitext(downloaded_file)
 
         # check that file has .xml extension
         self.assertEqual(ext, '.xml')
@@ -130,9 +134,11 @@ class TestHelpersUtils(LiveServerTestCase):
 
         # Check that download file will generate temporary file
         data_helper = InaSAFETestData()
-        filename = data_helper.hazard('flood_multipart_polygons.shp')
+        filename = data_helper.hazard('flood_data.geojson')
         hazard = file_upload(filename)
         """:type: geonode.layers.models.Layer"""
+
+        wait_metadata(hazard)
 
         hazard_base_file, _ = hazard.get_base_file()
         hazard_path = hazard_base_file.file.path
@@ -155,16 +161,18 @@ class TestHelpersUtils(LiveServerTestCase):
     def test_get_layer_path(self):
         """Test return file://schema if using direct file access."""
         data_helper = InaSAFETestData()
-        filename = data_helper.hazard('flood_multipart_polygons.shp')
+        filename = data_helper.hazard('flood_data.geojson')
         hazard = file_upload(filename)
         """:type: geonode.layers.models.Layer"""
+
+        wait_metadata(hazard)
 
         layer_uri = get_layer_path(hazard)
 
         parsed_uri = urlparse.urlparse(layer_uri)
 
         # Use direct access by default
-        self.assertEqual(parsed_uri.scheme, 'file')
+        self.assertTrue(not parsed_uri.scheme or parsed_uri.scheme == 'file')
 
         inasafe_layer_dir = settings.INASAFE_LAYER_DIRECTORY
 

@@ -1,0 +1,107 @@
+---
+# Edit or use this files as template to configure ansible variable,
+# then save it as filename: "all" in this folder.
+
+# Use either qgis_server or geoserver
+ogc_backend: qgis_server
+# set to True or False to include geosafe in the orchestration
+use_geosafe: True
+
+# put your linux/mac user here
+remote_user: travis
+# put your linux/mac group here
+remote_group: travis
+# put project path
+project_path: "/home/travis/build/kartoza/docker-geosafe"
+
+# component path relative to project_path
+component_path:
+  geonode: "/src/geonode"
+  geosafe: "/../geosafe"
+  inasafe: "/src/inasafe"
+  otf_project: "/src/otf-project"
+
+docker_port_forward:
+  web:
+    http: 80
+
+qgis_server:
+  environment:
+    DEBUG: True
+    QGIS_LOG_FILE: /tmp/qgis-server/qgis.log
+    QGIS_SERVER_LOG_FILE: /tmp/qgis-server/qgis-server.log
+    QGIS_DEBUG: 0
+    # Log level 0 is the lowest (catch all), 5 is the highest (only fatal error)
+    QGIS_SERVER_LOG_LEVEL: 0
+
+web:
+  command: debug
+
+django:
+  command: dev
+  environment:
+    DEBUG: True
+    ON_TRAVIS: True
+    # put your ip address of your interface to SITEURL and GEONODE_BASE_URL
+    ALLOWED_HOSTS: "['172.17.0.1','localhost','django']"
+    SITEURL: http://172.17.0.1/
+    GEONODE_BASE_URL: http://172.17.0.1/
+    GEONODE_LB_HOST_IP: 172.17.0.1
+    GEONODE_LB_PORT: 80
+    UWSGI_CMD: uwsgi --ini /uwsgi.conf
+    # Settings for qgis server
+    QGIS_SERVER_URL: http://qgis-server/
+    # Settings for geoserver
+    GEOSERVER_BASE_URL: http://geoserver:8080/geoserver/
+    GEOSERVER_LOCATION: http://geoserver:8080/geoserver/
+    GEOSERVER_PUBLIC_LOCATION: http://172.17.0.1:8080/geoserver/
+    # GeoSAFE specific settings
+    USE_LAYER_FILE_ACCESS: True
+    INASAFE_LAYER_DIRECTORY: "/home/geosafe/media/"
+    INASAFE_LAYER_DIRECTORY_BASE_PATH: "/usr/src/app/geonode/qgis_layer/"
+    GEOSAFE_IMPACT_OUTPUT_DIRECTORY: "/home/geosafe/impact_layers"
+    INASAFE_IMPACT_BASE_URL: "/output/"
+    USE_LAYER_HTTP_ACCESS: False
+    INASAFE_ANALYSIS_RUN_TIME_LIMIT: 600
+    INASAFE_ANALYSIS_AREA_LIMIT: 1000000000
+
+celery:
+  command: dev
+
+inasafe_headless:
+  command: prod inasafe-headless-worker
+  environment:
+    HOSTNAME_SENTRY: http://172.17.0.1/
+    C_FORCE_ROOT: 'True'
+    DISPLAY: :99
+    TASK_ALWAYS_EAGER: 'False'
+    PYTHONPATH: /usr/share/qgis/python:/usr/share/qgis/python/plugins:/usr/share/qgis/python/plugins/inasafe:/home/app
+    INASAFE_SENTRY: '1'
+    INASAFE_HEADLESS_DEPLOY_OUTPUT_DIR: /home/output/
+    INASAFE_HEADLESS_DEPLOY_OUTPUT_URL: http://inasafe-output/output/
+    INASAFE_HEADLESS_BROKER_HOST: amqp://guest:guest@rabbitmq:5672/
+    INASAFE_WORK_DIR: /tmp/inasafe
+    # Value should refer to django.environment.GEOSAFE_IMPACT_OUTPUT_DIRECTORY
+    INASAFE_OUTPUT_DIR: /home/geosafe/impact_layers
+    QGIS_LOG_FILE: /tmp/inasafe/realtime/logs/qgis.log
+    QGIS_DEBUG_FILE: /tmp/inasafe/realtime/logs/qgis-debug.log
+    QGIS_DEBUG: 0
+
+inasafe_headless_analysis:
+  command: prod inasafe-headless-worker
+  environment:
+    HOSTNAME_SENTRY: http://172.17.0.1/
+    C_FORCE_ROOT: 'True'
+    DISPLAY: :99
+    TASK_ALWAYS_EAGER: 'False'
+    PYTHONPATH: /usr/share/qgis/python:/usr/share/qgis/python/plugins:/usr/share/qgis/python/plugins/inasafe:/home/app
+    INASAFE_SENTRY: '1'
+    INASAFE_HEADLESS_DEPLOY_OUTPUT_DIR: /home/output/
+    INASAFE_HEADLESS_DEPLOY_OUTPUT_URL: http://inasafe-output/output/
+    INASAFE_HEADLESS_BROKER_HOST: amqp://guest:guest@rabbitmq:5672/
+    INASAFE_WORK_DIR: /tmp/inasafe
+    # Value should refer to django.environment.GEOSAFE_IMPACT_OUTPUT_DIRECTORY
+    INASAFE_OUTPUT_DIR: /home/geosafe/impact_layers
+    QGIS_LOG_FILE: /tmp/inasafe/realtime/logs/qgis.log
+    QGIS_DEBUG_FILE: /tmp/inasafe/realtime/logs/qgis-debug.log
+    QGIS_DEBUG: 0

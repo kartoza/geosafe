@@ -2,12 +2,10 @@
 
 from __future__ import absolute_import
 
-import ast
 import glob
 import json
 import logging
 import os
-import shutil
 import tempfile
 import urlparse
 from datetime import datetime
@@ -18,13 +16,13 @@ from celery import chain
 from celery.result import allow_join_result
 from django.core.urlresolvers import reverse
 from django.db.models.query_utils import Q
-from geonode.qgis_server.helpers import qgis_server_endpoint
 from lxml import etree
 from lxml.etree import XML, Element
 
 from geonode.base.models import ResourceBase
-from geonode.layers.models import Layer
+from geonode.layers.models import Layer, cov_exts, vec_exts
 from geonode.layers.utils import file_upload
+from geonode.qgis_server.helpers import qgis_server_endpoint
 from geosafe.app_settings import settings
 from geosafe.celery import app
 from geosafe.helpers.utils import (
@@ -400,6 +398,11 @@ def process_impact_result(self, impact_result, analysis_id):
     analysis.task_id = self.request.id
     analysis.save()
 
+    success = False
+    report_success = False
+    impact_url = None
+    impact_path = None
+
     if impact_result['status'] == RESULT_SUCCESS:
         impact_url = (
             impact_result['output'].get('impact_analysis') or
@@ -421,7 +424,6 @@ def process_impact_result(self, impact_result, analysis_id):
         # download impact layer path
         impact_path = download_file(impact_url, direct_access=True)
         dir_name = os.path.dirname(impact_path)
-        success = False
         is_zipfile = os.path.splitext(impact_path)[1].lower() == '.zip'
         if is_zipfile:
             # Extract the layer first
@@ -429,11 +431,13 @@ def process_impact_result(self, impact_result, analysis_id):
                 zf.extractall(path=dir_name)
                 for name in zf.namelist():
                     basename, ext = os.path.splitext(name)
-                    if ext in ['.shp', '.tif']:
-                        # process this in the for loop to make sure it works only
-                        # when we found the layer
+                    if ext in cov_exts + vec_exts:
+                        # process this in the for loop to make sure it
+                        # works only when we found the layer
                         success = process_impact_layer(
                             analysis, basename, dir_name, name)
+                        report_success = process_impact_report(
+                            analysis, report_metadata)
                         break
 
                 # cleanup
@@ -447,7 +451,8 @@ def process_impact_result(self, impact_result, analysis_id):
             # It means it is accessing an shp or tif directly
             filename = os.path.basename(impact_path)
             basename, ext = os.path.splitext(filename)
-            success = process_impact_layer(analysis, basename, dir_name, filename)
+            success = process_impact_layer(
+                analysis, basename, dir_name, filename)
             report_success = process_impact_report(analysis, report_metadata)
 
             # cleanup
@@ -468,7 +473,10 @@ def process_impact_result(self, impact_result, analysis_id):
         pass
 
     if not success:
-        LOGGER.info('No impact layer found in %s' % impact_url)
+        LOGGER.info('No impact layer found in {0}'.format(impact_url))
+
+    if not report_success:
+        LOGGER.info('No impact report generated.')
 
     return success
 
@@ -568,13 +576,14 @@ def process_impact_report(analysis, report_metadata):
         ]
 
         # upload using document upload form post request
-        #TODO: find out how to upload document using post request
+        # TODO: find out how to upload document using post request
 
         # assign report to analysis model
         if os.path.exists(report_metadata['pdf_product_tag'][map_reports[0]]):
             analysis.assign_report_map(
                 report_metadata['pdf_product_tag'][map_reports[0]])
-        if os.path.exists(report_metadata['pdf_product_tag'][table_reports[1]]):
+        if os.path.exists(
+                report_metadata['pdf_product_tag'][table_reports[1]]):
             analysis.assign_report_table(
                 report_metadata['pdf_product_tag'][table_reports[1]])
         analysis.save()
