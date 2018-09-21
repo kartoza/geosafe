@@ -515,12 +515,12 @@ def validate_analysis_extent(request):
     try:
         hazard_id = request.POST.get('hazard_id')
         exposure_id = request.POST.get('exposure_id')
+        aggregation_id = request.POST.get('aggregation_id')
         view_extent = request.POST.get('view_extent')
         hazard_layer = Layer.objects.get(id=hazard_id)
         exposure_layer = Layer.objects.get(id=exposure_id)
         aggregation_layer = None
-        if request.POST.get('aggregation_id'):
-            aggregation_id = request.POST.get('aggregation_id')
+        if aggregation_id:
             aggregation_layer = Layer.objects.get(id=aggregation_id)
     except Exception as e:
         LOGGER.exception(e)
