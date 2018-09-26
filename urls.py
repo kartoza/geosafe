@@ -9,6 +9,7 @@ from geosafe.views.analysis import (
     AnalysisDetailView,
     layer_tiles,
     layer_metadata,
+    layer_keywords,
     layer_archive,
     layer_list, rerun_analysis,
     analysis_json, toggle_analysis_saved, download_report, layer_panel,
@@ -45,6 +46,11 @@ urlpatterns = patterns(
         r'^analysis/layer-metadata/(?P<layer_id>\d+)',
         layer_metadata,
         name='layer-metadata'
+    ),
+    url(
+        r'^analysis/layer-keywords$',
+        layer_keywords,
+        name='layer-keywords'
     ),
     url(
         r'^analysis/layer-archive/(?P<layer_id>\d+)',

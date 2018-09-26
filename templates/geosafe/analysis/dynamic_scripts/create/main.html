@@ -11,7 +11,6 @@
     var aggregation_layer;
     var impact_layer;
     var raster_layer_stack = []; //let utilise this variable for keeping track of 3 layers: boney-bun
-    var vector_layer_stack = [];
     var hazard_exposure_marker_groups = L.layerGroup();
     var hazard_exposure_rect_groups = L.layerGroup();
     var is_legend = false;
@@ -28,7 +27,47 @@
     var slider_exposure_val = 5, slider_hazard_val = 5, slider_aggregation_val = 5, slider_impact_val = 5;
     var not_logged_warning = undefined;
 
+    var vector_aggregation_layer;
+    var selected_aggregation_features = [];
+    var feature_selector_button;
+
     {# Common function for global use #}
+
+    /**
+     * Process selected aggregation features into a collection for layer filtering.
+     *
+     * @param features: list of feature
+     */
+    function aggregation_features_collection(features) {
+        var aggregation_id = aggregation_layer_cbo.find('option:selected').val();
+        var features_collection = {};
+        var aggregation_names = [];
+        $.ajax({
+            url: '{% url 'geosafe:layer-keywords' %}',
+            data: {
+                layer_id: aggregation_id
+            },
+            type: 'get',
+            async: false,
+            success: function (data) {
+                if (data && data.inasafe_fields.aggregation_name_field) {
+                    aggregation_field_name = data.inasafe_fields.aggregation_name_field;
+                    $.each(features, function(index, value) {
+                        aggregation_name = value.feature.properties[aggregation_field_name];
+                        (aggregation_name) ? aggregation_names.push(aggregation_name) : false;
+                    });
+                    if (aggregation_names) {
+                        features_collection = {
+                            'property_name': aggregation_field_name,
+                            'values': aggregation_names
+                        };
+                    }
+                    return false;
+                }
+            }
+        });
+        return features_collection;
+    }
 
     /**
      * Zoom to the current extent provided.

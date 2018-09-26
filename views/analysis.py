@@ -451,6 +451,27 @@ def layer_metadata(request, layer_id):
         return HttpResponseServerError()
 
 
+def layer_keywords(request):
+    """request to get inasafe keywords from given layer"""
+    if request.method != 'GET':
+        return HttpResponseBadRequest()
+    layer_id = request.GET.get('layer_id')
+    if not layer_id:
+        return HttpResponseBadRequest()
+    try:
+        from geosafe.tasks.headless.analysis import get_keywords
+        from geosafe.helpers.utils import get_layer_path
+        layer = Layer.objects.get(id=layer_id)
+        keywords = get_keywords.delay(get_layer_path(layer)).get()
+
+        return HttpResponse(
+            json.dumps(keywords), content_type="application/json"
+        )
+    except Exception as e:
+        LOGGER.exception(e)
+        return HttpResponseServerError()
+
+
 def layer_archive(request, layer_id):
     """request to get layer's zipped archive"""
     if request.method != 'GET':
