@@ -614,6 +614,42 @@
                     }]
             }).addTo(map);
 
+            {# add control to select feature on aggregation layer #}
+            feature_selector_button = L.easyButton({
+                states: [
+                    {
+                        stateName: 'selectFeature',
+                        icon: 'fa-hand-pointer-o',
+                        title: 'Select aggregation features',
+                        onClick: function (btn, map) {
+                            btn.state('deactivate');
+                            // enable feature selector
+                            map.addLayer(vector_aggregation_layer);
+                        }
+                    },
+                    {
+                        stateName: 'deactivate',
+                        icon: 'fa-times',
+                        title: 'cancel',
+                        onClick: function (btn, map) {
+                            btn.state('selectFeature');
+                            // clear selection
+                            $.each(selected_aggregation_features, function(index, value) {
+                                vector_aggregation_layer.resetStyle(value);
+                            });
+                            selected_aggregation_features = [];
+                            // disable feature selector
+                            map.removeLayer(vector_aggregation_layer);
+                        }
+                    }
+                ]
+            });
+
+            feature_selector_button.addTo(map);
+            {% if not analysis and not analysis.aggregation_layer_id %}
+                feature_selector_button.disable();
+            {% endif %}
+
             {# Showing markers for all available layers, except if analysis being run #}
             {%  if not analysis and analysis.get_task_state != "" %}
             if(hazard_layer_cbo != undefined && exposure_layer_cbo != undefined)

@@ -439,6 +439,9 @@
             if (aggregation_layer) {
                 map.removeLayer(aggregation_layer);
             }
+            if (vector_aggregation_layer) {
+                map.removeLayer(vector_aggregation_layer);
+            }
             update_map(layer_id, 'aggregation');
             //at this point, the user has picked a layer, so it's time to remove all markers
             if (hazard_exposure_marker_groups.getLayers().length != 0) {
@@ -449,6 +452,13 @@
             }
 
             show_info_text('InaSAFE Aggregation', $a.text() + ' selected.');
+            if (vector_aggregation_layer) {
+                feature_selector_button.state('selectFeature');
+                feature_selector_button.enable();
+            }
+            else {
+                feature_selector_button.disable();
+            }
         } else {
             remove_layer(aggregation_layer._url);
             map.removeLayer(aggregation_layer);
@@ -462,6 +472,7 @@
                 $(".legend").toggle(is_legend);
             }
             show_info_text('InaSAFE Aggregation', 'Aggregation unselected.');
+            feature_selector_button.disable();
         }
     }
 

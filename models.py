@@ -265,6 +265,15 @@ class Analysis(models.Model):
         )
         return layer_name
 
+    def aggregation_field_name(self):
+        # Get aggregation field name from InaSAFE keywords
+        if self.aggregation_layer:
+            from geosafe.tasks.headless.analysis import get_keywords
+            from geosafe.helpers.utils import get_layer_path
+            keywords = get_keywords.delay(get_layer_path(
+                self.aggregation_layer)).get()
+            return keywords['inasafe_fields']['aggregation_name_field']
+
     def impact_function_name(self):
         # Set impact function name from provenance data
         if self.impact_layer:
