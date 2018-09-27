@@ -181,7 +181,7 @@ def copy_inasafe_metadata(inasafe_layer_path, target_dir, filename=None):
     return True
 
 
-def wait_metadata(layer, wait_time=1, retry_count=20):
+def wait_metadata(layer, wait_time=1, retry_count=1200):
     """Wait for InaSAFE metadata to be processed.
 
     :param layer: GeoNode Layer
@@ -201,6 +201,10 @@ def wait_metadata(layer, wait_time=1, retry_count=20):
             if metadata.layer_purpose and metadata.keywords_xml:
                 # Check if metadata is properly populated
                 metadata_created = True
+                break
         except Metadata.DoesNotExist:
             time.sleep(wait_time)
         retries += 1
+    if not metadata_created:
+        LOGGER.debug('Exit timeout.')
+        LOGGER.debug('For layer: {0}'.format(layer))

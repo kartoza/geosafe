@@ -10,7 +10,7 @@ from geosafe.models import Analysis
 
 __author__ = 'ismailsunni'
 
-LOG = logging.getLogger(__name__)
+LOGGER = logging.getLogger(__name__)
 
 
 class AnalysisCreationForm(models.ModelForm):
@@ -91,6 +91,21 @@ class AnalysisCreationForm(models.ModelForm):
         required=False,
     )
 
+    @staticmethod
+    def exposure_choice_queryset():
+        return Layer.objects.filter(
+            inasafe_metadata__layer_purpose='exposure')
+
+    @staticmethod
+    def hazard_choice_queryset():
+        return Layer.objects.filter(
+            inasafe_metadata__layer_purpose='hazard')
+
+    @staticmethod
+    def aggregation_choice_queryset():
+        return Layer.objects.filter(
+            inasafe_metadata__layer_purpose='aggregation')
+
     def __init__(self, *args, **kwargs):
         self.user = kwargs.pop('user', None)
         exposure_layer = kwargs.pop('exposure_layer', None)
@@ -99,10 +114,26 @@ class AnalysisCreationForm(models.ModelForm):
         super(AnalysisCreationForm, self).__init__(*args, **kwargs)
         if exposure_layer:
             self.fields['exposure_layer'].queryset = exposure_layer
+        else:
+            self.fields['exposure_layer'].queryset = \
+                self.exposure_choice_queryset()
         if hazard_layer:
             self.fields['hazard_layer'].queryset = hazard_layer
+        else:
+            self.fields['hazard_layer'].queryset = \
+                self.hazard_choice_queryset()
         if aggregation_layer:
             self.fields['aggregation_layer'].queryset = aggregation_layer
+        else:
+            self.fields['aggregation_layer'].queryset = \
+                self.aggregation_choice_queryset()
+        LOGGER.debug('All layers: {0}'.format(Layer.objects.all()))
+        LOGGER.debug('Exposure choices: {0}'.format(
+            self.fields['exposure_layer'].queryset))
+        LOGGER.debug('Hazard choices: {0}'.format(
+            self.fields['hazard_layer'].queryset))
+        LOGGER.debug('Aggregation choices: {0}'.format(
+            self.fields['aggregation_layer'].queryset))
 
     def save(self, commit=True):
         instance = super(AnalysisCreationForm, self).save(commit=False)

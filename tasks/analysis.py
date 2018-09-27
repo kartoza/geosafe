@@ -189,6 +189,7 @@ def create_metadata_object(self, layer_id):
     except Layer.DoesNotExist as e:
         # Perhaps layer wasn't saved yet.
         # Retry later
+        LOGGER.debug('Layer with id: {0} not saved yet'.format(layer_id))
         self.retry(exc=e, countdown=5)
     except AttributeError as e:
         # This signal is called too early

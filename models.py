@@ -98,16 +98,18 @@ class Analysis(models.Model):
         verbose_name='Exposure Layer',
         help_text='Exposure layer for analysis.',
         blank=False,
-        null=False,
-        related_name='exposure_layer'
+        null=True,
+        related_name='exposure_layer',
+        on_delete=models.SET_NULL
     )
     hazard_layer = models.ForeignKey(
         Layer,
         verbose_name='Hazard Layer',
         help_text='Hazard layer for analysis.',
         blank=False,
-        null=False,
-        related_name='hazard_layer'
+        null=True,
+        related_name='hazard_layer',
+        on_delete=models.SET_NULL
     )
     aggregation_layer = models.ForeignKey(
         Layer,

@@ -1,13 +1,12 @@
 # coding=utf-8
 import logging
-import os
 import time
-import unittest
 
 from django.contrib.auth.models import AnonymousUser
 from django.core.management import call_command
 from django.test import LiveServerTestCase
 
+from geonode.layers.models import Layer
 from geonode.layers.utils import file_upload
 from geosafe.forms import AnalysisCreationForm
 from geosafe.helpers.inasafe_helper import (
@@ -34,6 +33,9 @@ class ViewsTest(LiveServerTestCase):
 
         retrieved_layer, is_filtered = retrieve_layers('hazard')
 
+        if len(retrieved_layer) == 0:
+            LOGGER.debug('Uploaded layers: {0}'.format(Layer.objects.all()))
+
         self.assertEqual(len(retrieved_layer), 1)
         self.assertEqual(hazard.id, retrieved_layer[0].id)
         self.assertFalse(is_filtered)
@@ -45,6 +47,9 @@ class ViewsTest(LiveServerTestCase):
 
         retrieved_layer, is_filtered = retrieve_layers('exposure')
 
+        if len(retrieved_layer) == 0:
+            LOGGER.debug('Uploaded layers: {0}'.format(Layer.objects.all()))
+
         self.assertEqual(len(retrieved_layer), 1)
         self.assertEqual(exposure.id, retrieved_layer[0].id)
         self.assertFalse(is_filtered)
@@ -55,6 +60,9 @@ class ViewsTest(LiveServerTestCase):
         wait_metadata(aggregation)
 
         retrieved_layer, is_filtered = retrieve_layers('aggregation')
+
+        if len(retrieved_layer) == 0:
+            LOGGER.debug('Uploaded layers: {0}'.format(Layer.objects.all()))
 
         self.assertEqual(len(retrieved_layer), 1)
         self.assertEqual(aggregation.id, retrieved_layer[0].id)
@@ -70,9 +78,6 @@ class AnalysisTest(LiveServerTestCase):
     def setUp(self):
         call_command('loaddata', 'people_data', verbosity=0)
 
-    @unittest.skipIf(
-        os.environ.get('ON_TRAVIS', None),
-        'Skip for now because it randomly fails in Travis.')
     def test_run_analysis_no_aggregation(self):
         """Test running analysis without aggregation."""
         data_helper = InaSAFETestData()
@@ -80,11 +85,18 @@ class AnalysisTest(LiveServerTestCase):
         buildings = data_helper.exposure('buildings.geojson')
 
         flood_layer = file_upload(flood)
-        buildings_layer = file_upload(buildings)
-
         # Wait until metadata is read
         wait_metadata(flood_layer)
+
+        buildings_layer = file_upload(buildings)
+        # Wait until metadata is read
         wait_metadata(buildings_layer)
+
+        # Check layer uploaded
+        self.assertEqual(
+            Layer.objects.filter(id=flood_layer.id).count(), 1)
+        self.assertEqual(
+            Layer.objects.filter(id=buildings_layer.id).count(), 1)
 
         form_data = {
             'user': AnonymousUser(),
@@ -121,6 +133,8 @@ class AnalysisTest(LiveServerTestCase):
 
         impact_layer = analysis.impact_layer
         wait_metadata(impact_layer)
+
+        LOGGER.debug('Layers: {0}'.format(Layer.objects.all()))
 
         self.assertEqual(
             impact_layer.inasafe_metadata.layer_purpose, 'impact_analysis')
