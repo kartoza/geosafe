@@ -13,7 +13,8 @@ from geosafe.views.analysis import (
     layer_archive,
     layer_list, rerun_analysis,
     analysis_json, toggle_analysis_saved, download_report, layer_panel,
-    analysis_summary, cancel_analysis, validate_analysis_extent, impact_json, layer_geojson)
+    analysis_summary, cancel_analysis, validate_analysis_extent,
+    impact_json, layer_geojson)
 
 urlpatterns = patterns(
     '',

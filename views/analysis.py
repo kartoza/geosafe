@@ -16,7 +16,6 @@ from django.db.models.query_utils import Q
 from django.http.response import HttpResponseServerError, HttpResponse, \
     HttpResponseBadRequest, HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404
-from django.shortcuts import render
 from django.utils.translation import ugettext as _
 from django.views.generic import (
     ListView, CreateView, DetailView)
