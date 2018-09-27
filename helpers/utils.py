@@ -94,9 +94,9 @@ def get_layer_path(layer, base=None):
         settings.INASAFE_LAYER_DIRECTORY_BASE_PATH and
         settings.INASAFE_LAYER_DIRECTORY
     ) else False
-    if using_direct_access and not layer.remote_service:
+    if using_direct_access:
         layers_base_dir = settings.INASAFE_LAYER_DIRECTORY_BASE_PATH
-        if isinstance(layer, Layer):
+        if isinstance(layer, Layer) and not layer.remote_service:
             base_layer_path = Analysis.get_base_layer_path(layer)
         elif isinstance(layer, basestring):
             # Validate if it is actually resolvable by InaSAFE Headless
@@ -111,7 +111,8 @@ def get_layer_path(layer, base=None):
             settings.INASAFE_LAYER_DIRECTORY,
             relative_path)
         layer_url = urlparse.urljoin(base, layer_url)
-    else:
+    if isinstance(layer, Layer) and (
+                not using_direct_access or layer.remote_service):
         layer_url = Analysis.get_layer_url(layer)
     return layer_url
 

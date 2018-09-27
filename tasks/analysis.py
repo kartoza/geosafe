@@ -310,7 +310,7 @@ def prepare_aggregation_filter(analysis_id):
             temp_aggregation = tempfile.mkstemp(
                     prefix=prefix_name,
                     suffix='.geojson',
-                    dir=dirname)
+                    dir=dirname)[1]
             with open(temp_aggregation, mode='w+b') as f:
                 # Re dump just to be safe
                 f.write(json.dumps(geojson))
