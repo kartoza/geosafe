@@ -265,10 +265,13 @@ class Analysis(models.Model):
 
     def impact_function_name(self):
         # Set impact function name from provenance data
-        from geosafe.tasks.headless.analysis import get_keywords
-        from geosafe.helpers.utils import get_layer_path
-        keywords = get_keywords.delay(get_layer_path(self.impact_layer)).get()
-        return keywords['provenance_data']['impact_function_name']
+        if self.impact_layer:
+            from geosafe.tasks.headless.analysis import get_keywords
+            from geosafe.helpers.utils import get_layer_path
+            keywords = get_keywords.delay(
+                get_layer_path(self.impact_layer)).get()
+            return keywords['provenance_data']['impact_function_name']
+        return self.get_default_impact_title()
 
     @classmethod
     def get_layer_url(cls, layer):
