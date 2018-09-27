@@ -106,6 +106,7 @@
             var data = {
                 'hazard_id': hazard_layer_cbo.find('option:selected').val(),
                 'exposure_id': exposure_layer_cbo.find('option:selected').val(),
+                'aggregation_id': aggregation_layer_cbo.find('option:selected').val(),
                 'view_extent': map.getBounds().toBBoxString()
             };
             var $confirm_user_extent = $("#confirm_user_extent");

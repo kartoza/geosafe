@@ -657,6 +657,7 @@
 
             exposure_layer_cbo.val("");
             hazard_layer_cbo.val("");
+            aggregation_layer_cbo.val("");
 
             exposure_layer_cbo.change(update_exposure_layer);
             hazard_layer_cbo.change(update_hazard_layer);
@@ -667,7 +668,9 @@
                 {# we are viewing analysis. set desired settings #}
                 update_hazard_layer({{ analysis.hazard_layer_id }});
                 update_exposure_layer({{ analysis.exposure_layer_id }});
-                update_aggregation_layer({{ analysis.aggregation_layer_id }});
+                {% if analysis.aggregation_layer_id %}
+                    update_aggregation_layer({{ analysis.aggregation_layer_id }});
+                {% endif %}
                 {# check if impact process is done #}
                 {% if analysis.get_task_state == 'SUCCESS' %}
                     update_impact_layer({{ analysis.impact_layer_id }});
