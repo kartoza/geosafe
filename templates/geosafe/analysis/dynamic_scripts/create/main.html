@@ -175,6 +175,12 @@
             $("#id_keep").prop('checked', false);
         }
 
+        {# Set aggregation filter if any #}
+        if (selected_aggregation_features) {
+            aggregation_filter = aggregation_features_collection(selected_aggregation_features)
+            $("#id_aggregation_filter").val(JSON.stringify(aggregation_filter));
+        }
+
         {# Copy user title #}
         var $user_title = $("#confirm_user_title");
         $("#id_user_title").val($user_title.val());
