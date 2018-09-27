@@ -3,6 +3,11 @@ data_file=.coverage
 branch=True
 source=geosafe
 parallel=True
+omit=
+	migrations
+	scripts
+	static
+	templates
 concurrency=
 	thread
 	multiprocessing
