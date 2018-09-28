@@ -709,9 +709,11 @@
                 var post_data = {
                     'hazard_id': {{ analysis.hazard_layer_id }},
                     'exposure_id': {{ analysis.exposure_layer_id }},
-                    'aggregation_id': {{ analysis.aggregation_layer_id }},
                     'view_extent': '{{ analysis.user_extent }}'
                 };
+                {% if analysis.aggregation_layer_id %}
+                    post_data['aggregation_id'] = {{ analysis.aggregation_layer_id }};
+                {% endif %}
                 var analysis_url = '{% url 'geosafe:calculate-area' %}';
                 $.post(analysis_url, post_data, function (data) {
                     if (data) {
