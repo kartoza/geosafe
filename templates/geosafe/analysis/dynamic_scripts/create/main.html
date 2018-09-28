@@ -283,13 +283,17 @@
 
                     if (data['is_valid']) {
                         allow_message = 'You can now run analysis.';
-                    } else {
-                        allow_message = 'You can\'t run analysis. Please reduce extent';
                     }
-                    run_message = both_selected + 'The selected analysis extent is ' + formatted_area + ' m2. ' + allow_message;
-                    $run_analysis_popover.popover({title: "Run Analysis", content: run_message});
-                    $run_analysis_popover.popover('show');
-                    $("#run-analysis-submit-button").removeAttr('disabled');
+                    else if (data['is_warned']) {
+                        allow_message = 'You can now run analysis, but the analysis might take a long time to complete.';
+                    }
+                    if (data['is_valid'] || data['is_warned']) {
+                        run_message = both_selected + 'The selected analysis extent is ' + formatted_area + ' m2. ' + allow_message;
+                        $run_analysis_popover.popover({title: "Run Analysis", content: run_message});
+                        $run_analysis_popover.popover('show');
+                        $("#run-analysis-submit-button").removeAttr('disabled');
+                    }
+
                 } else {
                     $run_analysis_popover.popover({title: "Run Analysis", content: "If hazard and exposure were selected, you can run analysis"});
                     $run_analysis_popover.popover('show');

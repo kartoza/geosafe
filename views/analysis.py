@@ -598,14 +598,13 @@ def validate_analysis_extent(request):
             # Don't allow analysis when exceeding area limit
             message = _(
                 'Analysis extent exceeded area limit: {limit} km<sup>2</sup>.'
-                '<br />&nbsp;Analysis might take a long time to complete. '
-                '<br />&nbsp;Please reduce extent and try again')
+                '<br />&nbsp;Analysis might take a long time to complete.')
             # Convert m2 into km2.
             area_limit = area_limit / 1000000
             message = message.format(limit=area_limit)
             retval = {
                 'is_valid': False,
-                'is_warned': False,
+                'is_warned': True,
                 'extent': view_extent,
                 'area': area,
                 'reason': message
