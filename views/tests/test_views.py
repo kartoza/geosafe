@@ -245,8 +245,8 @@ class AnalysisTest(LiveServerTestCase):
             Layer.objects.filter(id=small_grid_layer.id).count(), 1)
 
         aggregation_filter = {
-            'property_name': 'area_name',
-            'values': ['area 1']
+            "property_name": "area_name",
+            "values": ["area 1"]
         }
 
         form_data = {
