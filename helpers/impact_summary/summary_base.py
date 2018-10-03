@@ -13,7 +13,14 @@ class ImpactSummary(object):
 
     def __init__(self, impact_layer):
         self._impact_layer = impact_layer
-        self._impact_data = self.read_impact_data_json()
+        self._impact_data = {}
+        if self.read_impact_data_json().get('features'):
+            properties = (
+                self.read_impact_data_json().get('features')[0].get(
+                    'properties'))
+            self._impact_data = properties
+
+        self._impact_keywords = self.read_impact_keywords()
 
     @property
     def impact_layer(self):
@@ -41,6 +48,19 @@ class ImpactSummary(object):
     def impact_data(self, value):
         self._impact_data = value
 
+    @property
+    def impact_keywords(self):
+        """
+
+        :return: Impact data dictionary
+        :rtype: dict
+        """
+        return self._impact_keywords
+
+    @impact_keywords.setter
+    def impact_keywords(self, value):
+        self._impact_keywords = value
+
     def read_impact_data_json(self):
         """Read impact_data.json file from a given impact layer
 
@@ -49,14 +69,27 @@ class ImpactSummary(object):
         """
         try:
             json_file = self.impact_layer.upload_session.layerfile_set.get(
-                file__endswith=".json")
+                name="analysis_summary.geojson")
             impact_data = json.loads(json_file.file.read())
             return impact_data
         except LayerFile.DoesNotExist:
             return {}
 
+    def read_impact_keywords(self):
+        """Read impact keywords"""
+        try:
+            from geosafe.tasks.headless.analysis import get_keywords
+            from geosafe.helpers.utils import get_layer_path
+            keywords = get_keywords.delay(get_layer_path(self.impact_layer)).get()
+            return keywords
+        except Exception as e:
+            return {}
+
     def is_summary_exists(self):
-        return self.impact_data or self.impact_data.get('impact summary')
+        return self.impact_data
+
+    def is_keywords_exists(self):
+        return self.impact_keywords
 
     def maximum_category_value(self):
         if self.is_summary_exists():
@@ -69,18 +102,19 @@ class ImpactSummary(object):
 
         :return: list of dict of category and value
         """
-        fields = []
         if self.is_summary_exists():
-            fields = self.impact_data.get('impact summary').get('fields')
-
-        ret_val = []
-        for f in fields:
-            ret_val.append({
-                "category": f[0],
-                "value": f[1]
-            })
-
-        return ret_val
+            category_list = self.category_list()
+            ret_val = []
+            for category in category_list:
+                for key, value in self.impact_data.iteritems():
+                    class_name = (
+                        '{category}_hazard_count').format(category=category)
+                    if class_name == key:
+                        ret_val.append({
+                            "category": category,
+                            "value": value
+                        })
+            return ret_val
 
     def summary_dict(self):
         """convert summary fields to key value pair"""
@@ -90,18 +124,40 @@ class ImpactSummary(object):
 
         return ret_val
 
-    def summary_attributes(self):
-        attrs = OrderedDict()
-        if self.is_summary_exists():
-            attrs = self.impact_data.get('impact summary').get('attributes')
-        return attrs
-
     def category_list(self):
-        if self.is_summary_exists():
-            return [f.get('category') for f in self.summary_fields()]
+        if self.is_keywords_exists():
+            provenance_data = self.impact_keywords.get('provenance_data', {})
+            if provenance_data:
+                hazard_keywords = provenance_data['hazard_keywords']
+                available_classifications = (
+                    hazard_keywords.get('value_maps') or
+                    hazard_keywords.get('thresholds'))
+                classes = (
+                    available_classifications[self.exposure_type()]
+                    [self.hazard_classification()]['classes'])
+                return [c for c in classes.keys()]
+        return []
+
+    def hazard_classification(self):
+        return (
+            self.impact_keywords.get(
+                'hazard_keywords', {}).get('classification'))
 
     def exposure_type(self):
-        return self.impact_data.get('exposure')
+        return (
+            self.impact_keywords.get('exposure_keywords', {}).get('exposure'))
+
+    def total(self):
+        return int(self.impact_data.get('total'))
+
+    def total_affected(self):
+        return int(self.impact_data.get('total_affected'))
+
+    def breakdown_dict(self):
+        ret_val = OrderedDict()
+        for key, value in self.summary_dict().iteritems():
+            ret_val[key] = int(value)
+        return ret_val
 
     @classmethod
     def category_css_class(cls, category):
