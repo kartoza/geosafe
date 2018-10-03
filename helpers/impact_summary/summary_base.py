@@ -80,9 +80,10 @@ class ImpactSummary(object):
         try:
             from geosafe.tasks.headless.analysis import get_keywords
             from geosafe.helpers.utils import get_layer_path
-            keywords = get_keywords.delay(get_layer_path(self.impact_layer)).get()
+            keywords = get_keywords.delay(
+                get_layer_path(self.impact_layer)).get()
             return keywords
-        except Exception as e:
+        except Exception:
             return {}
 
     def is_summary_exists(self):

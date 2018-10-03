@@ -1,6 +1,4 @@
 # coding=utf-8
-from collections import OrderedDict
-
 from geosafe.helpers.impact_summary.summary_base import ImpactSummary
 
 __author__ = 'Rizky Maulana Nugraha <lana.pcfre@gmail.com>'
