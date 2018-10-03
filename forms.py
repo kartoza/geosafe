@@ -127,13 +127,6 @@ class AnalysisCreationForm(models.ModelForm):
         else:
             self.fields['aggregation_layer'].queryset = \
                 self.aggregation_choice_queryset()
-        LOGGER.debug('All layers: {0}'.format(Layer.objects.all()))
-        LOGGER.debug('Exposure choices: {0}'.format(
-            self.fields['exposure_layer'].queryset))
-        LOGGER.debug('Hazard choices: {0}'.format(
-            self.fields['hazard_layer'].queryset))
-        LOGGER.debug('Aggregation choices: {0}'.format(
-            self.fields['aggregation_layer'].queryset))
 
     def save(self, commit=True):
         instance = super(AnalysisCreationForm, self).save(commit=False)

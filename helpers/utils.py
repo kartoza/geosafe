@@ -203,7 +203,8 @@ def wait_metadata(layer, wait_time=1, retry_count=1200):
                 metadata_created = True
                 break
         except Metadata.DoesNotExist:
-            time.sleep(wait_time)
+            pass
+        time.sleep(wait_time)
         retries += 1
     if not metadata_created:
         LOGGER.debug('Exit timeout.')
