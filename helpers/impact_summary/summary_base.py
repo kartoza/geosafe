@@ -168,17 +168,13 @@ class ImpactSummary(object):
 
         :return:
         """
+        cleaned_category_name = category.replace(' ', '-').replace('_', '-')
+        # generic classification
         if 'high' in category.lower():
             return 'hazard-category-high'
         elif 'medium' in category.lower() or 'moderate' in category.lower():
             return 'hazard-category-medium'
         elif 'low' in category.lower():
             return 'hazard-category-low'
-        elif 'total' in category.lower():
-            return 'hazard-category-total'
-        elif 'not affected' in category.lower():
-            return 'hazard-category-not-affected'
-        elif 'affected' in category.lower():
-            return 'hazard-category-affected'
         else:
-            return ''
+            return 'hazard-category-%s' % cleaned_category_name

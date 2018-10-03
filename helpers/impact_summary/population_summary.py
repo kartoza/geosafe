@@ -9,32 +9,8 @@ __date__ = '5/18/16'
 
 class PopulationSummary(ImpactSummary):
 
-    def total(self):
-        return int(self.total_populations())
-
     def total_populations(self):
-        return int(self.summary_dict().get('Total population'))
-
-    def total_affected(self):
-        if 'Total affected population' in self.summary_dict().keys():
-            return int(self.summary_dict().get('Total affected population'))
-        return 0
-
-    def breakdown_dict(self):
-        ret_val = OrderedDict()
-        for key, value in self.summary_dict().iteritems():
-            contain_total = 'total' in key.lower()
-            contain_affected = 'affected' in key.lower()
-            contain_not = 'not' in key.lower()
-            contain_unaffected = 'unaffected' in key.lower()
-            if (contain_total or
-                    (contain_affected and not
-                     contain_not and not
-                     contain_unaffected)):
-                continue
-
-            ret_val[key] = int(value)
-        return ret_val
+        return self.total()
 
     def category_css_class(self, category):
         css_class = ImpactSummary.category_css_class(category)
