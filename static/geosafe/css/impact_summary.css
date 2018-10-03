@@ -171,24 +171,32 @@
     padding-right: 0;
 }
 
-/* impact level class */
+/* not exposed class */
+.hazard-category-not-exposed .category, .hazard-category-not-exposed .value{
+    color: #8C8C8C;
+}
+.hazard-category-not-exposed text, .hazard-category-not-exposed rect{
+    fill: #8C8C8C;
+}
+
+/* generic impact level class */
 .hazard-category-high .category, .hazard-category-high .value{
-    color: #fd7e71;
+    color: #F03B20;
 }
 .hazard-category-high text, .hazard-category-high rect{
-    fill: #fd7e71;
+    fill: #F03B20;
 }
 .hazard-category-medium .category, .hazard-category-medium .value{
-    color: #fdb558;
+    color: #FEB24C;
 }
 .hazard-category-medium text, .hazard-category-medium rect{
-    fill: #fdb558;
+    fill: #FEB24C;
 }
 .hazard-category-low .category, .hazard-category-low .value{
-    color: #63d46f;
+    color: #1A9641;
 }
 .hazard-category-low text, .hazard-category-low rect{
-    fill: #63d46f;
+    fill: #1A9641;
 }
 
 /* eq mmi class */

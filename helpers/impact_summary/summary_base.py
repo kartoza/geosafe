@@ -135,6 +135,9 @@ class ImpactSummary(object):
                 classes = (
                     available_classifications[self.exposure_type()]
                     [self.hazard_classification()]['classes'])
+                if 'not exposed_hazard_count' in self.impact_data.keys():
+                    classes['not exposed'] = (
+                        self.impact_data['not exposed_hazard_count'])
                 return [c for c in classes.keys()]
         return []
 
@@ -168,13 +171,19 @@ class ImpactSummary(object):
 
         :return:
         """
-        cleaned_category_name = category.replace(' ', '-').replace('_', '-')
+        cleaned_category_name = (
+            category.replace(' ', '-').replace('_', '-').replace(
+                '-hazard-count', ''))
         # generic classification
         if 'high' in category.lower():
             return 'hazard-category-high'
         elif 'medium' in category.lower() or 'moderate' in category.lower():
             return 'hazard-category-medium'
         elif 'low' in category.lower():
+            return 'hazard-category-low'
+        elif 'wet' in category.lower():
+            return 'hazard-category-high'
+        elif 'dry' in category.lower():
             return 'hazard-category-low'
         else:
             return 'hazard-category-%s' % cleaned_category_name

@@ -897,7 +897,7 @@ def analysis_summary(request, impact_id):
         analysis = Analysis.objects.get(impact_layer__id=impact_id)
         report_type = None
         summary = ImpactSummary(analysis.impact_layer)
-        if 'building' in summary.exposure_type():
+        if 'structure' in summary.exposure_type():
             report_type = 'structure'
             summary = StructureSummary(analysis.impact_layer)
         elif 'population' in summary.exposure_type():
