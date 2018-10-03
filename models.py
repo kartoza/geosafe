@@ -117,7 +117,8 @@ class Analysis(models.Model):
         help_text='Aggregation layer for analysis.',
         blank=True,
         null=True,
-        related_name='aggregation_layer'
+        related_name='aggregation_layer',
+        on_delete=models.SET_NULL
     )
     aggregation_filter = models.TextField(
         verbose_name='Serialized JSON of selected aggregation area name',
