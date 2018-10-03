@@ -519,8 +519,21 @@ def process_impact_layer(analysis, basename, dir_name, name):
 
     :return: True if success
     """
+    # If User is anonymous then let admin upload the impact layer
+    if analysis.user.is_anonymous() or \
+            analysis.user.username == 'AnonymousUser' or \
+            analysis.user.id == -1:
+        # Set to none
+        # File upload will think Admin is the uploader
+        upload_user = None
+    else:
+        # Retain owner to person who initiate the analysis
+        upload_user = analysis.user
+
+    # Upload impact layer
     saved_layer = file_upload(
-        os.path.join(dir_name, name))
+        os.path.join(dir_name, name),
+        user=upload_user)
     saved_layer.set_default_permissions()
     if analysis.user_title:
         layer_name = analysis.user_title

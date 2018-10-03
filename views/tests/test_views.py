@@ -21,6 +21,9 @@ LOGGER = logging.getLogger(__file__)
 class ViewsTest(LiveServerTestCase):
 
     def setUp(self):
+        # Flush database between each tests
+        call_command('flush', noinput=True, interactive=False)
+        # Load default people
         call_command('loaddata', 'people_data', verbosity=0)
 
     def test_retrieve_layers(self):
@@ -76,6 +79,9 @@ class ViewsTest(LiveServerTestCase):
 class AnalysisTest(LiveServerTestCase):
 
     def setUp(self):
+        # Flush database between each tests
+        call_command('flush', noinput=True, interactive=False)
+        # Load default people
         call_command('loaddata', 'people_data', verbosity=0)
 
     def test_run_analysis_no_aggregation(self):
