@@ -104,8 +104,15 @@
     border-right: none;
     display: flex;
 }
+.impact-summary .highlight .svg{
+    width: 100%;
+    height: 100%;
+}
+.impact-summary .highlight .number{
+    font-size: 30pt;
+}
 .impact-thumbnail, .impact-group-button {
-    height: 200px;
+    height: 250px;
     display: -webkit-flex;
     display: flex;
     -webkit-align-items: center;
