@@ -16,6 +16,7 @@ from celery import chain
 from celery.result import allow_join_result
 from django.core.urlresolvers import reverse
 from django.db.models.query_utils import Q
+from django.core.files import File
 from lxml import etree
 from lxml.etree import XML, Element
 
@@ -408,6 +409,8 @@ def process_impact_result(self, impact_result, analysis_id):
         impact_url = (
             impact_result['output'].get('impact_analysis') or
             impact_result['output'].get('hazard_aggregation_summary'))
+        analysis_summary_url = (
+            impact_result['output'].get('analysis_summary'))
 
         # generate report when analysis has ran successfully
         async = generate_report.delay(impact_url)
@@ -436,7 +439,7 @@ def process_impact_result(self, impact_result, analysis_id):
                         # process this in the for loop to make sure it
                         # works only when we found the layer
                         success = process_impact_layer(
-                            analysis, basename, dir_name, name)
+                            analysis, dir_name, basename, name)
                         report_success = process_impact_report(
                             analysis, report_metadata)
                         break
@@ -450,17 +453,19 @@ def process_impact_result(self, impact_result, analysis_id):
                         pass
         else:
             # It means it is accessing an shp or tif directly
-            filename = os.path.basename(impact_path)
-            basename, ext = os.path.splitext(filename)
+            analysis_summary_filename = os.path.basename(analysis_summary_url)
+            impact_filename = os.path.basename(impact_path)
+            impact_basename, ext = os.path.splitext(impact_filename)
             success = process_impact_layer(
-                analysis, basename, dir_name, filename)
+                analysis, dir_name, impact_basename,
+                impact_filename, analysis_summary_filename)
             report_success = process_impact_report(analysis, report_metadata)
 
             # cleanup
             for name in os.listdir(dir_name):
                 filepath = os.path.join(dir_name, name)
                 is_file = os.path.isfile(filepath)
-                should_delete = name.split('.')[0] == basename
+                should_delete = name.split('.')[0] == impact_basename
                 if is_file and should_delete:
                     try:
                         os.remove(filepath)
@@ -502,7 +507,12 @@ def clean_up_temp_aggregation(process_impact_result, analysis_id):
     return True
 
 
-def process_impact_layer(analysis, basename, dir_name, name):
+def process_impact_layer(
+        analysis,
+        dir_name,
+        impact_basename,
+        impact_filename,
+        analysis_summary_filename=None):
     """Internal function to actually process the layer.
 
     :param analysis: Analysis object
@@ -532,8 +542,18 @@ def process_impact_layer(analysis, basename, dir_name, name):
 
     # Upload impact layer
     saved_layer = file_upload(
-        os.path.join(dir_name, name),
+        os.path.join(dir_name, impact_filename),
         user=upload_user)
+
+    # add analysis summary file
+    analysis_summary_basename, type_name = os.path.split(
+        analysis_summary_filename)
+    with open(os.path.join(dir_name, analysis_summary_filename), 'rb') as f:
+        saved_layer.upload_session.layerfile_set.create(
+            name=type_name,
+            base=analysis_summary_basename,
+            file=File(f, name=('%s.%s' % (saved_layer.name, type_name))))
+
     saved_layer.set_default_permissions()
     if analysis.user_title:
         layer_name = analysis.user_title
@@ -547,12 +567,12 @@ def process_impact_layer(analysis, basename, dir_name, name):
     analysis.impact_layer = saved_layer
     # check map report and table
     report_map_path = os.path.join(
-        dir_name, '%s.pdf' % basename
+        dir_name, '%s.pdf' % impact_basename
     )
     if os.path.exists(report_map_path):
         analysis.assign_report_map(report_map_path)
     report_table_path = os.path.join(
-        dir_name, '%s_table.pdf' % basename
+        dir_name, '%s_table.pdf' % impact_basename
     )
     if os.path.exists(report_table_path):
         analysis.assign_report_table(report_table_path)

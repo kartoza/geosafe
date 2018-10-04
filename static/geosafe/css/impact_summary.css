@@ -171,22 +171,92 @@
     padding-right: 0;
 }
 
-/* impact level class */
+/* not exposed class */
+.hazard-category-not-exposed .category, .hazard-category-not-exposed .value{
+    color: #8C8C8C;
+}
+.hazard-category-not-exposed text, .hazard-category-not-exposed rect{
+    fill: #8C8C8C;
+}
+
+/* generic impact level class */
 .hazard-category-high .category, .hazard-category-high .value{
-    color: #fd7e71;
+    color: #F03B20;
 }
 .hazard-category-high text, .hazard-category-high rect{
-    fill: #fd7e71;
+    fill: #F03B20;
 }
 .hazard-category-medium .category, .hazard-category-medium .value{
-    color: #fdb558;
+    color: #FEB24C;
 }
 .hazard-category-medium text, .hazard-category-medium rect{
-    fill: #fdb558;
+    fill: #FEB24C;
 }
 .hazard-category-low .category, .hazard-category-low .value{
-    color: #63d46f;
+    color: #1A9641;
 }
 .hazard-category-low text, .hazard-category-low rect{
-    fill: #63d46f;
+    fill: #1A9641;
+}
+
+/* eq mmi class */
+.hazard-category-X .category, .hazard-category-X .value{
+    color: #D00;
+}
+.hazard-category-X text, .hazard-category-X rect{
+    fill: #D00;
+}
+.hazard-category-IX .category, .hazard-category-IX .value{
+    color: #ff0000;
+}
+.hazard-category-IX text, .hazard-category-IX rect{
+    fill: #ff0000;
+}
+.hazard-category-VIII .category, .hazard-category-VIII .value{
+    color: #ff7000;
+}
+.hazard-category-VIII text, .hazard-category-VIII rect{
+    fill: #ff7000;
+}
+.hazard-category-VII .category, .hazard-category-VII .value{
+    color: #ffa800;
+}
+.hazard-category-VII text, .hazard-category-VII rect{
+    fill: #ffa800;
+}
+.hazard-category-VI .category, .hazard-category-VI .value{
+    color: #fff000;
+}
+.hazard-category-VI text, .hazard-category-VI rect{
+    fill: #fff000;
+}
+.hazard-category-V .category, .hazard-category-V .value{
+    color: #aaffff;
+}
+.hazard-category-V text, .hazard-category-V rect{
+    fill: #aaffff;
+}
+.hazard-category-IV .category, .hazard-category-IV .value{
+    color: #55ffff;
+}
+.hazard-category-IV text, .hazard-category-IV rect{
+    fill: #55ffff;
+}
+.hazard-category-III .category, .hazard-category-III .value{
+    color: #00cfff;
+}
+.hazard-category-III text, .hazard-category-III rect{
+    fill: #00cfff;
+}
+.hazard-category-II .category, .hazard-category-II .value{
+    color: #209fff;
+}
+.hazard-category-II text, .hazard-category-II rect{
+    fill: #209fff;
+}
+.hazard-category-I .category, .hazard-category-I .value{
+    color: #FFFFFF;
+}
+.hazard-category-I text, .hazard-category-I rect{
+    fill: #FFFFFF;
 }
