@@ -335,8 +335,8 @@
                     }
                     if (data['is_valid'] || data['is_warned']) {
                         if ($run_analysis_popover) {
-                            run_message = both_selected + 'The selected analysis extent is ' + formatted_area + ' m2. ' + allow_message;
-                            $run_analysis_popover.popover({title: "Run Analysis", content: run_message});
+                            run_message = both_selected + '{% trans 'The selected analysis extent is ' %}' + formatted_area + '{% trans ' m2. ' %}' + allow_message;
+                            $run_analysis_popover.popover({title: '{% trans "Run Analysis" %}', content: run_message});
                             $run_analysis_popover.popover('show');
                         }
                         $("#run-analysis-submit-button").removeAttr('disabled');
