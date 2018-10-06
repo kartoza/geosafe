@@ -1,0 +1,524 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2018-10-06 01:18-0500\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Language-Team: Portuguese (https://www.transifex.com/inasafe/teams/92273/"
+"pt/)\n"
+"Language: pt\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: templates/geonode_base.html:7
+msgid "GeoSAFE"
+msgstr ""
+
+#: templates/geonode_base.html:11
+msgid "MetaSearch"
+msgstr ""
+
+#: templates/geonode_base.html:12
+msgid "Create Analysis"
+msgstr ""
+
+#: templates/geonode_base.html:13
+msgid "Analysis List"
+msgstr ""
+
+#: templates/geosafe/analysis/create.html:429
+msgid "Please wait while the page is loading...."
+msgstr ""
+
+#: templates/geosafe/analysis/create.html:438
+msgid "Upgrade Your Browser"
+msgstr ""
+
+#: templates/geosafe/analysis/create.html:450
+#: templates/geosafe/analysis/modal/analysis_confirmation.html:62
+#: templates/geosafe/analysis/modal/impact_card.html:70
+#: templates/geosafe/analysis/modal/impact_card.html:107
+msgid "Close"
+msgstr ""
+
+#: templates/geosafe/analysis/detail.html:9
+msgid "Analysis Details"
+msgstr ""
+
+#: templates/geosafe/analysis/detail.html:19
+msgid "Exposure Layer:"
+msgstr ""
+
+#: templates/geosafe/analysis/detail.html:23
+msgid "Hazard Layer:"
+msgstr ""
+
+#: templates/geosafe/analysis/detail.html:27
+msgid "Aggregation Layer:"
+msgstr ""
+
+#: templates/geosafe/analysis/detail.html:31
+msgid "Impact Function ID:"
+msgstr ""
+
+#: templates/geosafe/analysis/detail.html:33
+msgid "Extent:"
+msgstr ""
+
+#: templates/geosafe/analysis/detail.html:35
+msgid "Impact Layer:"
+msgstr ""
+
+#: templates/geosafe/analysis/detail.html:37
+#: templates/geosafe/analysis/list.html:126
+msgid "Analysis not yet running"
+msgstr ""
+
+#: templates/geosafe/analysis/detail.html:41
+#: templates/geosafe/analysis/list.html:130
+msgid "Task Status:"
+msgstr ""
+
+#: templates/geosafe/analysis/detail.html:59
+msgid "Impact Map Report:"
+msgstr ""
+
+#: templates/geosafe/analysis/detail.html:61
+#: templates/geosafe/analysis/list.html:157
+msgid "Map Report"
+msgstr ""
+
+#: templates/geosafe/analysis/detail.html:63
+msgid "There is no map report generated for this Impact Layer"
+msgstr ""
+
+#: templates/geosafe/analysis/detail.html:67
+msgid "Impact Table Report:"
+msgstr ""
+
+#: templates/geosafe/analysis/detail.html:69
+#: templates/geosafe/analysis/list.html:162
+msgid "Table Report"
+msgstr ""
+
+#: templates/geosafe/analysis/detail.html:71
+msgid "There is no table report generated for this Impact Layer"
+msgstr ""
+
+#: templates/geosafe/analysis/detail.html:81
+#: templates/geosafe/analysis/list.html:137
+#: templates/geosafe/analysis/modal/waiting_analysis.html:51
+msgid "Rerun Analysis"
+msgstr ""
+
+#: templates/geosafe/analysis/dynamic_scripts/create/side_panel.html:16
+msgid "sign in"
+msgstr ""
+
+#: templates/geosafe/analysis/legend.html:4
+msgid "Legend"
+msgstr ""
+
+#: templates/geosafe/analysis/legend.html:8
+msgid "Hazard:"
+msgstr ""
+
+#: templates/geosafe/analysis/legend.html:15
+msgid "Exposure:"
+msgstr ""
+
+#: templates/geosafe/analysis/legend.html:22
+msgid "Aggregation:"
+msgstr ""
+
+#: templates/geosafe/analysis/legend.html:29
+msgid "Impact:"
+msgstr ""
+
+#: templates/geosafe/analysis/list.html:61
+msgid "List of Analysis"
+msgstr ""
+
+#: templates/geosafe/analysis/list.html:67
+msgid "All"
+msgstr ""
+
+#: templates/geosafe/analysis/list.html:72
+msgid "Anonymous"
+msgstr ""
+
+#: templates/geosafe/analysis/list.html:74
+msgid "Current users"
+msgstr ""
+
+#: templates/geosafe/analysis/list.html:81
+msgid "User"
+msgstr ""
+
+#: templates/geosafe/analysis/list.html:82
+msgid "Date Created"
+msgstr ""
+
+#: templates/geosafe/analysis/list.html:87
+msgid "Impact Function Name"
+msgstr ""
+
+#: templates/geosafe/analysis/list.html:88
+msgid "Result"
+msgstr ""
+
+#: templates/geosafe/analysis/list.html:89
+msgid "View"
+msgstr ""
+
+#: templates/geosafe/analysis/list.html:91
+msgid "Save"
+msgstr ""
+
+#: templates/geosafe/analysis/list.html:93
+#: templates/geosafe/analysis/list.html:186
+#: templates/geosafe/analysis/modal/impact_card.html:37
+msgid "Download"
+msgstr ""
+
+#: templates/geosafe/analysis/list.html:106
+#: templates/geosafe/analysis/list.html:188
+msgid "Result not yet created"
+msgstr ""
+
+#: templates/geosafe/analysis/list.html:128
+msgid "Duration:"
+msgstr ""
+
+#: templates/geosafe/analysis/list.html:131
+msgid "Start Time:"
+msgstr ""
+
+#: templates/geosafe/analysis/list.html:145
+msgid "Cancel Analysis"
+msgstr ""
+
+#: templates/geosafe/analysis/list.html:153
+msgid "Analysis Page"
+msgstr ""
+
+#: templates/geosafe/analysis/list.html:176
+#: templates/geosafe/analysis/modal/impact_card.html:66
+msgid "PROCESSING"
+msgstr ""
+
+#: templates/geosafe/analysis/list.html:196
+msgid "No analysis yet."
+msgstr ""
+
+#: templates/geosafe/analysis/list.html:196
+msgid "Why not creating one?"
+msgstr ""
+
+#: templates/geosafe/analysis/modal/analysis_confirmation.html:13
+msgid "InaSAFE Analysis"
+msgstr ""
+
+#: templates/geosafe/analysis/modal/analysis_confirmation.html:19
+msgid "Analysis Title:"
+msgstr ""
+
+#: templates/geosafe/analysis/modal/analysis_confirmation.html:23
+msgid "Hazard layer"
+msgstr ""
+
+#: templates/geosafe/analysis/modal/analysis_confirmation.html:27
+msgid "Exposure layer"
+msgstr ""
+
+#: templates/geosafe/analysis/modal/analysis_confirmation.html:31
+msgid "Aggregation Layer"
+msgstr ""
+
+#: templates/geosafe/analysis/modal/analysis_confirmation.html:44
+msgid "The output layer will be permanently saved in GeoNode."
+msgstr ""
+
+#: templates/geosafe/analysis/modal/analysis_confirmation.html:47
+msgid "The output layer will be deleted at the end of the day."
+msgstr ""
+
+#: templates/geosafe/analysis/modal/analysis_confirmation.html:51
+msgid "You are not logged in, so you won't be able to save analysis."
+msgstr ""
+
+#: templates/geosafe/analysis/modal/analysis_confirmation.html:55
+msgid "Analysis extent"
+msgstr ""
+
+#: templates/geosafe/analysis/modal/analysis_confirmation.html:63
+msgid "Run analysis"
+msgstr ""
+
+#: templates/geosafe/analysis/modal/impact_card.html:14
+msgid "Analysis Result"
+msgstr ""
+
+#: templates/geosafe/analysis/modal/impact_card.html:41
+msgid "Impact report"
+msgstr ""
+
+#: templates/geosafe/analysis/modal/impact_card.html:44
+msgid "Table report"
+msgstr ""
+
+#: templates/geosafe/analysis/modal/impact_card.html:47
+msgid "Download Impact & Table reports"
+msgstr ""
+
+#: templates/geosafe/analysis/modal/impact_card.html:50
+msgid "Download Impact Layer"
+msgstr ""
+
+#: templates/geosafe/analysis/modal/impact_card.html:57
+msgid "checked"
+msgstr ""
+
+#: templates/geosafe/analysis/modal/impact_card.html:60
+msgid "disabled"
+msgstr ""
+
+#: templates/geosafe/analysis/modal/impact_card.html:63
+msgid "Save Result"
+msgstr ""
+
+#: templates/geosafe/analysis/modal/impact_card.html:78
+msgid "Log in to keep analysis"
+msgstr ""
+
+#: templates/geosafe/analysis/modal/impact_card.html:93
+msgid "Download Layer"
+msgstr ""
+
+#: templates/geosafe/analysis/modal/waiting_analysis.html:9
+msgid "Analysis Failed"
+msgstr ""
+
+#: templates/geosafe/analysis/modal/waiting_analysis.html:14
+msgid "Waiting for analysis to run"
+msgstr ""
+
+#: templates/geosafe/analysis/modal/waiting_analysis.html:21
+msgid "Error Detail"
+msgstr ""
+
+#: templates/geosafe/analysis/modal/waiting_analysis.html:24
+msgid "Analysis process has failed."
+msgstr ""
+
+#: templates/geosafe/analysis/modal/waiting_analysis.html:31
+msgid "The analysis is running..."
+msgstr ""
+
+#: templates/geosafe/analysis/modal/waiting_analysis.html:39
+msgid "This window will automatically close when the analysis is complete."
+msgstr ""
+
+#: templates/geosafe/analysis/options_panel.html:13
+msgid "To get started, select hazard layer that you want to use."
+msgstr ""
+
+#: templates/geosafe/analysis/options_panel.html:17
+msgid "Now choose an exposure dataset."
+msgstr ""
+
+#: templates/geosafe/analysis/options_panel.html:39
+#: templates/geosafe/analysis/options_panel.html:71
+msgid "Upload Layer"
+msgstr ""
+
+#: templates/geosafe/analysis/options_panel.html:90
+msgid "Run"
+msgstr ""
+
+#: templates/geosafe/analysis/options_panel.html:95
+msgid "Reports"
+msgstr ""
+
+#: templates/geosafe/analysis/options_panel.html:107
+msgid "Select an impact layer"
+msgstr ""
+
+#: templates/geosafe/analysis/options_panel.html:115
+msgid "Run analysis to create impact layer"
+msgstr ""
+
+#: templates/geosafe/analysis/options_panel.html:124
+msgid "Show Analysis Summary"
+msgstr ""
+
+#: templates/geosafe/analysis/options_panel.html:128
+msgid "Start Again"
+msgstr ""
+
+#: templates/geosafe/analysis/summary/landcover_report.html:9
+msgid "Total Area (ha)"
+msgstr ""
+
+#: templates/geosafe/analysis/summary/landcover_report.html:20
+msgid "Landcover Affected (ha)"
+msgstr ""
+
+#: templates/geosafe/analysis/summary/landcover_report.html:30
+#, fuzzy
+#| msgid "hazard-prone areas."
+msgid "Hazard areas (ha)"
+msgstr "áreas propensas a riscos"
+
+#: templates/geosafe/analysis/summary/polygon_people_report.html:9
+#: templates/geosafe/analysis/summary/population_report.html:9
+msgid "Total Population"
+msgstr ""
+
+#: templates/geosafe/analysis/summary/polygon_people_report.html:20
+#: templates/geosafe/analysis/summary/population_report.html:20
+msgid "Population Affected"
+msgstr ""
+
+#: templates/geosafe/analysis/summary/polygon_people_report.html:30
+#: templates/geosafe/analysis/summary/population_report.html:30
+#: templates/geosafe/analysis/summary/structure_report.html:30
+#, fuzzy
+#| msgid "hazard-prone areas."
+msgid "Hazard areas"
+msgstr "áreas propensas a riscos"
+
+#: templates/geosafe/analysis/summary/road_report.html:9
+msgid "Total Roads (m)"
+msgstr ""
+
+#: templates/geosafe/analysis/summary/road_report.html:20
+msgid "Roads Affected (m)"
+msgstr ""
+
+#: templates/geosafe/analysis/summary/road_report.html:30
+#, fuzzy
+#| msgid "hazard-prone areas."
+msgid "Hazard areas (m)"
+msgstr "áreas propensas a riscos"
+
+#: templates/geosafe/analysis/summary/structure_report.html:9
+msgid "Total Buildings"
+msgstr ""
+
+#: templates/geosafe/analysis/summary/structure_report.html:20
+msgid "Buildings Affected"
+msgstr ""
+
+#: templates/index.html:6
+msgid "Welcome!"
+msgstr ""
+
+#: templates/index.html:15
+msgid "Realistic Natural Hazard Impact analysis -"
+msgstr ""
+
+#: templates/index.html:16
+msgid "InaSAFE made easy."
+msgstr ""
+
+#: templates/index.html:37
+msgid "What is it all about?"
+msgstr ""
+
+#: templates/index.html:41
+msgid "Run Analysis"
+msgstr ""
+
+#: templates/index.html:48
+msgid ""
+"This platform is part of an initiative where the Govern of Mozambique and "
+"World Bank has been"
+msgstr ""
+"Esta plataforma faz parte de uma iniciativa em que o Governo de Moçambique "
+"eo Banco Mundial procuram"
+
+#: templates/index.html:49
+msgid ""
+"promoting the use of open geospatial data for government disaster risk "
+"management through the"
+msgstr ""
+"promover o uso de dados abertos geo-espaciais para a gestão do risco de "
+"desastres,"
+
+#: templates/index.html:50
+msgid ""
+"Open Data for Resilience Initiative to provide technical assistance to INGC "
+"(National Disasters)"
+msgstr ""
+"onde entre as várias atividades visa o apoio e fortalecimento técnico ao "
+"INGC (Instituto Nacional de Gestão de Calamidades)"
+
+#: templates/index.html:51
+msgid ""
+"Management Institute) around the management and use of geospatial data to "
+"fulfil their core mandate"
+msgstr "na gestão e uso dos referidos dados,"
+
+#: templates/index.html:52
+msgid ""
+"and activities, particularly regarding contingecny planning and emergency "
+"response. That aims to"
+msgstr ""
+"com objetivo de melhorar a preparação dos planos de contingência e resposta "
+"a emergência,"
+
+#: templates/index.html:53
+msgid ""
+"improve the capacity to respond to disasters and to build the resilience of "
+"key public infrastructure in"
+msgstr ""
+"melhorando assim a sua capacidade de resposta e criação de maior resiliência "
+"nas infra-estruturas públicas em"
+
+#: templates/index.html:54
+msgid "hazard-prone areas."
+msgstr "áreas propensas a riscos"
+
+#: templates/layers/layer_metadata_detail.html:13
+msgid "InaSAFE"
+msgstr ""
+
+#: templates/layers/layer_metadata_detail.html:19
+msgid "Layer Purpose"
+msgstr ""
+
+#: templates/layers/layer_metadata_detail.html:24
+msgid "Category"
+msgstr ""
+
+#: templates/layers/layer_metadata_detail.html:29
+msgid "Keywords XML"
+msgstr ""
+
+#: views/analysis.py:613
+msgid "Hazard and exposure does not intersect."
+msgstr ""
+
+#: views/analysis.py:633
+msgid "View extent does not intersect hazard and exposure."
+msgstr ""
+
+#: views/analysis.py:656
+#, python-brace-format
+msgid ""
+"Analysis extent exceeded area limit: {limit} km<sup>2</sup>.<br />&nbsp;"
+"Analysis might take a long time to complete."
+msgstr ""
+
+#: views/analysis.py:673
+msgid "Analysis will be performed on this given view extent."
+msgstr ""
