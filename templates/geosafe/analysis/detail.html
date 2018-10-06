@@ -1,4 +1,5 @@
 {% extends 'geonode_base.html' %}
+{% load i18n %}
 {% load bootstrap_tags %}
 {% load leaflet_tags %}
 {% block extra_head %}
@@ -6,7 +7,7 @@
 {% endblock extra_head %}
 {% block body_outer %}
     <div class="page-header">
-        <h2 class="page-title">Analysis Details</h2>
+        <h2 class="page-title">{% trans "Analysis Details" %}</h2>
     </div>
     <div class="row">
         <div class="container-fluid pad0x">
@@ -16,29 +17,29 @@
             </div>
             <div class="col-md-4">
                 <div>
-                    <p>Exposure Layer: <a
+                    <p>{% trans "Exposure Layer:"  %} <a
                             href="{% url 'layer_detail' layername=analysis.exposure_layer.typename %}">{{ analysis.exposure_layer }}</a>
                     </p>
 
-                    <p>Hazard Layer: <a
+                    <p>{% trans "Hazard Layer:" %} <a
                             href="{% url 'layer_detail' layername=analysis.hazard_layer.typename %}">{{ analysis.hazard_layer }}</a>
                     </p>
 
-                    <p>Aggregation Layer: <a
+                    <p>{% trans "Aggregation Layer:" %} <a
                             href="{% url 'layer_detail' layername=analysis.aggregation_layer.typename %}">{{ analysis.aggregation_layer }}</a>
                     </p>
 
-                    <p>Impact Function ID: {{ analysis.impact_function_id }}</p>
+                    <p>{% trans "Impact Function ID:" %} {{ analysis.impact_function_id }}</p>
 
-                    <p>Extent: {{ analysis.get_extent_option_display }}</p>
+                    <p>{% trans "Extent:" %} {{ analysis.get_extent_option_display }}</p>
 
-                    <p>Impact Layer:
+                    <p>{% trans "Impact Layer:" %}
                         {% if not analysis.get_task_result %}
-                                Analysis not yet running
+                                {% trans "Analysis not yet running" %}
                         {% elif analysis.get_task_result.successful %}
                             <a href="{% url 'layer_detail' layername=analysis.impact_layer.typename %}">{{ analysis.impact_layer }}</a>
                         {% else %}
-                            Task Status:
+                            {% trans "Task Status:" %}
                             <span class="label label-{{ analysis.get_label_class }}">
                             {{ analysis.get_task_result.state }}
                             </span>
@@ -56,19 +57,19 @@
                         {% endif %}
                     </p>
 
-                    <p>Impact Map Report:
+                    <p>{% trans "Impact Map Report:" %}
                         {% if analysis.report_map %}
-                            <a class="download-link" href="{% url 'geosafe:download-report' analysis_id=analysis.id data_type='map' %}" target="_blank">Map Report</a>
+                            <a class="download-link" href="{% url 'geosafe:download-report' analysis_id=analysis.id data_type='map' %}" target="_blank">{% trans "Map Report" %}</a>
                         {% else %}
-                            There is no map report generated for this Impact Layer
+                            {% trans "There is no map report generated for this Impact Layer" %}
                         {% endif %}
                     </p>
 
-                    <p>Impact Table Report:
+                    <p>{% trans "Impact Table Report:" %}
                         {% if analysis.report_table %}
-                            <a class="download-link" href="{% url 'geosafe:download-report' analysis_id=analysis.id data_type='table' %}" target="_blank">Table Report</a>
+                            <a class="download-link" href="{% url 'geosafe:download-report' analysis_id=analysis.id data_type='table' %}" target="_blank">{% trans "Table Report" %}</a>
                         {% else %}
-                            There is no table report generated for this Impact Layer
+                            {% trans "There is no table report generated for this Impact Layer" %}
                         {% endif %}
                     </p>
 
@@ -78,7 +79,7 @@
                                 <form action="{% url 'geosafe:rerun-analysis' analysis_id=analysis.id %}" method="post">
                                     {% csrf_token %}
                                     <input type="hidden" id="analysis_id" value="{{ analysis.id }}" />
-                                    <button type="submit" class="btn btn-primary">Rerun Analysis</button>
+                                    <button type="submit" class="btn btn-primary">{% trans "Rerun Analysis" %}</button>
                                 </form>
                             </p>
                         {% endif %}

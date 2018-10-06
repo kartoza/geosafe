@@ -1,31 +1,32 @@
+{% load i18n %}
 <div class="legend">
     <div id="legend-title">
-        <a href="#" style="font-style: oblique; text-align: center;"><p>Legend</p></a>
+        <a href="#" style="font-style: oblique; text-align: center;"><p>{% trans "Legend" %}</p></a>
     </div>
     <div id="legend-body">
         <div id="legend-hazard-body">
-            <p>Hazard: <span id="legend-hazard-name"></span></p>
+            <p>{% trans "Hazard:" %} <span id="legend-hazard-name"></span></p>
             <p><input class="transparency-slider" type="text" value="5" id="hazard-slider" data-slider-min="1"
                       data-slider-max="10"
                       data-slider-step="1" onchange="set_transparency();"></p>
             <p><img id="hazard-legend-img"/></p>
         </div>
         <div id="legend-exposure-body">
-            <p>Exposure: <span id="legend-exposure-name"></span></p>
+            <p>{% trans "Exposure:"%} <span id="legend-exposure-name"></span></p>
             <p><input class="transparency-slider" type="text" value="5" id="exposure-slider" data-slider-min="1"
                       data-slider-max="10"
                       data-slider-step="1" onchange="set_transparency();"></p>
             <p><img id="exposure-legend-img"/></p>
         </div>
         <div id="legend-aggregation-body">
-            <p>Aggregation: <span id="legend-aggregation-name"></span></p>
+            <p>{% trans "Aggregation:" %} <span id="legend-aggregation-name"></span></p>
             <p><input class="transparency-slider" type="text" value="5" id="aggregation-slider" data-slider-min="1"
                       data-slider-max="10"
                       data-slider-step="1" onchange="set_transparency();"></p>
             <p><img id="aggregation-legend-img"/></p>
         </div>
         <div id="legend-impact-body">
-            <p>Impact: <span id="legend-impact-name"></span></p>
+            <p>{% trans "Impact:" %} <span id="legend-impact-name"></span></p>
             <p><input class="transparency-slider" type="text" value="5" id="impact-slider" data-slider-min="1"
                       data-slider-max="10"
                       data-slider-step="1" onchange="set_transparency();"></p>

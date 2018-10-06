@@ -1,5 +1,6 @@
 {% extends 'geonode_base.html' %}
 {% load staticfiles %}
+{% load i18n %}
 {% block extra_head %}
     <link rel="stylesheet" href="{% static 'geosafe/css/main.css' %}" />
     <link rel="stylesheet" href="{% static 'geosafe/css/jquery.dynatable.css' %}" />
@@ -57,39 +58,39 @@
             white-space: nowrap;
         }
     </style>
-    <h1>List of Analysis</h1>
+    <h1>{% trans "List of Analysis" %}</h1>
     <div>
         {% if analysis_list %}
             <div id="user-filter-group" class="btn-group" data-toggle="buttons">
                 <label class="btn btn-primary active">
                     <input type="radio" name="user-filter" checked value="all">
-                    All
+                    {% trans "All" %}
                 </label>
                 <label class="btn btn-primary">
                     <input type="radio" name="user-filter" value="user">
                     {% if not user.username %}
-                        Anonymous
+                        {% trans "Anonymous" %}
                     {% else %}
-                        Current users
+                        {% trans "Current users" %}
                     {% endif %}
                 </label>
             </div>
             <table id="analysis-list" class="table table-striped">
                 <thead>
                 <tr>
-                    <th>User</th>
-                    <th>Date Created</th>
+                    <th>{% trans "User" %}</th>
+                    <th>{% trans "Date Created" %}</th>
 {#                    <th>Exposure</th>#}
 {#                    <th>Hazard</th>#}
 {#                    <th>Aggregation</th>#}
 {#                    <th>Extent</th>#}
-                    <th>Impact Function Name</th>
-                    <th>Result</th>
-                    <th>View</th>
+                    <th>{% trans "Impact Function Name" %}</th>
+                    <th>{% trans "Result" %}</th>
+                    <th>{% trans "View" %}</th>
                     {% if user.username %}
-                        <th>Save</th>
+                        <th>{% trans "Save" %}</th>
                     {% endif %}
-                    <th>Download</th>
+                    <th>{% trans "Download" %}</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -102,7 +103,7 @@
                             {% if analysis.impact_layer %}
                                 {{ analysis.impact_layer.date }}
                             {% else %}
-                                Result not yet created
+                                {% trans "Result not yet created" %}
                             {% endif %}
                         </td>
 {#                        <td>#}
@@ -122,18 +123,18 @@
                         </td>
                         <td>
                             {% if not analysis.get_task_result %}
-                                Analysis not yet running
+                                {% trans "Analysis not yet running" %}
                             {% elif analysis.get_task_state == 'SUCCESS' %}
-                                <a href="{% url 'layer_detail' layername=analysis.impact_layer.alternate %}"> {{ analysis.impact_layer }} <br /> Duration: {{ analysis.start_time|timesince:analysis.end_time }} </a>
+                                <a href="{% url 'layer_detail' layername=analysis.impact_layer.alternate %}"> {{ analysis.impact_layer }} <br /> {% trans "Duration:" %} {{ analysis.start_time|timesince:analysis.end_time }} </a>
                             {% else %}
-                                <div>Task Status: <span class="label label-{{ analysis.get_label_class }}">{{ analysis.get_task_state }}</span></div>
-                                        {{ analysis.hazard_layer }} on {{ analysis.exposure_layer }} <br />Start Time: {{ analysis.start_time }}
+                                <div>{% trans "Task Status:" %} <span class="label label-{{ analysis.get_label_class }}">{{ analysis.get_task_state }}</span></div>
+                                        {{ analysis.hazard_layer }} on {{ analysis.exposure_layer }} <br />{% trans "Start Time:" %} {{ analysis.start_time }}
                                 {% if analysis.get_task_state == 'FAILURE' %}
                                 <div>
                                     <form action="{% url 'geosafe:rerun-analysis' analysis_id=analysis.id %}" method="post">
                                         {% csrf_token %}
                                         <input type="hidden" id="analysis_id" value="{{ analysis.id }}" />
-                                        <button type="submit" class="btn btn-primary">Rerun Analysis</button>
+                                        <button type="submit" class="btn btn-primary">{% trans "Rerun Analysis" %}</button>
                                     </form>
                                 </div>
                                 {% elif analysis.get_task_state == 'PENDING' and user.is_superuser %}
@@ -141,7 +142,7 @@
                                     <form action="{% url 'geosafe:cancel-analysis' analysis_id=analysis.id %}" method="post">
                                         {% csrf_token %}
                                         <input type="hidden" id="analysis_id" value="{{ analysis.id }}" />
-                                        <button type="submit" class="btn btn-primary">Cancel Analysis</button>
+                                        <button type="submit" class="btn btn-primary">{% trans "Cancel Analysis" %}</button>
                                     </form>
                                 </div>
                                 {% endif %}
@@ -149,16 +150,16 @@
                         </td>
                         <td>
                             <div>
-                                <a class="download-link" href="{% url 'geosafe:analysis-create' pk=analysis.id %}">Analysis Page</a>
+                                <a class="download-link" href="{% url 'geosafe:analysis-create' pk=analysis.id %}">{% trans "Analysis Page" %}</a>
                             </div>
                             {% if analysis.report_map %}
                                 <div>
-                                    <a class="download-link" href="{% url 'geosafe:download-report' analysis_id=analysis.id data_type='map' %}" target="_blank">Map Report</a>
+                                    <a class="download-link" href="{% url 'geosafe:download-report' analysis_id=analysis.id data_type='map' %}" target="_blank">{% trans "Map Report" %}</a>
                                 </div>
                             {% endif %}
                             {% if analysis.report_table %}
                                 <div>
-                                    <a class="download-link" href="{% url 'geosafe:download-report' analysis_id=analysis.id data_type='table' %}" target="_blank">Table Report</a>
+                                    <a class="download-link" href="{% url 'geosafe:download-report' analysis_id=analysis.id data_type='table' %}" target="_blank">{% trans "Table Report" %}</a>
                                 </div>
                             {% endif %}
                         </td>
@@ -172,7 +173,7 @@
                                 <label class="onoffswitch-label" for="save_analysis_{{ analysis.id }}">
                                     <span class="processing-indicator">
                                         <i class="fa fa-spinner fa-spin"></i>
-                                        PROCESSING
+                                        {% trans "PROCESSING" %}
                                     </span>
                                     <span class="onoffswitch-inner"></span>
                                     <span class="onoffswitch-switch"></span>
@@ -182,9 +183,9 @@
                         {% endif %}
                         <td>
                             {% if analysis.impact_layer %}
-                                <a href="{% url 'geosafe:download-report' analysis_id=analysis.id data_type='all' %}">Download</a>
+                                <a href="{% url 'geosafe:download-report' analysis_id=analysis.id data_type='all' %}">{% trans "Download" %}</a>
                             {% else %}
-                                Result not yet created
+                                {% trans "Result not yet created" %}
                             {% endif %}
                         </td>
                     </tr>
@@ -192,7 +193,7 @@
                 </tbody>
             </table>
         {% else %}
-            <p>No analysis yet. <a href="{% url "geosafe:analysis-create" %}">Why not creating one?</a></p>
+            <p>{% trans "No analysis yet." %} <a href="{% url "geosafe:analysis-create" %}">{% trans "Why not creating one?" %}</a></p>
         {% endif %}
     </div>
 {% endblock %}

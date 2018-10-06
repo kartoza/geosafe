@@ -1,4 +1,5 @@
 {% load bootstrap_tags %}
+{% load i18n %}
 {% load staticfiles %}
 <link href="{% static "geosafe/css/analysis_confirmation.css" %}" rel="stylesheet"/>
 <div class="modal fade" id="analysis-confirmation-modal" tabindex="-1" role="dialog" aria-labelledby="Analysis Confirmation">
@@ -9,25 +10,25 @@
                     <i class="fa fa-times-circle-o"></i></button>
                 <h4 class="modal-title" id="analysis_confirmation_label">
                     <img class="glyphicon" src="{% static 'geosafe/img/inasafe-icon.png' %}" ></img>
-                    InaSAFE Analysis
+                    {% trans "InaSAFE Analysis" %}
                 </h4>
             </div>
             <div class="modal-body">
                 <form>
                     <div class="form-group">
-                        <label for="confirm_user_title">Analysis Title:</label>
+                        <label for="confirm_user_title">{% trans "Analysis Title:" %}</label>
                         <input class=" form-control" id="confirm_user_title" name="user_title" placeholder="Default title generated" type="text" autocomplete="off">
                     </div>
                     <div class="form-group">
-                        <label>Hazard layer</label>
+                        <label>{% trans "Hazard layer" %}</label>
                         <input id="confirm_hazard_title" type="text" disabled class="form-control" />
                     </div>
                     <div class="form-group">
-                        <label>Exposure layer</label>
+                        <label>{% trans "Exposure layer" %}</label>
                         <input id="confirm_exposure_title" type="text" disabled class="form-control"/>
                     </div>
                     <div class="form-group">
-                        <label>Aggregation Layer</label>
+                        <label>{% trans "Aggregation Layer" %}</label>
                         <input id="confirm_aggregation_title" type="text" disabled class="form-control"/>
                     </div>
                     <div class="form-group">
@@ -40,26 +41,26 @@
 {#                                    <span class="onoffswitch-switch"></span>#}
                                 </label>
                                 <span class="checked-message">
-                                    The output layer will be permanently saved in GeoNode.
+                                    {% trans "The output layer will be permanently saved in GeoNode." %}
                                 </span>
                                 <span class="unchecked-message">
-                                    The output layer will be deleted at the end of the day.
+                                    {% trans "The output layer will be deleted at the end of the day." %}
                                 </span>
                             </div>
                         {% else %}
-                            <label>You are not logged in, so you won't be able to save analysis.</label>
+                            <label>{% trans "You are not logged in, so you won't be able to save analysis." %}</label>
                         {% endif %}
                     </div>
                     <div class="form-group">
-                        <label>Analysis extent</label>
+                        <label>{% trans "Analysis extent" %}</label>
                         <input id="confirm_user_extent" type="text" disabled class="form-control"/>
                         <span id="confirm_user_extent_message"></span>
                     </div>
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary" data-dismiss="modal" onclick="run_analysis()">Run analysis</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">{% trans "Close" %}</button>
+                <button type="button" class="btn btn-primary" data-dismiss="modal" onclick="run_analysis()">{% trans "Run analysis" %}</button>
             </div>
         </div>
     </div>

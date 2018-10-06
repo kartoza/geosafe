@@ -11,7 +11,7 @@
 {#                    <span aria-hidden="true">&times;</span>#}
                     <i class="fa fa-times-circle-o"></i>
                 </button>
-                <h4 class="modal-title" id="impact_card_label">Analysis Result</h4>
+                <h4 class="modal-title" id="impact_card_label">{% trans "Analysis Result" %}</h4>
             </div>
             <div class="modal-body">
                 <p class="impact-questions">
@@ -27,47 +27,47 @@
                 <div class="container col-xs-12">
                     <div class="row">
                         <div class="impact-thumbnail col-xs-6">
-                            <img style="max-height: 100%; max-width: 100%" src="{{ analysis.impact_layer.get_thumbnail_url }}"/>
+                            <img src="{{ analysis.impact_layer.get_thumbnail_url }}"/>
                         </div>
                         <div class="impact-group-button col-xs-6">
                             <div class="btn-group">
                                 <button type="button" class="btn btn-default dropdown-toggle"
                                         data-toggle="dropdown"
                                         aria-haspopup="true" aria-expanded="false">
-                                    Download <span class="caret"></span></button>
+                                    {% trans "Download" %} <span class="caret"></span></button>
                                 <ul class="dropdown-menu">
-                                   <li>
-                                        <a href="{% url "geosafe:download-report" analysis_id=analysis.id data_type="map" %}" target="_blank"
-                                           role="button">Impact report</a></li>
                                     <li>
-                                        <a href="{% url "geosafe:download-report" analysis_id=analysis.id data_type="table" %}" target="_blank"
-                                           role="button">Table report</a></li>
+                                        <a href="javascript:show_in_iframe('Impact Report', '{% url "geosafe:download-report" analysis_id=analysis.id data_type="map" %}')"
+                                           role="button">{% trans "Impact report" %}</a></li>
+                                    <li>
+                                        <a href="javascript:show_in_iframe('Impact Report', '{% url "geosafe:download-report" analysis_id=analysis.id data_type="table" %}')"
+                                           role="button">{% trans "Table report" %}</a></li>
                                     <li>
                                         <a href="{% url "geosafe:download-report" analysis_id=analysis.id data_type="reports" %}"
-                                           role="button">Download Impact & Table reports</a></li>
+                                           role="button">{% trans "Download Impact & Table reports" %}</a></li>
                                     <li>
                                         <a href="{% url "layer_detail" analysis.impact_layer.service_typename %}?show_popup=true"
-                                           role="button">Download Impact Layer</a></li>
+                                           role="button">{% trans "Download Impact Layer" %}</a></li>
                                 </ul>
                             </div>
                             <div class="save-analysis">
                                 <input type="checkbox" name="save_analysis"
                                        id="save_analysis_{{ analysis.id }}"
                                         {% if analysis.keep %}
-                                       checked
+                                       {% trans "checked" %}
                                         {% endif %}
                                         {% if not user.username %}
-                                       disabled
+                                       {% trans "disabled" %}
                                         {% endif %}
                                        data-id="{{ analysis.id }}">
-                                Save Result &nbsp;
+                                {% trans "Save Result" %} &nbsp;
                                 <span class="processing-indicator">
                                     <i class="fa fa-spinner fa-spin"></i>
-                                    PROCESSING
+                                    {% trans "PROCESSING" %}
                             </span>
                             </div>
                             <button type="button" class="btn btn-default" id="btnclose" data-dismiss="modal">
-                                Close
+                                {% trans "Close" %}
                             </button>
                         </div>
                     </div>
@@ -75,7 +75,7 @@
                     <div class="row">
                         <span class="analysis-saved"></span>
                         {% if not user.username %}
-                            <p class="alert-danger">Log in to keep analysis</p>
+                            <p class="alert-danger">{% trans "Log in to keep analysis" %}</p>
                         {% endif %}
                     </div>
                 </div>

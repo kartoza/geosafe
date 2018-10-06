@@ -1,11 +1,12 @@
 {% load geosafe_impact_summary %}
+{% load i18n %}
 {% load staticfiles %}
 <div class="impact-summary row">
     <div class="summary col-xs-6">
         <div class="row highlight">
             <div class="col-xs-8">
                 <div class="number">{{ summary.total }}</div>
-                <div class="category">Total Population</div>
+                <div class="category">{% trans "Total Population" %}</div>
             </div>
             <div class="col-xs-4">
                 {% with analysis.exposure_layer.inasafe_metadata.category as c %}
@@ -16,7 +17,7 @@
         <div class="row highlight">
             <div class="col-xs-8">
                 <div class="number">{{ summary.total_affected }}</div>
-                <div class="category">Population Affected</div>
+                <div class="category">{% trans "Population Affected" %}</div>
             </div>
             <div class="col-xs-4">
                 {% with analysis.hazard_layer.inasafe_metadata.category as c %}
@@ -26,7 +27,7 @@
         </div>
     </div>
     <div class="category-breakdown col-xs-6">
-        <div class="title text-center">Hazard areas</div>
+        <div class="title text-center">{% trans "Hazard areas" %}</div>
         <div class="content">
             {% for category, value in summary.breakdown_dict.iteritems %}
                 <div class="breakdown row {{ summary|category_css_class:category }}">
