@@ -11,7 +11,7 @@
 {#                    <span aria-hidden="true">&times;</span>#}
                     <i class="fa fa-times"></i>
                 </button>
-                <h4 class="modal-title" id="impact_card_label">Analysis Result</h4>
+                <h4 class="modal-title" id="impact_card_label">{% trans 'Analysis Result' %}</h4>
             </div>
             <div class="modal-body">
                 <p class="impact-questions">
@@ -37,37 +37,37 @@
                                        disabled
                                         {% endif %}
                                        data-id="{{ analysis.id }}">
-                                Save Result &nbsp;
+                                {% trans 'Save Result' %} &nbsp;
                                 <span class="processing-indicator">
                                     <i class="fa fa-spinner fa-spin"></i>
-                                    PROCESSING
+                                    {% trans 'PROCESSING' %}
                                 </span>
                             </div>
                             <div class="btn-group col-xs-4" style="align-self: center;">
                                 <button type="button" class="btn btn-default dropdown-toggle"
                                         data-toggle="dropdown"
                                         aria-haspopup="true" aria-expanded="false" style="float: none;">
-                                    Download
+                                    {% trans 'Download' %}
                                     <span class="caret"></span>
                                 </button>
                                 <ul class="dropdown-menu">
                                    <li>
                                         <a href="{% url "geosafe:download-report" analysis_id=analysis.id data_type="map" %}" target="_blank"
-                                           role="button">Impact report</a></li>
+                                           role="button">{% trans 'Impact report' %}</a></li>
                                     <li>
                                         <a href="{% url "geosafe:download-report" analysis_id=analysis.id data_type="table" %}" target="_blank"
-                                           role="button">Table report</a></li>
+                                           role="button">{% trans 'Table report' %}</a></li>
                                     <li>
                                         <a href="{% url "geosafe:download-report" analysis_id=analysis.id data_type="reports" %}"
-                                           role="button">Download Impact & Table reports</a></li>
+                                           role="button">{% trans 'Download Impact & Table reports' %}</a></li>
                                     <li>
                                         <a href="{% url "layer_detail" analysis.impact_layer.service_typename %}?show_popup=true"
-                                           role="button">Download Impact Layer</a></li>
+                                           role="button">{% trans 'Download Impact Layer' %}</a></li>
                                 </ul>
                             </div>
                             <div class="col-xs-4">
                                 <button type="button" class="btn btn-default" id="btnclose" data-dismiss="modal">
-                                    Close
+                                    {% trans 'Close' %}
                                     <i class="fa fa-times"></i>
                                 </button>
                             </div>
@@ -77,7 +77,7 @@
                     <div class="row">
                         <span class="analysis-saved"></span>
                         {% if not user.username %}
-                            <p class="alert-danger">Log in to keep analysis</p>
+                            <p class="alert-danger">{% trans 'Log in to keep analysis' %}</p>
                         {% endif %}
                     </div>
                 </div>
