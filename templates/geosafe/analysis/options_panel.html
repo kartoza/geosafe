@@ -119,8 +119,8 @@
         </div>
         {% endfor %}
         <div id="summary-option" class="option">
-            <a href="javascript:open_impact_report()"  {# This is temporary. We need to update show_analysis_summary() function. #}
-                title="Show Analysis Summary">
+            <a href="javascript:show_analysis_summary()"
+                title={% trans "Show Analysis Summary"%}>
                 <img src="{% static "geosafe/img/show-summary.svg" %}" alt="{% trans "Show Analysis Summary"%}" class="svg"/>
             </a>
         </div>
