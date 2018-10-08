@@ -4,7 +4,6 @@
 
 {# UX for transparency control #}
 <script type="text/javascript">
-
     /**
      * Function to set layer transparency according to slider
      */
@@ -273,28 +272,23 @@
             // Zooming magic
             // If only one of the 3 layers is selected then zoom to the layer
             {% if not analysis %}
-                if ((is_hazard != is_exposure) != is_impact) {
-                    map.fitBounds([[layer_bbox_y1, layer_bbox_x1], [layer_bbox_y0, layer_bbox_x0]]);
-                }
-                // If hazard and exposure selected intersect both extents
-                if ((layer_purpose == 'hazard' && is_exposure) || (layer_purpose == 'exposure' && is_hazard || layer_purpose == 'aggregation')) {
-                    // Intersect current extent to the input layer's extent
-                    var new_sw = [
-                        Math.max(
-                            current_bounds.getSouthWest().lat,
-                            layer_bounds.getSouthWest().lat),
-                        Math.max(
-                            current_bounds.getSouthWest().lng,
-                            layer_bounds.getSouthWest().lng)];
-                    var new_ne = [
-                        Math.min(
-                            current_bounds.getNorthEast().lat,
-                            layer_bounds.getNorthEast().lat),
-                        Math.min(
-                            current_bounds.getNorthEast().lng,
-                            layer_bounds.getNorthEast().lng)];
-                    map.fitBounds([new_sw, new_ne]);
-                }
+                // Case 1: A layer will always intersect with map's bound
+                // Case 2: Hazard and exposure selected intersect with map's bound
+                var new_sw = [
+                    Math.max(
+                        current_bounds.getSouthWest().lat,
+                        layer_bounds.getSouthWest().lat),
+                    Math.max(
+                        current_bounds.getSouthWest().lng,
+                        layer_bounds.getSouthWest().lng)];
+                var new_ne = [
+                    Math.min(
+                        current_bounds.getNorthEast().lat,
+                        layer_bounds.getNorthEast().lat),
+                    Math.min(
+                        current_bounds.getNorthEast().lng,
+                        layer_bounds.getNorthEast().lng)];
+                map.fitBounds([new_sw, new_ne]);
             {% else %}
                 // Use case: the user toggle impact layer off and on
                 if (layer_purpose == 'impact') {
