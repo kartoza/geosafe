@@ -143,13 +143,12 @@ class ImpactSummary(object):
         return []
 
     def hazard_classification(self):
-        return (
-            self.impact_keywords.get(
-                'hazard_keywords', {}).get('classification'))
+        return self.impact_keywords.get(
+            'hazard_keywords', {}).get('classification')
 
     def exposure_type(self):
-        return (
-            self.impact_keywords.get('exposure_keywords', {}).get('exposure'))
+        return self.impact_keywords.get(
+            'exposure_keywords', {}).get('exposure')
 
     def total(self):
         return int(self.impact_data.get('total'))
@@ -162,6 +161,10 @@ class ImpactSummary(object):
         for key, value in self.summary_dict().iteritems():
             ret_val[key] = int(value)
         return ret_val
+
+    def analysis_question(self):
+        return self.impact_keywords.get(
+            'provenance_data', {}).get('analysis_question')
 
     @classmethod
     def category_css_class(cls, category):
