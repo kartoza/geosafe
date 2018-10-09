@@ -1,17 +1,20 @@
 # coding=utf-8
 import logging
 import os
+import re
 import shutil
 import tempfile
 import time
 import urllib
 import urlparse
 
-import re
 import requests
-from geonode.layers.models import Layer
+from django.core.management import call_command
+from django.test import LiveServerTestCase
 
+from geonode.layers.models import Layer
 from geosafe.app_settings import settings
+from geosafe.helpers.inasafe_helper import InaSAFETestData
 from geosafe.models import Analysis, Metadata
 
 LOGGER = logging.getLogger(__file__)
@@ -210,3 +213,14 @@ def wait_metadata(layer, wait_time=1, retry_count=1200):
     if not metadata_created:
         LOGGER.debug('Exit timeout.')
         LOGGER.debug('For layer: {0}'.format(layer))
+
+
+class GeoSAFEIntegrationLiveServerTestCase(LiveServerTestCase):
+
+    def setUp(self):
+        # Flush database between each tests
+        call_command('flush', noinput=True, interactive=False)
+        # Load default people
+        call_command('loaddata', 'people_data', verbosity=0)
+        # Instantiate test data helper
+        self.data_helper = InaSAFETestData()

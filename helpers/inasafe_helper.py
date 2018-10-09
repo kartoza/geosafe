@@ -1,6 +1,10 @@
 # coding=utf-8
 import os
 from distutils.util import strtobool
+from lxml import etree
+
+from geosafe.models import ISO_METADATA_INASAFE_KEYWORD_TAG, \
+    ISO_METADATA_INASAFE_PROVENANCE_KEYWORD_TAG, ISO_METADATA_NAMESPACES
 
 INASAFE_TESTING_ENVIRONMENT = strtobool(
     os.environ.get('INASAFE_TESTING_ENVIRONMENT', 'False'))
@@ -51,3 +55,37 @@ class InaSAFETestData(object):
         :rtype: str
         """
         return cls.path_finder('aggregation', *args)
+
+    @classmethod
+    def misc(cls, *args):
+        """Resolve path to misc test data.
+
+        :return: path to safe package
+        :rtype: str
+        """
+        return cls.path_finder('misc', *args)
+
+
+def extract_inasafe_keywords_from_metadata(metadata_xml):
+    """Extract InaSAFE Metadata from a given metadata xml string.
+
+    :param metadata_xml: Metadata XML given (ISO format)
+    :type metadata_xml: basestring
+
+    :return: tuple consisting of inasafe and inasafe_provenance metadata
+    :rtype: tuple
+    """
+    root = etree.XML(metadata_xml)
+
+    inasafe_el = root.xpath(
+        ISO_METADATA_INASAFE_KEYWORD_TAG,
+        namespaces=ISO_METADATA_NAMESPACES)
+    inasafe_provenance_el = root.xpath(
+        ISO_METADATA_INASAFE_PROVENANCE_KEYWORD_TAG,
+        namespaces=ISO_METADATA_NAMESPACES)
+
+    ret_val = (
+        inasafe_el[0] if inasafe_el else None,
+        inasafe_provenance_el[0] if inasafe_provenance_el else None
+    )
+    return ret_val

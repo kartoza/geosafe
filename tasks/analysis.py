@@ -30,7 +30,9 @@ from geosafe.helpers.utils import (
     download_file,
     get_layer_path,
     get_impact_path, copy_inasafe_metadata)
-from geosafe.models import Analysis, Metadata
+from geosafe.models import Analysis, Metadata, \
+    ISO_METADATA_INASAFE_KEYWORD_TAG, \
+    ISO_METADATA_INASAFE_PROVENANCE_KEYWORD_TAG
 from geosafe.tasks.headless.analysis import (
     get_keywords, generate_report, run_analysis, RESULT_SUCCESS)
 
@@ -69,16 +71,17 @@ def inasafe_metadata_fix(layer_id):
         }
         content = xml_file.file.read()
         root = XML(content)
-        supplemental_info = root.xpath(
-            '//gmd:supplementalInformation',
-            namespaces=namespaces)[0]
+        # supplemental_info = root.xpath(
+        #     '//gmd:supplementalInformation',
+        #     namespaces=namespaces)[0]
 
         # Check that it contains InaSAFE metadata
-        inasafe_el = supplemental_info.find('inasafe')
-        inasafe_provenance_el = supplemental_info.find('inasafe_provenance')
+        inasafe_el = root.xpath(ISO_METADATA_INASAFE_KEYWORD_TAG)
+        inasafe_provenance_el = root.xpath(
+            ISO_METADATA_INASAFE_PROVENANCE_KEYWORD_TAG)
 
         # Take InaSAFE metadata
-        if inasafe_el is None:
+        if not inasafe_el:
             # Do nothing if InaSAFE tag didn't exists
             return
 
@@ -88,7 +91,7 @@ def inasafe_metadata_fix(layer_id):
             '//gmd:supplementalInformation',
             namespaces=namespaces)[0]
 
-        char_string_tagname = '{%s}CharacterString' % namespaces['gco']
+        char_string_tagname = '{gco}CharacterString'.format(**namespaces)
 
         layer_sup_info_content = layer_sup_info.find(char_string_tagname)
         if layer_sup_info_content is None:
@@ -214,8 +217,7 @@ def set_layer_purpose(keywords, layer_id):
     :return: True if success
     :rtype: bool
     """
-    layer = Layer.objects.get(id=layer_id)
-    metadata, created = Metadata.objects.get_or_create(layer=layer)
+    metadata, created = Metadata.objects.get_or_create(layer_id=layer_id)
 
     layer_purpose = keywords.get('layer_purpose', None)
     metadata.layer_purpose = (
@@ -223,7 +225,9 @@ def set_layer_purpose(keywords, layer_id):
             layer_purpose != 'hazard_aggregation_summary') else (
             'impact_analysis'))
     metadata.category = keywords.get(metadata.layer_purpose, None)
-    metadata.save()
+    Metadata.objects.filter(pk=metadata.pk).update(
+        layer_purpose=metadata.layer_purpose,
+        category=metadata.category)
 
     return True
 

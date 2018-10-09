@@ -3,32 +3,23 @@ import logging
 import time
 
 from django.contrib.auth.models import AnonymousUser
-from django.core.management import call_command
-from django.test import LiveServerTestCase
 
 from geonode.layers.models import Layer
 from geonode.layers.utils import file_upload
 from geosafe.forms import AnalysisCreationForm
-from geosafe.helpers.inasafe_helper import (
-    InaSAFETestData)
-from geosafe.helpers.utils import wait_metadata
+from geosafe.helpers.utils import wait_metadata, \
+    GeoSAFEIntegrationLiveServerTestCase
 from geosafe.models import Analysis
 from geosafe.views.analysis import retrieve_layers
 
 LOGGER = logging.getLogger(__file__)
 
 
-class ViewsTest(LiveServerTestCase):
-
-    def setUp(self):
-        # Flush database between each tests
-        call_command('flush', noinput=True, interactive=False)
-        # Load default people
-        call_command('loaddata', 'people_data', verbosity=0)
+class ViewsTest(GeoSAFEIntegrationLiveServerTestCase):
 
     def test_retrieve_layers(self):
         """Test that retrieve layers functionality works."""
-        data_helper = InaSAFETestData()
+        data_helper = self.data_helper
         filename = data_helper.hazard('flood_data.geojson')
         hazard = file_upload(filename)
 
@@ -76,17 +67,11 @@ class ViewsTest(LiveServerTestCase):
         aggregation.delete()
 
 
-class AnalysisTest(LiveServerTestCase):
-
-    def setUp(self):
-        # Flush database between each tests
-        call_command('flush', noinput=True, interactive=False)
-        # Load default people
-        call_command('loaddata', 'people_data', verbosity=0)
+class AnalysisTest(GeoSAFEIntegrationLiveServerTestCase):
 
     def test_run_analysis_no_aggregation(self):
         """Test running analysis without aggregation."""
-        data_helper = InaSAFETestData()
+        data_helper = self.data_helper
         flood = data_helper.hazard('flood_data.geojson')
         buildings = data_helper.exposure('buildings.geojson')
 
@@ -151,7 +136,7 @@ class AnalysisTest(LiveServerTestCase):
 
     def test_run_analysis_aggregation(self):
         """Test running analysis with aggregation."""
-        data_helper = InaSAFETestData()
+        data_helper = self.data_helper
         flood = data_helper.hazard('flood_data.geojson')
         buildings = data_helper.exposure('buildings.geojson')
         small_grid = data_helper.aggregation('small_grid.geojson')
@@ -225,7 +210,7 @@ class AnalysisTest(LiveServerTestCase):
 
     def test_run_analysis_selected_aggregation(self):
         """Test running analysis with aggregation."""
-        data_helper = InaSAFETestData()
+        data_helper = self.data_helper
         flood = data_helper.hazard('flood_data.geojson')
         buildings = data_helper.exposure('buildings.geojson')
         small_grid = data_helper.aggregation('small_grid.geojson')
