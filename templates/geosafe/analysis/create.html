@@ -615,6 +615,15 @@
             }).addTo(map);
 
             {# add control to select feature on aggregation layer #}
+
+            function reset_button_popover() {
+                popover_content = "{% trans 'You can choose specific aggregation polygons to simplify your analysis area.' %}";
+                feature_selector_button.button.setAttribute("data-content", popover_content);
+                feature_selector_button.button.setAttribute("title", "{% trans 'Select Features' %}");
+                feature_selector_button.button.setAttribute("data-toggle", "popover");
+                feature_selector_button.button.setAttribute("data-trigger", "manual");
+            }
+
             feature_selector_button = L.easyButton({
                 states: [
                     {
@@ -625,6 +634,7 @@
                             btn.state('deactivate');
                             // enable feature selector
                             map.addLayer(vector_aggregation_layer);
+                            reset_button_popover();
                         }
                     },
                     {
@@ -640,10 +650,13 @@
                             selected_aggregation_features = [];
                             // disable feature selector
                             map.removeLayer(vector_aggregation_layer);
+                            reset_button_popover();
                         }
                     }
                 ]
             });
+
+            reset_button_popover();
 
             feature_selector_button.addTo(map);
             {% if not analysis and not analysis.aggregation_layer_id %}
