@@ -68,7 +68,7 @@ urlpatterns = patterns(
     ),
     url(
         r'^analysis/layer-panel'
-        r'(?:/(?P<bbox>[\[\],.\d-]*))?',
+        r'(?:/(?P<bbox>[\[\] ,.\d-]*))?',
         layer_panel,
         name='layer-panel'
     ),

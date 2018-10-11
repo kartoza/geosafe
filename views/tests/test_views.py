@@ -1,11 +1,14 @@
 # coding=utf-8
+import json
 import logging
 import time
 
 from django.contrib.auth.models import AnonymousUser
+from django.core.urlresolvers import reverse
 
 from geonode.layers.models import Layer
 from geonode.layers.utils import file_upload
+from geonode.people.models import Profile
 from geosafe.forms import AnalysisCreationForm
 from geosafe.helpers.utils import wait_metadata, \
     GeoSAFEIntegrationLiveServerTestCase
@@ -65,6 +68,219 @@ class ViewsTest(GeoSAFEIntegrationLiveServerTestCase):
         hazard.delete()
         exposure.delete()
         aggregation.delete()
+
+    def test_retrieve_layers_by_permission(self):
+        """Test that only user with permission is able to see the layers."""
+        data_helper = self.data_helper
+        filename = data_helper.hazard('flood_data.geojson')
+        hazard = file_upload(filename)
+
+        wait_metadata(hazard)
+
+        # By default, all layer is public
+        layer_panel_url = reverse('geosafe:layer-panel')
+        response = self.client.get(layer_panel_url)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['user'], AnonymousUser())
+
+        sections = response.context['sections']
+        hazard_layers = sections[0]['categories'][0]['layers']
+        total_hazard_layers = sections[0]['total_layers']
+        self.assertEqual(total_hazard_layers, 1)
+        self.assertIn(hazard, hazard_layers)
+
+        # Try to restrict anon user
+        perm_spec = {
+            'users': {
+                'AnonymousUser': []
+            }
+        }
+        hazard.set_permissions(perm_spec)
+        hazard.save()
+
+        # Now anon user can't see layers
+        response = self.client.get(layer_panel_url)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['user'], AnonymousUser())
+        sections = response.context['sections']
+        hazard_layers = sections[0]['categories'][0]['layers']
+        total_hazard_layers = sections[0]['total_layers']
+        self.assertEqual(total_hazard_layers, 0)
+        self.assertNotIn(hazard, hazard_layers)
+
+        # Which means regular user will not be able to see it also
+        self.client.login(username='norman', password='norman')
+        user = Profile.objects.get(username='norman')
+
+        response = self.client.get(layer_panel_url)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['user'], user)
+        sections = response.context['sections']
+        hazard_layers = sections[0]['categories'][0]['layers']
+        total_hazard_layers = sections[0]['total_layers']
+        self.assertEqual(total_hazard_layers, 0)
+        self.assertNotIn(hazard, hazard_layers)
+
+        self.client.logout()
+
+        # However, admin user will still be able to see it
+        self.client.login(username='admin', password='admin')
+        user = Profile.objects.get(username='admin')
+
+        layer_panel_url = reverse('geosafe:layer-panel')
+        response = self.client.get(layer_panel_url)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['user'], user)
+
+        sections = response.context['sections']
+        hazard_layers = sections[0]['categories'][0]['layers']
+        total_hazard_layers = sections[0]['total_layers']
+        self.assertEqual(total_hazard_layers, 1)
+        self.assertIn(hazard, hazard_layers)
+
+        self.client.logout()
+
+        # Allow other user to see it
+        perm_spec = {
+            'users': {
+                'norman': ['view_resourcebase'],
+            }
+        }
+        hazard.set_permissions(perm_spec)
+        hazard.save()
+
+        self.client.login(username='norman', password='norman')
+        user = Profile.objects.get(username='norman')
+
+        layer_panel_url = reverse('geosafe:layer-panel')
+        response = self.client.get(layer_panel_url)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['user'], user)
+
+        sections = response.context['sections']
+        hazard_layers = sections[0]['categories'][0]['layers']
+        total_hazard_layers = sections[0]['total_layers']
+        self.assertEqual(total_hazard_layers, 1)
+        self.assertIn(hazard, hazard_layers)
+
+        self.client.logout()
+
+        # TODO: Check group permissions are obeyed
+
+        hazard.delete()
+
+    def test_retrieve_layers_by_bbox(self):
+        """Test that retrieve layers are filtered by bbox."""
+        data_helper = self.data_helper
+        filename = data_helper.hazard('flood_data.geojson')
+        hazard = file_upload(filename)
+
+        wait_metadata(hazard)
+
+        # define bbox in the form of [x0,y0,x1,y1]
+        bbox = [106.65, -6.34, 107.01, -6.09]
+
+        # Find layer that intersects with bbox
+        layer_panel_url = reverse(
+            'geosafe:layer-panel', kwargs={'bbox': json.dumps(bbox)})
+        response = self.client.get(layer_panel_url)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['user'], AnonymousUser())
+
+        sections = response.context['sections']
+        hazard_layers = sections[0]['categories'][0]['layers']
+        total_hazard_layers = sections[0]['total_layers']
+        self.assertEqual(total_hazard_layers, 1)
+        self.assertIn(hazard, hazard_layers)
+
+        # If bbox didn't intersects, it will not find the layer
+        bbox = [110, -6.34, 114, -6.09]
+
+        layer_panel_url = reverse(
+            'geosafe:layer-panel', kwargs={'bbox': json.dumps(bbox)})
+        response = self.client.get(layer_panel_url)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['user'], AnonymousUser())
+
+        sections = response.context['sections']
+        hazard_layers = sections[0]['categories'][0]['layers']
+        total_hazard_layers = sections[0]['total_layers']
+        self.assertEqual(total_hazard_layers, 0)
+        self.assertNotIn(hazard, hazard_layers)
+
+        hazard.delete()
+
+        # Let's use layer with CRS other than EPSG:4326
+        filename = data_helper.misc('flood_epsg_23833.geojson')
+        hazard = file_upload(filename)
+
+        wait_metadata(hazard)
+
+        # Redo the tests. Should still be valid
+        # define bbox in the form of [x0,y0,x1,y1]
+        bbox = [106.65, -6.34, 107.01, -6.09]
+
+        # Find layer that intersects with bbox
+        layer_panel_url = reverse(
+            'geosafe:layer-panel', kwargs={'bbox': json.dumps(bbox)})
+        response = self.client.get(layer_panel_url)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['user'], AnonymousUser())
+
+        sections = response.context['sections']
+        hazard_layers = sections[0]['categories'][0]['layers']
+        total_hazard_layers = sections[0]['total_layers']
+        self.assertEqual(total_hazard_layers, 1)
+        self.assertIn(hazard, hazard_layers)
+
+        # If bbox didn't intersects, it will not find the layer
+        bbox = [110, -6.34, 114, -6.09]
+
+        layer_panel_url = reverse(
+            'geosafe:layer-panel', kwargs={'bbox': json.dumps(bbox)})
+        response = self.client.get(layer_panel_url)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['user'], AnonymousUser())
+
+        sections = response.context['sections']
+        hazard_layers = sections[0]['categories'][0]['layers']
+        total_hazard_layers = sections[0]['total_layers']
+        self.assertEqual(total_hazard_layers, 0)
+        self.assertNotIn(hazard, hazard_layers)
+
+        # Let's check if EPSG:None in the SRID, then it should return
+        # gracefully
+
+        # QGIS Server will correct projection if we use save, thus we use
+        # update
+        Layer.objects.filter(id=hazard.id).update(srid='EPSG:None')
+
+        # valid bbox, but should return no matching layers
+        bbox = [106.65, -6.34, 107.01, -6.09]
+
+        layer_panel_url = reverse(
+            'geosafe:layer-panel', kwargs={'bbox': json.dumps(bbox)})
+        response = self.client.get(layer_panel_url)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['user'], AnonymousUser())
+
+        sections = response.context['sections']
+        hazard_layers = sections[0]['categories'][0]['layers']
+        total_hazard_layers = sections[0]['total_layers']
+        self.assertEqual(total_hazard_layers, 0)
+        self.assertNotIn(hazard, hazard_layers)
+
+        hazard.delete()
 
 
 class AnalysisTest(GeoSAFEIntegrationLiveServerTestCase):

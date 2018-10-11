@@ -3,28 +3,32 @@ import logging
 import os
 import re
 import tempfile
-import requests
 from functools import wraps
 from zipfile import ZipFile
 
+import requests
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.models import AnonymousUser
+from django.contrib.gis.db.models import GeometryField
+from django.contrib.gis.geos import Polygon
 from django.contrib.gis.geos.geometry import GEOSGeometry
 from django.core.urlresolvers import reverse
+from django.db.models import Func, Value, IntegerField, CharField
 from django.db.models.expressions import F
+from django.db.models.functions import Concat, Substr
 from django.db.models.query_utils import Q
 from django.http.response import HttpResponseServerError, HttpResponse, \
     HttpResponseBadRequest, HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404
+from django.template.response import TemplateResponse
 from django.utils.translation import ugettext as _
 from django.views.generic import (
     ListView, CreateView, DetailView)
-
-from geonode.qgis_server.helpers import qgis_server_endpoint
-from geonode.qgis_server.models import QGISServerLayer
 from guardian.shortcuts import get_objects_for_user
 
 from geonode.layers.models import Layer
+from geonode.qgis_server.helpers import qgis_server_endpoint
+from geonode.qgis_server.models import QGISServerLayer
 from geonode.utils import bbox_to_wkt
 from geosafe.app_settings import settings
 from geosafe.forms import (AnalysisCreationForm)
@@ -58,7 +62,7 @@ def retrieve_layers(
         Vary, depend on purpose. Example: 'flood', 'tsunami'
     :type category: str
 
-    :param bbox: Layer bbox to filter
+    :param bbox: Layer bbox to filter (x0,y0,x1,y1)
     :type bbox: (float, float, float, float)
 
     :param authorized_objects: List of authorized objects (list of dict of id)
@@ -83,28 +87,57 @@ def retrieve_layers(
             temp = bbox[1]
             bbox[1] = bbox[3]
             bbox[3] = temp
-        intersect = (
-            Q(layer__bbox_x0__lte=bbox[2]) &
-            Q(layer__bbox_x1__gte=bbox[0]) &
-            Q(layer__bbox_y0__lte=bbox[3]) &
-            Q(layer__bbox_y1__gte=bbox[1]) &
-            Q(layer__bbox_x0__lte=F('layer__bbox_x1')) &
-            Q(layer__bbox_y0__lte=F('layer__bbox_y1'))
-        ) | (
-            # in case of swapped value
-            Q(layer__bbox_x0__lte=bbox[2]) &
-            Q(layer__bbox_x1__gte=bbox[0]) &
-            Q(layer__bbox_y0__gte=bbox[1]) &
-            Q(layer__bbox_y1__lte=bbox[3]) &
-            Q(layer__bbox_x0__lte=F('layer__bbox_x1')) &
-            Q(layer__bbox_y1__lte=F('layer__bbox_y0'))
+
+        bbox_poly = Polygon.from_bbox(tuple(bbox))
+        bbox_poly.set_srid(4326)
+
+        # Extract from string EPSG:code of field layer__srid
+        # We use length=10 for maximum length
+        # Starting from position 6
+        # EPSG:4326 will extract 4326 of string type
+        srid_extract = Substr(
+                F('layer__srid'), Value(6), Value(10),
+                output_field=IntegerField())
+
+        # Construct WKT representation of bounding box poly geom
+        poly_expression = Concat(
+            Value('SRID='),
+            srid_extract,
+            Value(';POLYGON(('),
+            F('layer__bbox_x0'), Value(' '), F('layer__bbox_y0'), Value(','),
+            F('layer__bbox_x1'), Value(' '), F('layer__bbox_y0'), Value(','),
+            F('layer__bbox_x1'), Value(' '), F('layer__bbox_y1'), Value(','),
+            F('layer__bbox_x0'), Value(' '), F('layer__bbox_y1'), Value(','),
+            F('layer__bbox_x0'), Value(' '), F('layer__bbox_y0'), Value('))'),
+            output_field=CharField()
         )
-        metadatas = Metadata.objects.filter(
-            Q(layer_purpose=purpose),
-            intersect
-        )
+
+        # Convert WKT to Geom type
+        layer_poly = Func(
+            poly_expression,
+            function='ST_GEOMFROMTEXT',
+            output_field=GeometryField())
+
+        # Convert Geom of previous SRID to 4326
+        layer_poly_transform = Func(
+            layer_poly,
+            Value(4326),
+            function='ST_TRANSFORM',
+            output_field=GeometryField())
+
+        # Only filters layer where SRID is defined (excluding EPSG:None)
         metadatas_count_filter = Metadata.objects.filter(
-            layer_purpose=purpose)
+            Q(layer_purpose=purpose) &
+            ~Q(layer__srid__iexact='EPSG:None'))
+
+        # Create a queryset with extra field called bbox_poly
+        # From the previous constructed function
+        query_set = metadatas_count_filter.annotate(
+            bbox_poly=layer_poly_transform)
+
+        # Filter metadata by intersections with a given bbox
+        metadatas = query_set.filter(bbox_poly__intersects=bbox_poly)
+
         if category:
             metadatas = metadatas.filter(category=category)
             metadatas_count_filter = metadatas_count_filter.filter(
@@ -531,6 +564,10 @@ def layer_list(request, layer_purpose, layer_category=None, bbox=None):
 
 @decorator_sections_panel
 def layer_panel(request, bbox=None, **kwargs):
+    """
+    :param bbox: format [x0,y0,x1,y1]
+    :return:
+    """
     if request.method != 'GET':
         return HttpResponseBadRequest()
 
@@ -557,7 +594,8 @@ def layer_panel(request, bbox=None, **kwargs):
             'form': form,
             'user': request.user,
         }
-        return render(request, "geosafe/analysis/options_panel.html", context)
+        return TemplateResponse(
+            request, "geosafe/analysis/options_panel.html", context=context)
 
     except Exception as e:
         LOGGER.exception(e)
