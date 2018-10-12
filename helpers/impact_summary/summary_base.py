@@ -146,6 +146,10 @@ class ImpactSummary(object):
         return self.impact_keywords.get(
             'hazard_keywords', {}).get('classification')
 
+    def hazard_type(self):
+        return self.impact_keywords.get(
+            'hazard_keywords', {}).get('hazard')
+
     def exposure_type(self):
         return self.impact_keywords.get(
             'exposure_keywords', {}).get('exposure')
@@ -166,8 +170,7 @@ class ImpactSummary(object):
         return self.impact_keywords.get(
             'provenance_data', {}).get('analysis_question')
 
-    @classmethod
-    def category_css_class(cls, category):
+    def category_css_class(self, category):
         """Get css-class from a given category
 
         :param category: category string
@@ -188,6 +191,10 @@ class ImpactSummary(object):
         elif 'wet' in category.lower():
             return 'hazard-category-high'
         elif 'dry' in category.lower():
-            return 'hazard-category-low'
+            if self.hazard_type() == 'flood':
+                return 'hazard-category-low'
+            elif self.hazard_type() == 'tsunami':
+                return 'hazard-category-green'
+        # EQ MMI Classes
         else:
             return 'hazard-category-%s' % cleaned_category_name
