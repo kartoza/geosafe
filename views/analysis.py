@@ -32,12 +32,6 @@ from geonode.qgis_server.models import QGISServerLayer
 from geonode.utils import bbox_to_wkt
 from geosafe.app_settings import settings
 from geosafe.forms import (AnalysisCreationForm)
-from geosafe.helpers.impact_summary.polygon_people_summary import \
-    PolygonPeopleSummary
-from geosafe.helpers.impact_summary.population_summary import \
-    PopulationSummary
-from geosafe.helpers.impact_summary.road_summary import RoadSummary
-from geosafe.helpers.impact_summary.structure_summary import StructureSummary
 from geosafe.helpers.impact_summary.summary_base import ImpactSummary
 from geosafe.models import Analysis, Metadata
 from geosafe.signals import analysis_post_save
@@ -933,28 +927,13 @@ def analysis_summary(request, impact_id):
 
     try:
         analysis = Analysis.objects.get(impact_layer__id=impact_id)
-        report_type = None
         summary = ImpactSummary(analysis.impact_layer)
-        if 'structure' in summary.exposure_type():
-            report_type = 'structure'
-            summary = StructureSummary(analysis.impact_layer)
-        elif 'population' in summary.exposure_type():
-            report_type = 'population'
-            summary = PopulationSummary(analysis.impact_layer)
-        elif 'polygon people' in summary.exposure_type():
-            report_type = 'polygon_people'
-            summary = PolygonPeopleSummary(analysis.impact_layer)
-        elif 'road' in summary.exposure_type():
-            report_type = 'road'
-            summary = RoadSummary(analysis.impact_layer)
-        elif 'landcover' in summary.exposure_type():
-            report_type = 'landcover'
 
         context = {
             'analysis': analysis,
-            'report_type': report_type,
+            'report_type': summary.exposure_type(),
             'report_template': 'geosafe/analysis/summary/%s_report.html' % (
-                report_type, ),
+                summary.exposure_type(), ),
             'summary': summary
         }
 

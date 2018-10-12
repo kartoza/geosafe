@@ -200,9 +200,15 @@
     fill: #FEB24C;
 }
 .hazard-category-low .category, .hazard-category-low .value{
-    color: #1A9641;
+    color: #FFFFB2;
 }
 .hazard-category-low text, .hazard-category-low rect{
+    fill: #FFFFB2;
+}
+.hazard-category-green .category, .hazard-category-low .value{
+    color: #1A9641;
+}
+.hazard-category-green text, .hazard-category-low rect{
     fill: #1A9641;
 }
 
