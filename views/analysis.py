@@ -437,7 +437,11 @@ def layer_tiles(request):
     try:
         layer = Layer.objects.get(id=layer_id)
         if layer.srid != target_srid:
-            layer.bbox_x0, layer.bbox_y0, layer.bbox_x1, layer.bbox_y1 = transform_layer_bbox(layer, target_srid)
+            bbox_x0, bbox_y0, bbox_x1, bbox_y1 = transform_layer_bbox(layer, target_srid)
+            layer.bbox_x0 = bbox_x0
+            layer.bbox_y0 = bbox_y0
+            layer.bbox_x1 = bbox_x1
+            layer.bbox_y1 = bbox_y1
         context = {
             'layer_tiles_url': layer.get_tiles_url(),
             'layer_bbox_x0': float(layer.bbox_x0),
