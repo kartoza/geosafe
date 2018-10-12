@@ -27,7 +27,7 @@ from django.views.generic import (
 from guardian.shortcuts import get_objects_for_user
 
 from geonode.layers.models import Layer
-from geonode.qgis_server.helpers import qgis_server_endpoint
+from geonode.qgis_server.helpers import qgis_server_endpoint, transform_layer_bbox
 from geonode.qgis_server.models import QGISServerLayer
 from geonode.utils import bbox_to_wkt
 from geosafe.app_settings import settings
@@ -428,10 +428,16 @@ def layer_tiles(request):
     if request.method != 'GET':
         return HttpResponseBadRequest()
     layer_id = request.GET.get('layer_id')
+    if request.GET.get('target_srid'):
+        target_srid = request.GET.get('target_srid')
+    else:
+        target_srid = 'EPSG:4326'
     if not layer_id:
         return HttpResponseBadRequest()
     try:
         layer = Layer.objects.get(id=layer_id)
+        if layer.srid != target_srid:
+            layer.bbox_x0, layer.bbox_y0, layer.bbox_x1, layer.bbox_y1 = transform_layer_bbox(layer, target_srid)
         context = {
             'layer_tiles_url': layer.get_tiles_url(),
             'layer_bbox_x0': float(layer.bbox_x0),
