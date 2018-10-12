@@ -26,7 +26,7 @@
                 <img src="{% static "geosafe/img/"|add:s.name|add:"-menu.svg" %}" alt="{{ s.name }}-icon" class="svg"/>
             </a>
             {% if s.name == 'aggregation' %}
-            <div class="list floating-box" id="{{ s.name }}-list">
+            <div class="list floating-box section-panel" id="{{ s.name }}-list" style="padding-top: 0;padding-bottom: 0;">
                 <h4 class="list-title">{{ s.list_title }}
                 </h4>
                 <ul>

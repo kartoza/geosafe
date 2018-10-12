@@ -304,6 +304,11 @@
             $run_analysis_popover = null;
         }
 
+        if ($aggregation_popover.hasClass('set') && vector_aggregation_layer) {
+            var $button = $(feature_selector_button.button);
+            $button.popover('show');
+        }
+
         {# show run button popover if hazard and exposure were selected #}
         {% if not analysis %}
             var analysis_url = '{% url 'geosafe:calculate-area' %}';

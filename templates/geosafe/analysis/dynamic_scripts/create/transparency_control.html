@@ -256,6 +256,9 @@
                 vector_aggregation_layer = add_vector_aggregation_layer(layer_id);
                 if (vector_aggregation_layer) {
                     feature_selector_button.enable();
+
+{#                    var $button = $(feature_selector_button.button);#}
+{#                    $button.popover('show');#}
                 }
 
             } else if (layer_purpose == 'impact') {
