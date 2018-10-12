@@ -4,25 +4,25 @@
 
 <div class="impact-summary row">
     <div class="highlight col-xs-6" style="padding: 15px;">
-        <div class="col-xs-8">
-            <div class="number">{{ summary.total }}</div>
-            <div class="category">{% trans 'Total Population' %}</div>
-        </div>
-        <div class="col-xs-4">
+        <div class="col-xs-4" style="height: 100%">
             {% with analysis.exposure_layer.inasafe_metadata.category as c %}
             <img src="{% static "geosafe/img/"|add:c|add:".svg" %}" alt="{{ c }}" class="svg"/>
             {% endwith %}
         </div>
-    </div>
-    <div class="highlight col-xs-6" style="padding: 15px;">
         <div class="col-xs-8">
             <div class="number">{{ summary.total }}</div>
-            <div class="category">{% trans 'Population Affected' %}</div>
+            <div class="category">{% trans 'Total Population' %}</div>
         </div>
-        <div class="col-xs-4">
+    </div>
+    <div class="highlight col-xs-6" style="padding: 15px;">
+        <div class="col-xs-4" style="height: 100%">
             {% with analysis.hazard_layer.inasafe_metadata.category as c %}
             <img src="{% static "geosafe/img/"|add:c|add:".svg" %}" alt="{{ c }}" class="svg"/>
             {% endwith %}
+        </div>
+        <div class="col-xs-8">
+            <div class="number">{{ summary.total }}</div>
+            <div class="category">{% trans 'Population Affected' %}</div>
         </div>
     </div>
 </div>

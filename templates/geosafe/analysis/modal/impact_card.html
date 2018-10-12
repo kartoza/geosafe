@@ -14,7 +14,7 @@
                 <h4 class="modal-title" id="impact_card_label">{% trans 'Analysis Result' %}</h4>
             </div>
             <div class="modal-body">
-                <p class="impact-questions">
+                <p class="impact-questions" align="center">
                     {% if summary.analysis_question %}
                         {{ summary.analysis_question }}
                     {% elif summary.exposure_type != 'polygon people' and summary.exposure_type != 'population' %}
@@ -27,25 +27,9 @@
             </div>
             <div class="modal-footer">
                 <div class="container col-xs-12">
-                    <div class="row">
+                    <div class="row" style="margin-top: -15px;">
                         <div class="impact-group-button" style="height: 50px;">
-                            <div class="save-analysis col-xs-4">
-                                <input type="checkbox" name="save_analysis"
-                                       id="save_analysis_{{ analysis.id }}"
-                                        {% if analysis.keep %}
-                                       checked
-                                        {% endif %}
-                                        {% if not user.username %}
-                                       disabled
-                                        {% endif %}
-                                       data-id="{{ analysis.id }}">
-                                {% trans 'Save Result' %} &nbsp;
-                                <span class="processing-indicator">
-                                    <i class="fa fa-spinner fa-spin"></i>
-                                    {% trans 'PROCESSING' %}
-                                </span>
-                            </div>
-                            <div class="btn-group col-xs-4" style="align-self: center;">
+                            <div class="btn-group col-xs-3">
                                 <button type="button" class="btn btn-default dropdown-toggle"
                                         data-toggle="dropdown"
                                         aria-haspopup="true" aria-expanded="false" style="float: none;">
@@ -67,11 +51,21 @@
                                            role="button">{% trans 'Download Impact Layer' %}</a></li>
                                 </ul>
                             </div>
-                            <div class="col-xs-4">
-                                <button type="button" class="btn btn-default" id="btnclose" data-dismiss="modal">
-                                    {% trans 'Close' %}
-                                    <i class="fa fa-times"></i>
-                                </button>
+                            <div class="save-analysis col-xs-3">
+                                <input type="checkbox" name="save_analysis"
+                                       id="save_analysis_{{ analysis.id }}"
+                                        {% if analysis.keep %}
+                                       checked
+                                        {% endif %}
+                                        {% if not user.username %}
+                                       disabled
+                                        {% endif %}
+                                       data-id="{{ analysis.id }}">
+                                {% trans 'Save Result' %} &nbsp;
+                                <span class="processing-indicator">
+                                    <i class="fa fa-spinner fa-spin"></i>
+                                    {% trans 'PROCESSING' %}
+                                </span>
                             </div>
                         </div>
                     </div>
