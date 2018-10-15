@@ -68,3 +68,11 @@ INASAFE_ANALYSIS_RUN_TIME_LIMIT = literal_eval(os.environ.get(
 # with warning that analysis will might take a long time.
 INASAFE_ANALYSIS_AREA_LIMIT = literal_eval(os.environ.get(
     'INASAFE_ANALYSIS_AREA_LIMIT', '1000000000'))
+
+
+# Define default settings for qgis report template
+QGIS_REPORT_TEMPLATE_DIRECTORY = (
+    '/usr/src/geosafe/templates/geosafe/qgis_templates')
+LOCALIZED_QGIS_REPORT_TEMPLATE = {
+    'en': os.path.join(QGIS_REPORT_TEMPLATE_DIRECTORY, 'en', 'map_report.qpt')
+}

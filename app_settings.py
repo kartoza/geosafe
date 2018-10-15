@@ -70,6 +70,9 @@ class SettingsWrapper(object):
             if not self.INASAFE_IMPACT_BASE_URL:
                 message = "INASAFE_IMPACT_BASE_URL not set."
                 raise ImproperlyConfigured(message)
+            if not self.QGIS_REPORT_TEMPLATE_DIRECTORY:
+                message = "CUSTOM_REPORT_TEMPLATE_DIRECTORY not set."
+                raise ImproperlyConfigured(message)
 
 
 settings = SettingsWrapper()

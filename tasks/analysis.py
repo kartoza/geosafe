@@ -417,7 +417,12 @@ def process_impact_result(self, impact_result, analysis_id):
             impact_result['output'].get('analysis_summary'))
 
         # generate report when analysis has ran successfully
-        async = generate_report.delay(impact_url)
+        custom_template = settings.LOCALIZED_QGIS_REPORT_TEMPLATE.get(
+            analysis.language_code)
+        async = generate_report.delay(
+            impact_url,
+            custom_report_template_uri=custom_template,
+            locale=analysis.language_code)
         with allow_join_result():
             report_metadata = async.get().get('output', {})
 
@@ -603,27 +608,19 @@ def process_impact_report(analysis, report_metadata):
     """
     success = False
     try:
-        # extract report (map and table report)
-        map_reports = [
-            'inasafe-map-report-portrait',  # pdf product
-            'inasafe-map-report-landscape',  # pdf product
-        ]
-        table_reports = [
-            'impact-report',  # html product
-            'impact-report-pdf'  # pdf product
-        ]
-
         # upload using document upload form post request
         # TODO: find out how to upload document using post request
 
-        # assign report to analysis model
-        if os.path.exists(report_metadata['pdf_product_tag'][map_reports[0]]):
-            analysis.assign_report_map(
-                report_metadata['pdf_product_tag'][map_reports[0]])
-        if os.path.exists(
-                report_metadata['pdf_product_tag'][table_reports[1]]):
-            analysis.assign_report_table(
-                report_metadata['pdf_product_tag'][table_reports[1]])
+        for key in report_metadata['pdf_product_tag'].keys():
+            map_report_exists = (
+                'map-report' in key and os.path.exists(
+                    report_metadata['pdf_product_tag'][key]))
+            table_report_exists = (
+                'impact-report-pdf' in key and os.path.exists(
+                    report_metadata['pdf_product_tag'][key]))
+            if map_report_exists or table_report_exists:
+                analysis.assign_report_map(
+                    report_metadata['pdf_product_tag'][key])
         analysis.save()
 
         # reference to impact layer

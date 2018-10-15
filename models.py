@@ -210,6 +210,14 @@ class Analysis(models.Model):
         default=datetime.now
     )
 
+    language_code = models.CharField(
+        max_length=10,
+        verbose_name='Language Code',
+        help_text='Language being used by the django app',
+        blank=True,
+        null=True
+    )
+
     def assign_report_map(self, filename):
         try:
             self.report_map.delete()
