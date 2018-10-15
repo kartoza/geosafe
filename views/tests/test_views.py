@@ -282,6 +282,68 @@ class ViewsTest(GeoSAFEIntegrationLiveServerTestCase):
 
         hazard.delete()
 
+    def test_layer_tiles_info(self):
+        """Test that layer tiles info were returned."""
+        data_helper = self.data_helper
+        flood = data_helper.hazard('flood_data.geojson')
+        layer = file_upload(flood)
+
+        # Flood in EPSG:4326
+        layer_tiles_url = reverse('geosafe:layer-tiles')
+
+        params = {
+            'layer_id': layer.id,
+            'target_srid': 'EPSG:4326'
+        }
+
+        response = self.client.get(layer_tiles_url, data=params)
+
+        self.assertEqual(response.status_code, 200)
+        data = json.loads(response.content)
+        self.assertTrue(data['layer_name'].startswith('Jakarta Flood'))
+        self.assertTrue(
+            data['layer_tiles_url'].endswith(
+                'qgis-server/tiles/flood_data/{z}/{x}/{y}.png'))
+        self.assertTrue(
+            data['legend_url'].endswith(
+                'qgis-server/legend/flood_data'))
+
+        self.assertAlmostEqual(data['layer_bbox_x0'], 106.691, 3)
+        self.assertAlmostEqual(data['layer_bbox_x1'], 106.943, 3)
+        self.assertAlmostEqual(data['layer_bbox_y0'], -6.347, 3)
+        self.assertAlmostEqual(data['layer_bbox_y1'], -6.092, 3)
+
+        layer.delete()
+
+        # Flood in EPSG:23833
+        flood_23833 = data_helper.misc('flood_epsg_23833.geojson')
+        layer = file_upload(flood_23833)
+        self.assertEqual(layer.srid, 'EPSG:23833')
+
+        params = {
+            'layer_id': layer.id
+        }
+
+        # This request should ask for EPSG:4326 by default
+        response = self.client.get(layer_tiles_url, data=params)
+
+        self.assertEqual(response.status_code, 200)
+        data = json.loads(response.content)
+        self.assertTrue(data['layer_name'].startswith('Jakarta Flood'))
+        self.assertTrue(
+            data['layer_tiles_url'].endswith(
+                'qgis-server/tiles/flood_epsg_23833/{z}/{x}/{y}.png'))
+        self.assertTrue(
+            data['legend_url'].endswith(
+                'qgis-server/legend/flood_epsg_23833'))
+
+        self.assertAlmostEqual(data['layer_bbox_x0'], 106.691, 3)
+        self.assertAlmostEqual(data['layer_bbox_x1'], 106.944, 3)
+        self.assertAlmostEqual(data['layer_bbox_y0'], -6.348, 3)
+        self.assertAlmostEqual(data['layer_bbox_y1'], -6.092, 3)
+
+        layer.delete()
+
 
 class AnalysisTest(GeoSAFEIntegrationLiveServerTestCase):
 

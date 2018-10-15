@@ -27,7 +27,9 @@ from django.views.generic import (
 from guardian.shortcuts import get_objects_for_user
 
 from geonode.layers.models import Layer
-from geonode.qgis_server.helpers import qgis_server_endpoint, transform_layer_bbox
+from geonode.qgis_server.helpers import (
+    qgis_server_endpoint,
+    transform_layer_bbox)
 from geonode.qgis_server.models import QGISServerLayer
 from geonode.utils import bbox_to_wkt
 from geosafe.app_settings import settings
@@ -436,18 +438,15 @@ def layer_tiles(request):
         return HttpResponseBadRequest()
     try:
         layer = Layer.objects.get(id=layer_id)
-        if layer.srid != target_srid:
-            bbox_x0, bbox_y0, bbox_x1, bbox_y1 = transform_layer_bbox(layer, target_srid)
-            layer.bbox_x0 = bbox_x0
-            layer.bbox_y0 = bbox_y0
-            layer.bbox_x1 = bbox_x1
-            layer.bbox_y1 = bbox_y1
+        # Use QGIS Server bbox conventions
+        bbox_x0, bbox_y0, bbox_x1, bbox_y1 = transform_layer_bbox(
+            layer, target_srid)
         context = {
             'layer_tiles_url': layer.get_tiles_url(),
-            'layer_bbox_x0': float(layer.bbox_x0),
-            'layer_bbox_x1': float(layer.bbox_x1),
-            'layer_bbox_y0': float(layer.bbox_y0),
-            'layer_bbox_y1': float(layer.bbox_y1),
+            'layer_bbox_x0': float(bbox_x0),
+            'layer_bbox_x1': float(bbox_x1),
+            'layer_bbox_y0': float(bbox_y0),
+            'layer_bbox_y1': float(bbox_y1),
             'layer_name': layer.title,
             'legend_url': layer.get_legend_url()
         }
