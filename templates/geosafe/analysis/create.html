@@ -553,6 +553,8 @@
                 zoom_to_box(map, [0, 45, 0, -45]);
             {% endif %}
 
+            filter_layer(map.getBounds());
+
             {# At the end of map dragging, always filter layer #}
             map.on('moveend', function (e) {
                 filter_layer(map.getBounds());
