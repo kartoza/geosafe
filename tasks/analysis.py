@@ -6,6 +6,7 @@ import glob
 import json
 import logging
 import os
+import shutil
 import tempfile
 import urlparse
 from datetime import datetime
@@ -417,12 +418,23 @@ def process_impact_result(self, impact_result, analysis_id):
             impact_result['output'].get('analysis_summary'))
 
         # generate report when analysis has ran successfully
-        custom_template = settings.LOCALIZED_QGIS_REPORT_TEMPLATE.get(
+        custom_template_path = None
+        setting_template_path = settings.LOCALIZED_QGIS_REPORT_TEMPLATE.get(
             analysis.language_code)
+        if os.path.exists(setting_template_path):
+            filename = os.path.basename(setting_template_path)
+            custom_template_path = os.path.join(
+                settings.INASAFE_LAYER_DIRECTORY_BASE_PATH, filename)
+            if not os.path.exists(custom_template_path):
+                shutil.copy(setting_template_path, custom_template_path)
+            if os.path.exists(custom_template_path):
+                custom_template_path = get_layer_path(custom_template_path)
+
         async = generate_report.delay(
             impact_url,
-            custom_report_template_uri=custom_template,
+            custom_report_template_uri=custom_template_path,
             locale=analysis.language_code)
+
         with allow_join_result():
             report_metadata = async.get().get('output', {})
 
@@ -618,8 +630,11 @@ def process_impact_report(analysis, report_metadata):
             table_report_exists = (
                 'impact-report-pdf' in key and os.path.exists(
                     report_metadata['pdf_product_tag'][key]))
-            if map_report_exists or table_report_exists:
+            if map_report_exists:
                 analysis.assign_report_map(
+                    report_metadata['pdf_product_tag'][key])
+            if table_report_exists:
+                analysis.assign_report_table(
                     report_metadata['pdf_product_tag'][key])
         analysis.save()
 
