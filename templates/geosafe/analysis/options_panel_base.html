@@ -1,0 +1,137 @@
+{% load bootstrap_tags %}
+{% load staticfiles %}
+{% load i18n avatar_tags %}
+
+{% block options_panel %}
+    {% for s in sections %}
+        {% if not s.name == 'impact' %}
+        <div class="{{ s.name }} section">
+            <div class="option">
+                <h4 class="section-title">{{ s.name|capfirst }}</h4>
+                <a id="{{ s.name }}-section-link" href="#" class="menu-icon {% if s.total_layers > 0 %}has-children{% endif %}"
+                    {% if s.name == 'hazard' %}
+                    data-toggle="popover" data-trigger="manual" title="Select Hazard"
+                    data-content="{% trans "To get started, select hazard layer that you want to use." %}"
+                    >
+                    {% elif s.name == 'exposure' %}
+                    data-toggle="popover" data-trigger="manual" title="Select Exposure"
+                    data-content="{% trans "Now choose an exposure dataset." %}"
+                    >
+                    {% elif s.name == 'aggregation' %}
+                    data-toggle="popover" data-trigger="manual"
+                    >
+                    {% endif %}
+                    {% if s.total_layers > 0 %}
+                    <span class="badge">{{ s.total_layers }}</span>
+                    {% endif %}
+                    <img src="{% static "geosafe/img/"|add:s.name|add:"-menu.svg" %}" alt="{{ s.name }}-icon" class="svg"/>
+                </a>
+                {% if s.name == 'aggregation' %}
+                <div class="list floating-box section-panel" id="{{ s.name }}-list" style="padding-top: 0;padding-bottom: 0;">
+                    <h4 class="list-title">{{ s.list_title }}
+                    </h4>
+                    <ul>
+                        {% for e in s.layers %}
+                            <li>
+                                <a href="javascript:update_{{ s.name }}_layer({{ e.id }})" data-id="{{ e.id }}">{{ e.title }}</a>
+                            </li>
+                        {% empty %}
+                            <p>No {{ c.name }} layer for the extent.</p>
+                            <a href="{% url "layer_upload" %}" class="btn btn-default">{% trans "Upload Layer" %}</a>
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% endif %}
+            </div>
+            {% if not s.name == 'aggregation' %}
+            <div class="section-panel">
+                <div class="filtered-status {{ s.filter_status }}">
+                    <span class="filtered-text">Filtered</span>
+                    <span class="unfiltered-text">Unfiltered</span>
+                </div>
+                {% for c in s.categories %}
+                <div class="option">
+                    <a href="#"
+                       id="{{ c.name }}" class="{% if c.layers|length > 0 %}has-children{% endif %}"
+                       title="{{ c.name|capfirst }}">
+                        {% if c.total_layers > 0 %}
+                        <span class="badge">{{ c.total_layers }}</span>
+                        {% endif %}
+                        <img src="{% static "geosafe/img/"|add:c.name|add:".svg" %}" alt="{{ c.name }}" class="svg"/>
+                    </a>
+                    <div class="list floating-box" id="{{ c.name }}-list">
+                        <h4 class="list-title">{{ c.list_title }}
+                        </h4>
+                        <ul>
+                            {% for e in c.layers %}
+                                <li>
+                                    <a href="javascript:update_{{ s.name }}_layer({{ e.id }})" data-id="{{ e.id }}">{{ e.title }}</a>
+                                </li>
+                            {% empty %}
+                                <p>No {{ c.name }} layer for the extent.</p>
+                                <a href="{% url "layer_upload" %}" class="btn btn-default">{% trans "Upload Layer" %}</a>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+        {% else %}
+        {# for impact #}
+        <div class="analysis section">
+            <form action="" method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div style="display: none;">
+                    {{ form|as_bootstrap }}
+                </div>
+                <button id="run-analysis-submit-button" type="submit" class="btn btn-primary" disabled
+                    data-toggle="popover" data-trigger="manual">
+                    {% trans "Run" %}
+                </button>
+            </form>
+        </div>
+        <div class="report option">
+            <h4 class="section-title">{% trans "Reports" %}</h4>
+            {% for c in s.categories %}
+            <div id="impact-option" class="option">
+                <a href="#"
+                   id="{{ c.name }}" class="{% if c.layers|length > 0 %}has-children{% endif %}"
+                   title="{{ c.name|capfirst }}">
+                    {% if c.total_layers > 0 %}
+                    <span class="badge">{{ c.total_layers }}</span>
+                    {% endif %}
+                    <img src="{% static "geosafe/img/"|add:c.name|add:".svg" %}" alt="{{ c.name }}" class="svg"/>
+                </a>
+                <div class="list floating-box" id="{{ c.name }}-list">
+                    <h4 class="list-title">{% trans "Select an impact layer" %}</h4>
+                    <ul>
+                        {% for e in c.layers %}
+                            <li>
+                                <a href="javascript:update_{{ s.name }}_layer({{ e.id }})" data-id="{{ e.id }}">{{ e.title }}</a>
+                            </li>
+                        {% empty %}
+                            <p>No {{ c.name }} layer for the extent.</p>
+                            <p>{% trans "Run analysis to create impact layer"%}</p>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+            {% endfor %}
+            <div id="summary-option" class="option">
+                <a href="javascript:show_analysis_summary()"
+                    title={% trans "Show Analysis Summary"%}>
+                    <img src="{% static "geosafe/img/show-summary.svg" %}" alt="{% trans "Show Analysis Summary"%}" class="svg"/>
+                </a>
+            </div>
+            <div class="option">
+                <a href="{% url "geosafe:analysis-create" %}" title="{% trans "Start Again"%}">
+                    <i class="fa fa-undo" aria-hidden="true"></i>
+                </a>
+            </div>
+        </div>
+
+        {% endif %}
+    {% endfor %}
+{% endblock options_panel %}

@@ -1,0 +1,794 @@
+{% extends 'geonode_base.html' %}
+{% load bootstrap_tags %}
+{% load staticfiles %}
+{% load i18n avatar_tags %}
+{% load leaflet_tags %}
+
+{% block extra_head %}
+    {% leaflet_css %}
+    <link rel="stylesheet" href="{% static 'geosafe/css/easy-button.css' %}"/>
+    <link rel="stylesheet" href="{% static 'geosafe/css/main.css' %}"/>
+    <link rel="stylesheet" href="{% static 'geosafe/css/bootstrap-slider.min.css' %}"/>
+    <style type="text/css">
+        html, body, #wrap {
+            height: 100%;
+            width: 100%;
+            padding-top: 0;
+            padding-bottom: 0;
+        }
+
+        .section {
+            position: relative;
+            cursor: pointer;
+        }
+
+        .section.set h4 {
+            color: #50cf5c;
+        }
+
+        .section:hover {
+            color: #fff
+        }
+
+        .section-panel {
+            position: absolute;
+            left: 85px;
+            top: 0;
+            background: #333333;
+            float: left;
+            display: none;
+            padding: 10px 0;
+            border-radius: 8px;
+        }
+
+        .section-panel .filtered-status.filtered .filtered-text,
+        .section-panel .filtered-status.unfiltered .unfiltered-text {
+            display: block;
+        }
+
+        .section-panel .filtered-status.filtered .unfiltered-text,
+        .section-panel .filtered-status.unfiltered .filtered-text {
+            display: none;
+        }
+
+        .section.show .section-panel {
+            display: block;
+        }
+
+        .options-panel {
+            position: fixed;
+            left: 0;
+            width: 70px;
+            height: 100%;
+            background: #333333;
+            color: #757575;
+            text-align: center;
+            font-size: 12px;
+            z-index: 401;
+        }
+
+        .options-panel .option {
+            position: relative;
+            margin: 11px 0;
+        }
+
+        .option > a, .search > a, .report > a {
+            color: #757575;
+            text-decoration: none;
+            font-size: 22px;
+            display: block;
+            margin: 0 12px;
+            height: 40px;
+            width: 40px;
+            position: relative;
+            -moz-border-radius: 5px;
+            -webkit-border-radius: 5px;
+            border-radius: 5px;
+        }
+
+        .options-panel .option:first-child {
+            margin-top: 0;
+        }
+
+        .options-panel .option:last-child {
+            margin-bottom: 0;
+        }
+
+        .options-panel svg, .options-panel i {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            width: 30px;
+            margin: auto;
+        }
+
+        .options-panel .section {
+            padding: 10px 0;
+            border-bottom: 1px solid #6d6c6c;
+        }
+
+        .options-panel .section-title {
+            line-height: 12px;
+            margin: 12px 0;
+            font-weight: normal;
+            font-size: 12px;
+        }
+
+        .option {
+            display: inline-block;
+        }
+
+        a:hover .svg path, a.selected .svg path {
+            fill: #fff;
+        }
+
+        /* badge style */
+        .option .badge {
+            position: relative;
+            top: -20px;
+            right: -18px;
+            background-color: #757575;
+        }
+
+        .option .set .badge {
+            background-color: #50cf5c;
+        }
+
+        .option .has-children:not(.set) .badge {
+            background-color: #3db2dd;
+        }
+
+        /* link border style */
+        a.set {
+            border: 2px solid #50cf5c;
+        }
+
+        a.set .svg path {
+            fill: #50cf5c;
+        }
+
+        a.set i {
+            color: #50cf5c;
+        }
+
+        a:not(.set).has-children {
+            border: 2px solid #3db2dd;
+        }
+
+        /* icon style */
+        a:not(.set).has-children .svg path {
+            fill: #3db2dd;
+        }
+
+        a:not(.set):hover i {
+            color: #fff;
+        }
+
+        .options-panel .search a {
+            height: auto;
+        }
+
+        .options-panel .search a:hover, .options-panel .option > a.inactive:hover {
+            background: none;
+        }
+
+        .options-panel .inactive .svg path {
+            fill: #181818;
+        }
+
+        /* triangle for has-children indicator */
+        .options-panel a.has-children:after {
+            content: "";
+            position: absolute;
+            top: 16px;
+            right: -7px;
+            width: 0;
+            height: 0;
+            border-style: solid;
+            border-width: 6.5px 0 6.5px 7px;
+            border-color: transparent transparent transparent #3db2dd;
+        }
+
+        .options-panel a.has-children:after {
+            top: 14px;
+            right: -9px;
+        }
+
+        .options-panel a.has-children.set:after, .options-panel a.has-children.set:hover:after {
+            border-color: transparent transparent transparent #50cf5c;
+        }
+
+        .options-panel a.one:after, .options-panel a.one:hover:after {
+            border: 0;
+        }
+
+        .options-panel .list {
+            display: none;
+            position: absolute;
+            left: 82px;
+            top: 0;
+            min-width: 160px;
+            background: rgba(51, 51, 51, 0.95);
+            -moz-border-radius: 5px;
+            -webkit-border-radius: 5px;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        .options-panel .list.show {
+            display: block;
+        }
+
+        .options-panel .list:hover {
+            display: block;
+        }
+
+        .popover {
+            width: 300px;
+            color: #757575;
+        }
+
+        #impact-function i {
+            font-size: 40px;
+            width: 40px;
+        }
+
+        #impact-function.loading svg, #impact-function i {
+            display: none;
+        }
+
+        #impact-function.loading i, #impact-function svg {
+            display: block;
+        }
+
+        .list-title {
+            font-size: 14px;
+            margin: 0;
+            padding-left: 10px;
+            padding-right: 10px;
+            line-height: 40px;
+            color: #fff;
+            background: rgba(24, 24, 24, 0.5);
+            position: relative;
+            white-space: nowrap;
+        }
+
+        .list ul {
+            padding-left: 10px;
+            padding-right: 10px;
+            line-height: 30px;
+            font-size: 14px;
+        }
+
+        .list ul a {
+            font-size: 14px;
+            color: #979797;
+            text-decoration: none;
+            white-space: nowrap;
+        }
+
+        .list ul a:hover, .list ul li.selected a, .list ul li.selected {
+            color: #fff;
+        }
+
+        .list-title:after {
+            position: absolute;
+            left: -7px;
+            top: 17px;
+            width: 0;
+            height: 0;
+            border-style: solid;
+            border-width: 6.5px 7px 6.5px 0;
+            border-color: transparent rgba(244, 244, 244, 0.9) transparent transparent;
+        }
+
+        .list ul .selected a, .list ul .selected {
+            color: #50cf5c;
+        }
+
+        .list li {
+            text-align: left;
+            padding-left: 20px;
+            padding-right: 20px;
+        }
+
+        .leaflet-top, .leaflet-bottom {
+            bottom: 46px;
+            z-index: 400;
+        }
+
+        .status-bar {
+            position: fixed;
+            bottom: 0;
+            background: rgba(51, 51, 51, 0.8);
+            color: #757575;
+            width: 100%;
+            height: 46px;
+            z-index: 400;
+        }
+
+        .info-box {
+            vertical-align: middle;
+            float: none;
+            color: #fff;
+        }
+
+        .info-text {
+            color: #979797;
+        }
+
+        .btn .fa-check {
+            display: none;
+        }
+
+        .btn.active .fa-check {
+            display: inline-block;
+            color: #50cf5c;
+        }
+
+        .btn .fa-close {
+            display: inline-block;
+            color: #f15a2b;
+        }
+
+        .btn.active .fa-close {
+            display: none;
+        }
+
+        .btn.processing .fa-close {
+            display: none;
+        }
+
+        .btn .fa-spinner {
+            display: none;
+        }
+
+        .btn.processing .fa-spinner {
+            display: inline-block;
+        }
+
+        .slow-loading {
+            width: auto;
+            height: auto;
+            position: relative;
+            float: left;
+            z-index: 1000;
+        }
+
+        .legend {
+            width: auto;
+            height: auto;
+            position: relative;
+            float: right;
+            margin: 30px;
+            display: block;
+            z-index: 1000;
+            padding: 0px;
+            border: 1px solid #6d6c6c;
+            border-radius: 5px;
+            background-color: #FFFFFF;
+        }
+
+        .legend p {
+            font-size: 14px;
+            font-style: oblique;
+            margin: 3px
+        }
+
+        #legend-title h5 {
+            float: center;
+            padding: 5px;
+        }
+
+        #legend-body {
+            float: center;
+            display: block;
+            padding: 5px;
+        }
+
+        /* overwrite the assets.min.css in geonode as this property cause misalignment in zoom buttons */
+        .leaflet-control-zoom, .leaflet-control-zoomslider {
+            left: 0px !important;
+            z-index: 500;
+        }
+
+    </style>
+{% endblock extra_head %}
+
+{% block header %}
+    {# intended to be empty #}
+{% endblock header %}
+
+
+{% block body_outer %}
+    </div><!-- close .container -->
+    <div class="options-panel">
+        {#    <div class="search section"> <a href="#" id="search-call"><i class="fa fa-search"></i></a> </div>#}
+        <div class="brand section">
+            <a href="{% url "home" %}"
+               title="To Homepage"
+               data-toggle="tooltip"
+               data-placement="right">
+                <img src="{% static 'geosafe/img/logo-geonode.png' %}"
+                     href="{% url "home" %}"/>
+            </a>
+        </div>
+        <div class="layer-list">
+            {% include "geosafe/analysis/options_panel.html" %}
+        </div>
+    </div>
+    <!-- Waiting Analysis Modal -->
+    {% include "geosafe/analysis/modal/waiting_analysis.html" %}
+    {% include "geosafe/analysis/modal/analysis_confirmation.html" %}
+    {% include "geosafe/analysis/modal/impact_card.html" %}
+    {% include "geosafe/analysis/modal/iframe_modal.html" %}
+    <div id="map" style="width: 100%; height: 100%; position:relative; margin-left: 70px; ">
+        <div class="slow-loading">
+            <i class="fa fa-spinner fa-spin"></i>&nbsp;{% trans "Please wait while the page is loading...." %}
+        </div>
+        {% include "geosafe/analysis/legend.html" %}
+        <div class="modal fade" id="upgrade-browser" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+             aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                        <h4 class="modal-title" id="myModalLabel">{% trans "Upgrade Your Browser" %}</h4>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row edit-modal">
+                            <!--div class="col-sm-3"-->
+                            <div class="col-sm-12">
+                                <p>You seem to use an old browser.<br/>Please consider upgrading to the newer version to
+                                    fully use the website</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">{% trans "Close" %}</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock body_outer %}
+
+{% block footer %}
+    <div class="status-bar">
+        <div class="info-box text-center panel-body">
+            <span class="info-title panel-title panel-heading"></span>
+            <span class="info-text"></span>
+        </div>
+    </div>
+{% endblock %}
+
+{% block extra_script %}
+    {% leaflet_js %}
+    <script type="text/javascript" src="{% static 'geosafe/js/easy-button.js' %}"></script>
+    <script type="text/javascript" src="{% static 'geosafe/js/analysis.js' %}"></script>
+    <script type="text/javascript" src="{% static 'geosafe/js/bootstrap-slider.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'geosafe/js/modernizr-custom.js' %}"></script>
+    <script type="text/javascript" src="{% static 'geosafe/js/numeral.min.js' %}"></script>
+
+    {# Separate common function and variables in another file for organization reasons #}
+    {% include  "geosafe/analysis/dynamic_scripts/create/main.html" %}
+
+    <script type="text/javascript">
+        window.onload = function() {
+            //page fully loaded, hide the slow-loading notification
+            $(".slow-loading").toggle(false);
+        };
+
+        {# Initialization script of the page. #}
+        $(document).ready(function () {
+            $(".slow-loading").toggle(true);
+
+            //check browser compatibility against ECMA Script 5
+            if (!Modernizr.json || !Modernizr.es5) {
+                $('#upgrade-browser').modal('toggle');
+            }
+
+            // Legend
+            $(".legend").toggle(is_legend);
+            $("#legend-exposure-body").toggle(is_exposure);
+            $("#legend-hazard-body").toggle(is_hazard);
+            $("#legend-aggregation-body").toggle(is_aggregation);
+            $("#legend-impact-body").toggle(is_impact);
+            //hide/view legend
+            $("#legend-title").click(function () {
+                $("#legend-body").toggle();
+            });
+
+            // Add scrollbar in case of overflowing in dimension-y
+            $("#legend-body").css("max-height", 0.7 * w_height);
+            $("#legend-body").css("overflow-y", "auto")
+
+            {# initialize tooltip #}
+            $(function () {
+                $('[data-toggle="tooltip"]').tooltip({container: 'body'});
+            });
+
+            {# initialize popover #}
+            $(function () {
+                $('[data-toggle="popover"]').popover()
+            });
+
+            check_popover();
+
+            var OpenMapSurfer_Roads = L.tileLayer('http://korona.geog.uni-heidelberg.de/tiles/roads/x={x}&y={y}&z={z}', {
+                zIndex: 0,
+                noWrap: true,
+                attribution: 'Imagery from <a href="http://giscience.uni-hd.de/">GIScience Research Group @ University of Heidelberg</a> &mdash; Map data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+            });
+            var osm = L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                zIndex: 0,
+                attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+            });
+            var base_maps = {
+                'OpenMapSurfer_Roads': OpenMapSurfer_Roads,
+                'OpenStreetMap': osm
+            };
+            map = L.map('map', {
+                layers: [OpenMapSurfer_Roads],
+                minZoom: 2
+            });
+
+            var layerControl = L.control.layers(
+                base_maps,
+                null,
+                {
+                    'position': 'topleft',
+                    'autoZIndex': false,
+                }
+            ).addTo(map);
+
+            {%  if analysis and analysis.user_extent %}
+                {# analysis is executed, zoom to the closest extent #}
+                user_extent_string = [{{ analysis.user_extent }}];
+                zoom_to_box(map, user_extent_string);
+            {% else %}
+
+                {% block default_zoom %}
+                    {# the page load for the first time, zoom first to global world view #}
+                    zoom_to_box(map, [0, 45, 0, -45]);
+
+                {% endblock default_zoom %}
+
+            {% endif %}
+
+            filter_layer(map.getBounds());
+
+            {# At the end of map dragging, always filter layer #}
+            map.on('moveend', function (e) {
+                filter_layer(map.getBounds());
+            });
+
+            {# At the end of map zooming, always filter layer #}
+            map.on('zoomend', function (e) {
+                filter_layer(map.getBounds());
+                warn_analysis_zoom_limit();
+            });
+
+            map.on('click', function (e) {
+                {# disable category popup #}
+                $(".option .list.show").removeClass("show");
+            });
+
+            {% block leaflet_controls %}
+                {# add control to swap exposure and hazard layer #}
+                L.easyButton({
+                    states: [{
+                        stateName: 'hazard-top',
+                        icon: 'fa-arrows-v',
+                        title: 'Swap hazard and exposure order',
+                        onClick: function (control) {
+                            if(hazard_layer) {
+                                hazard_layer.setZIndex(1);
+                            }
+                            if(exposure_layer) {
+                                exposure_layer.setZIndex(2);
+                            }
+                            control.state('exposure-top');
+                        }
+                    }, {
+                        stateName: 'exposure-top',
+                        icon: 'fa-arrows-v',
+                        title: 'Swap hazard and exposure order',
+                        onClick: function (control) {
+                            if(hazard_layer) {
+                                hazard_layer.setZIndex(2);
+                            }
+                            if(exposure_layer) {
+                                exposure_layer.setZIndex(1);
+                            }
+                            control.state('hazard-top');
+                        }
+                    }]
+                }).addTo(map);
+
+                {# add control to zoom to global map #}
+                L.easyButton({
+                    states: [{
+                        stateName: 'zoom-all',
+                        icon: 'fa-globe',
+                        title: 'Zoom to global view',
+                        zIndex: 1,
+                        onClick: function (control) {
+                            zoom_to_box(map, [0, 90, 0, -90]);
+                            map._zoom = 2;
+                        }
+                        }]
+                }).addTo(map);
+
+                {# add control to select feature on aggregation layer #}
+
+                function reset_button_popover() {
+                    popover_content = "{% trans 'You can choose specific aggregation polygons to simplify your analysis area.' %}";
+                    feature_selector_button.button.setAttribute("data-content", popover_content);
+                    feature_selector_button.button.setAttribute("title", "{% trans 'Select Features' %}");
+                    feature_selector_button.button.setAttribute("data-toggle", "popover");
+                    feature_selector_button.button.setAttribute("data-trigger", "manual");
+                }
+
+                feature_selector_button = L.easyButton({
+                    states: [
+                        {
+                            stateName: 'selectFeature',
+                            icon: 'fa-hand-pointer-o',
+                            title: 'Select aggregation features',
+                            onClick: function (btn, map) {
+                                btn.state('deactivate');
+                                // enable feature selector
+                                map.addLayer(vector_aggregation_layer);
+                                reset_button_popover();
+                            }
+                        },
+                        {
+                            stateName: 'deactivate',
+                            icon: 'fa-times',
+                            title: 'cancel',
+                            onClick: function (btn, map) {
+                                btn.state('selectFeature');
+                                // clear selection
+                                $.each(selected_aggregation_features, function(index, value) {
+                                    vector_aggregation_layer.resetStyle(value);
+                                });
+                                selected_aggregation_features = [];
+                                // disable feature selector
+                                map.removeLayer(vector_aggregation_layer);
+                                reset_button_popover();
+                            }
+                        }
+                    ]
+                });
+
+                reset_button_popover();
+
+                feature_selector_button.addTo(map);
+                {% if not analysis and not analysis.aggregation_layer_id %}
+                    feature_selector_button.disable();
+                {% endif %}
+
+            {% endblock leaflet_controls %}
+
+            {# Showing markers for all available layers, except if analysis being run #}
+            {%  if not analysis and analysis.get_task_state != "" %}
+            if(hazard_layer_cbo != undefined && exposure_layer_cbo != undefined)
+            {
+                var num_hazard = hazard_layer_cbo[0].length;
+                var num_exposure = exposure_layer_cbo[0].length;
+                var num_aggregation = aggregation_layer_cbo[0].length;
+                //show marker for each layers
+                var layer_id;
+                for (var loop_hazard = 0; loop_hazard < num_hazard; loop_hazard++) {
+                    layer_id = hazard_layer_cbo[0][loop_hazard].value;
+                    // first combo option is an empty tag.
+                    if (layer_id != ""){
+                        show_marker(layer_id, "hazard");
+                    }
+                }
+                for (var loop_exposure = 0; loop_exposure < num_exposure; loop_exposure++) {
+                    layer_id = exposure_layer_cbo[0][loop_exposure].value;
+                    // first combo option is an empty tag.
+                    if (layer_id != "") {
+                        show_marker(layer_id, "exposure");
+                    }
+                }
+                for (var loop_aggregation = 0; loop_aggregation < num_aggregation; loop_aggregation++) {
+                    layer_id = aggregation_layer_cbo[0][loop_aggregation].value;
+                    // first combo option is an empty tag.
+                    if (layer_id != "") {
+                        show_marker(layer_id, "aggregation");
+                    }
+                }
+                //use markers as the default
+                map.addLayer(hazard_exposure_marker_groups);
+            }
+            {% endif %}
+
+            var w_width = $(window).width();
+            var w_height = $(window).height();
+            var map_width = w_width - 70;
+
+            $("#map").css("width", map_width);
+
+            exposure_layer_cbo.val("");
+            hazard_layer_cbo.val("");
+            aggregation_layer_cbo.val("");
+
+            exposure_layer_cbo.change(update_exposure_layer);
+            hazard_layer_cbo.change(update_hazard_layer);
+            aggregation_layer_cbo.change(update_aggregation_layer);
+
+            {# method to prepare map view #}
+            {% if analysis %}
+                {# we are viewing analysis. set desired settings #}
+                update_hazard_layer({{ analysis.hazard_layer_id }});
+                update_exposure_layer({{ analysis.exposure_layer_id }});
+                {% if analysis.aggregation_layer_id %}
+                    update_aggregation_layer({{ analysis.aggregation_layer_id }});
+                {% endif %}
+                {# check if impact process is done #}
+                {% if analysis.get_task_state == 'SUCCESS' %}
+                    update_impact_layer({{ analysis.impact_layer_id }});
+                    {# automatically popup infographics #}
+                    show_analysis_summary();
+                {% else %}
+                    {# impact not yet processed #}
+                    $("#analysis-result-modal").modal({
+                        'backdrop': 'static',
+                        'keyboard': 'false'
+                    });
+                {% endif %}
+
+                {% if analysis.get_task_result %}
+                    {% if not analysis.get_task_state == 'SUCCESS' and not analysis.get_task_state == 'FAILURE' %}
+                        {# Automatic check in 30 sec #}
+                        function check_analysis() {
+                            var check_analysis_url = '{% url 'geosafe:check-analysis' analysis_id=analysis.id %}';
+                            $.get(check_analysis_url, function (data) {
+                                if (data && data.impact_layer_id) {
+                                    {# refresh site #}
+                                    window.location.reload();
+                                }
+                                else {
+                                    setTimeout(check_analysis, 30000);
+                                }
+                            }).fail(function () {
+                                setTimeout(check_analysis, 30000);
+                            });
+                        }
+                        setTimeout(check_analysis, 30000);
+                    {% endif %}
+                {% endif %}
+                //calculate area is done on the backend
+                //let show the result here
+                var post_data = {
+                    'hazard_id': {{ analysis.hazard_layer_id }},
+                    'exposure_id': {{ analysis.exposure_layer_id }},
+                    'view_extent': '{{ analysis.user_extent }}'
+                };
+                {% if analysis.aggregation_layer_id %}
+                    post_data['aggregation_id'] = {{ analysis.aggregation_layer_id }};
+                {% endif %}
+                var analysis_url = '{% url 'geosafe:calculate-area' %}';
+                $.post(analysis_url, post_data, function (data) {
+                    if (data) {
+                        area = data['area'] / 1000000;
+                        formatted_area = numeral(area).format('0,0');
+                        $('#analysis_area').text(formatted_area);
+                    }
+                });
+            {% endif %}
+
+            {% block extra_create_init_scripts %}
+
+                {# Usefule if theme decides to add extra init scripts #}
+
+            {% endblock extra_create_init_scripts %}
+
+        });
+    </script>
+{% endblock %}
