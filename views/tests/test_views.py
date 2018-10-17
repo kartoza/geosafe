@@ -311,11 +311,14 @@ class AnalysisTest(GeoSAFEIntegrationLiveServerTestCase):
             'exposure_layer': buildings_layer.id,
             'hazard_layer': flood_layer.id,
             'keep': False,
-            'extent_option': Analysis.HAZARD_EXPOSURE_CODE
+            'extent_option': Analysis.HAZARD_EXPOSURE_CODE,
+            'language_code': 'en'
         }
 
         form = AnalysisCreationForm(
-            form_data, user=form_data['user'])
+            form_data,
+            user=form_data['user'],
+            language_code=form_data['language_code'])
 
         if not form.is_valid():
             LOGGER.debug(form.errors)
@@ -384,11 +387,14 @@ class AnalysisTest(GeoSAFEIntegrationLiveServerTestCase):
             'hazard_layer': flood_layer.id,
             'aggregation_layer': small_grid_layer.id,
             'keep': False,
-            'extent_option': Analysis.HAZARD_EXPOSURE_CODE
+            'extent_option': Analysis.HAZARD_EXPOSURE_CODE,
+            'language_code': 'en'
         }
 
         form = AnalysisCreationForm(
-            form_data, user=form_data['user'])
+            form_data,
+            user=form_data['user'],
+            language_code=form_data['language_code'])
 
         if not form.is_valid():
             LOGGER.debug(form.errors)
@@ -425,7 +431,7 @@ class AnalysisTest(GeoSAFEIntegrationLiveServerTestCase):
         impact_layer.delete()
 
     def test_run_analysis_selected_aggregation(self):
-        """Test running analysis with aggregation."""
+        """Test running analysis with selected aggregation."""
         data_helper = self.data_helper
         flood = data_helper.hazard('flood_data.geojson')
         buildings = data_helper.exposure('buildings.geojson')
@@ -464,11 +470,14 @@ class AnalysisTest(GeoSAFEIntegrationLiveServerTestCase):
             'aggregation_layer': small_grid_layer.id,
             'aggregation_filter': aggregation_filter,
             'keep': False,
-            'extent_option': Analysis.HAZARD_EXPOSURE_CODE
+            'extent_option': Analysis.HAZARD_EXPOSURE_CODE,
+            'language_code': 'en'
         }
 
         form = AnalysisCreationForm(
-            form_data, user=form_data['user'])
+            form_data,
+            user=form_data['user'],
+            language_code=form_data['language_code'])
 
         if not form.is_valid():
             LOGGER.debug(form.errors)
