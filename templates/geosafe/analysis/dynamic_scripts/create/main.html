@@ -93,19 +93,19 @@
         if (exp_count + haz_count == 0) {
             show_info_text(
                 '<span class="text-danger">Extent Changed</span>',
-                '<span class="alert-danger">No usable layer in current extent</span>',
+                '<span class="alert-danger">{% trans 'No usable layer in current extent' %}</span>',
                 'alert-danger');
         }
         else if (exp_count == 0) {
             show_info_text(
                 '<span class="text-danger">Extent Changed</span>',
-                '<span class="alert-danger">No usable exposure layer in current extent</span>',
+                '<span class="alert-danger">{% trans 'No usable exposure layer in current extent' %}</span>',
                 'alert-danger');
         }
         else if (haz_count == 0) {
             show_info_text(
                 '<span class="text-danger">Extent Changed</span>',
-                '<span class="alert-danger">No usable hazard layer in current extent</span>',
+                '<span class="alert-danger">{% trans 'No usable hazard layer in current extent' %}</span>',
                 'alert-danger');
         }
     }
@@ -152,9 +152,9 @@
      */
     function warn_analysis_zoom_limit() {
         var zoom_level = map.getZoom();
-        var title = 'Analysis Extent Too Big'
+        var title = '{% trans 'Analysis Extent Too Big' %}';
         if (zoom_level < 10) {
-            show_info_text(title, 'You might want to zoom in to perform analysis.');
+            show_info_text(title, '{% trans 'You might want to zoom in to perform analysis.' %}');
         }
         else {
             dissmiss_info_text(title);
@@ -204,7 +204,7 @@
      */
     function show_analysis_summary() {
         if (last_impact_id == undefined) {
-            show_info_text('Show Analysis Summary', 'Please select desired impact layer first, before viewing analysis summary.')
+            show_info_text('{% trans 'Show Analysis Summary' %}', '{% trans 'Please select desired impact layer first, before viewing analysis summary.' %}')
             return;
         }
         var selected_impact_id = last_impact_id;
@@ -215,7 +215,7 @@
                 $("#impact-card-modal").replaceWith(data);
                 $("#impact-card-modal").modal();
                 var impact_layer_title = $("#impact-option a[data-id='" + selected_impact_id + "']").text();
-                show_info_text('Show Analysis Summary', 'Showing summary for ' + impact_layer_title);
+                show_info_text('{% trans 'Show Analysis Summary' %}', '{% trans 'Showing summary for ' %}' + impact_layer_title);
 
                 $(document).ready(function () {
 
@@ -236,7 +236,7 @@
      */
     function open_impact_report() {
         if (last_impact_id == undefined) {
-            show_info_text('Show Analysis Summary', 'Please select desired impact layer first, before viewing analysis summary.')
+            show_info_text('{% trans 'Show Analysis Summary' %}', '{% trans 'Please select desired impact layer first, before viewing analysis summary.' %}')
             return;
         }
         var selected_impact_id = last_impact_id;
@@ -297,8 +297,8 @@
             $aggregation_popover.popover({
                 placement: 'right',
                 html: true,
-                title: 'Select Aggregation <a onclick="check_popover(true);" class="close" data-dismiss="alert">&times;</a>',
-                content: 'Now choose an aggregation dataset. This is optional, you can skip this.'
+                title: '{% trans 'Select Aggregation' %} <a onclick="check_popover(true);" class="close" data-dismiss="alert">&times;</a>',
+                content: '{% trans 'Now choose an aggregation dataset. This is optional, you can skip this.' %}'
             });
             $aggregation_popover.popover('show');
             $run_analysis_popover = null;
@@ -323,7 +323,7 @@
                 'aggregation_id': aggregation_layer_cbo.find('option:selected').val(),
                 'view_extent': map.getBounds().toBBoxString()
             };
-            var both_selected = 'Hazard and exposure are selected. ';
+            var both_selected = '{% trans 'Hazard and exposure are selected. ' %}';
             var run_message = '';
             var allow_message = '';
 
@@ -333,10 +333,10 @@
                     formatted_area = numeral(area).format('0,0');
 
                     if (data['is_valid']) {
-                        allow_message = 'You can now run analysis.';
+                        allow_message = '{% trans 'You can now run analysis.' %}';
                     }
                     else if (data['is_warned']) {
-                        allow_message = 'You can now run analysis, but the analysis might take a long time to complete.';
+                        allow_message = '{% trans 'You can now run analysis, but the analysis might take a long time to complete.' %}';
                     }
                     if (data['is_valid'] || data['is_warned']) {
                         if ($run_analysis_popover) {
@@ -348,7 +348,7 @@
                     }
 
                 } else if ($run_analysis_popover){
-                    $run_analysis_popover.popover({title: "Run Analysis", content: "If hazard and exposure were selected, you can run analysis"});
+                    $run_analysis_popover.popover({title: "{% trans 'Run Analysis' %}", content: "{% trans 'If hazard and exposure were selected, you can run analysis' %}"});
                     $run_analysis_popover.popover('show');
                 }
             });

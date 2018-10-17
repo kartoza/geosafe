@@ -18,9 +18,9 @@
                     {% if summary.analysis_question %}
                         {{ summary.analysis_question }}
                     {% elif summary.exposure_type != 'polygon people' and summary.exposure_type != 'population' %}
-                        In the event of {{ analysis.hazard_layer.title }}, the number of {{ summary.exposure_type }}s in hazard areas in {{ analysis.exposure_layer.title }} that are likely to be affected is
+                        {% trans 'In the event of {{ analysis.hazard_layer.title }}, the number of {{ summary.exposure_type }}s in hazard areas in {{ analysis.exposure_layer.title }} that are likely to be affected is' %}
                     {% else %}
-                        In the event of {{ analysis.hazard_layer.title }}, the number of {{ summary.exposure_type }} in hazard areas in {{ analysis.exposure_layer.title }} that are likely to be affected is
+                        {% trans 'In the event of {{ analysis.hazard_layer.title }}, the number of {{ summary.exposure_type }} in hazard areas in {{ analysis.exposure_layer.title }} that are likely to be affected is' %}
                     {% endif %}
                 </p>
                 {% include report_template %}
@@ -95,7 +95,7 @@
                     <ul>
                         {% for link in links %}
                             <li>
-                                <a href="{{ link.url }}" target="_blank">{% trans link.name %}</a>
+                                <a href="{{ link.url }}" target="_blank">{{ link.name }}</a>
                             </li>
                         {% endfor %}
                     </ul>

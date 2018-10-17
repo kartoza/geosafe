@@ -33,7 +33,7 @@
                     </div>
                     <div class="form-group">
                         {% if user.is_authenticated %}
-                            <label>Save analysis</label>
+                            <label>{% trans 'Save analysis' %}</label>
                             <div class="onoffswitch">
                                 <input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox" id="confirm_save_analysis" checked>
                                 <label class="onoffswitch-label" for="confirm_save_analysis">

@@ -10,11 +10,11 @@
                 <h4 class="section-title">{{ s.name|capfirst }}</h4>
                 <a id="{{ s.name }}-section-link" href="#" class="menu-icon {% if s.total_layers > 0 %}has-children{% endif %}"
                     {% if s.name == 'hazard' %}
-                    data-toggle="popover" data-trigger="manual" title="Select Hazard"
+                    data-toggle="popover" data-trigger="manual" title="{% trans 'Select Hazard' %}"
                     data-content="{% trans "To get started, select hazard layer that you want to use." %}"
                     >
                     {% elif s.name == 'exposure' %}
-                    data-toggle="popover" data-trigger="manual" title="Select Exposure"
+                    data-toggle="popover" data-trigger="manual" title="{% trans 'Select Exposure' %}"
                     data-content="{% trans "Now choose an exposure dataset." %}"
                     >
                     {% elif s.name == 'aggregation' %}
@@ -36,7 +36,7 @@
                                 <a href="javascript:update_{{ s.name }}_layer({{ e.id }})" data-id="{{ e.id }}">{{ e.title }}</a>
                             </li>
                         {% empty %}
-                            <p>No {{ c.name }} layer for the extent.</p>
+                            <p>{% trans 'No {{ c.name }} layer for the extent.' %}</p>
                             <a href="{% url "layer_upload" %}" class="btn btn-default">{% trans "Upload Layer" %}</a>
                         {% endfor %}
                     </ul>
@@ -46,8 +46,8 @@
             {% if not s.name == 'aggregation' %}
             <div class="section-panel">
                 <div class="filtered-status {{ s.filter_status }}">
-                    <span class="filtered-text">Filtered</span>
-                    <span class="unfiltered-text">Unfiltered</span>
+                    <span class="filtered-text">{% trans 'Filtered' %}</span>
+                    <span class="unfiltered-text">{% trans 'Unfiltered' %}</span>
                 </div>
                 {% for c in s.categories %}
                 <div class="option">
@@ -68,7 +68,7 @@
                                     <a href="javascript:update_{{ s.name }}_layer({{ e.id }})" data-id="{{ e.id }}">{{ e.title }}</a>
                                 </li>
                             {% empty %}
-                                <p>No {{ c.name }} layer for the extent.</p>
+                                <p>{% trans 'No {{ c.name }} layer for the extent.' %}</p>
                                 <a href="{% url "layer_upload" %}" class="btn btn-default">{% trans "Upload Layer" %}</a>
                             {% endfor %}
                         </ul>
@@ -112,7 +112,7 @@
                                 <a href="javascript:update_{{ s.name }}_layer({{ e.id }})" data-id="{{ e.id }}">{{ e.title }}</a>
                             </li>
                         {% empty %}
-                            <p>No {{ c.name }} layer for the extent.</p>
+                            <p>{% trans 'No {{ c.name }} layer for the extent.' %}</p>
                             <p>{% trans "Run analysis to create impact layer"%}</p>
                         {% endfor %}
                     </ul>

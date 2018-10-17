@@ -47,7 +47,7 @@
                         {% if analysis.get_task_result and analysis.get_task_result.state == "FAILURE" %}
                             <div class="panel panel-default">
                               <div class="panel-heading">
-                                <h3 class="panel-title">Error Detail</h3>
+                                <h3 class="panel-title">{% trans 'Error Detail' %}</h3>
                               </div>
                               <div class="panel-body">
                                   <p>{{ analysis.get_task_result.result }}</p>

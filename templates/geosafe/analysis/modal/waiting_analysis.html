@@ -31,9 +31,11 @@
                         {% trans "The analysis is running..." %}
                     </p>
                     <p>
-                        However, you can close this message if you want to continue working. <br />
-                        Your analysis covers an area of <span id="analysis_area"></span> km<sup>2</sup>. The larger the area, the longer the analysis will take.<br />
-                        See the <a href="{% url 'geosafe:analysis-list' %}">Analysis List</a> to monitor the progress of this analysis and to view the results when it is complete.
+                        {% trans
+                            'However, you can close this message if you want to continue working. <br />
+                            Your analysis covers an area of <span id="analysis_area"></span> km<sup>2</sup>. The larger the area, the longer the analysis will take.<br />
+                            See the <a href="{% url 'geosafe:analysis-list' %}">Analysis List</a> to monitor the progress of this analysis and to view the results when it is complete.'
+                        %}
                     </p>
                     <p>
                         {% trans "This window will automatically close when the analysis is complete." %}
@@ -43,7 +45,7 @@
             <div class="modal-footer">
                 {% if analysis.get_task_result %}
                     {% if analysis.get_task_result.failed or analysis.get_task_state == 'FAILURE'%}
-                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-default" data-dismiss="modal">{% trans 'Close' %}</button>
                         <p>
                             <form action="{% url 'geosafe:rerun-analysis' analysis_id=analysis.id %}" method="post">
                                 {% csrf_token %}

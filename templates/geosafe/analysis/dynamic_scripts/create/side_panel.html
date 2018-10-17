@@ -13,7 +13,7 @@
     function init_layer_panel() {
         //when a user has not logged in, show message in show_info_text
         {% if not user.username %}
-            not_logged_warning = " <span class='alert-danger'> - Please <a href='#' data-toggle='modal' data-target='#SigninModal' role='button' >{% trans "sign in" %} </a> to save analysis </span>"
+            not_logged_warning = " {% trans "<span class='alert-danger'> - Please <a href='#' data-toggle='modal' data-target='#SigninModal' role='button' >sign in</a> to save analysis </span>" %}";
         {% else %}
             //otherwise, no warning message
             not_logged_warning = undefined;
@@ -205,6 +205,7 @@
             return;
         }
 
+        info_text_title = '{% trans 'InaSAFE Exposure' %}';
         if (layer_id) {
             if (exposure_layer) {
                 map.removeLayer(exposure_layer);
@@ -218,7 +219,7 @@
                 hazard_exposure_rect_groups.clearLayers();
             }
 
-            show_info_text('InaSAFE Exposure', $a.text() + ' selected.');
+            show_info_text(info_text_title, $a.text() + ' {% trans 'selected.' %}');
         } else {
             remove_layer(exposure_layer._url);
             map.removeLayer(exposure_layer);
@@ -231,7 +232,7 @@
                 is_legend = false;
                 $(".legend").toggle(is_legend);
             }
-            show_info_text('InaSAFE Exposure', 'Exposure unselected.');
+            show_info_text(info_text_title, '{% trans 'Exposure unselected.' %}');
         }
     }
 
@@ -290,6 +291,7 @@
             return;
         }
 
+        info_text_title = '{% trans 'InaSAFE Hazard' %}';
         if (layer_id) {
             if (hazard_layer) {
                 map.removeLayer(hazard_layer);
@@ -303,7 +305,7 @@
                 hazard_exposure_rect_groups.clearLayers();
             }
 
-            show_info_text('InaSAFE Hazard', $a.text() + ' selected.');
+            show_info_text(info_text_title, $a.text() + ' {% trans 'selected.' %}');
         } else {
             remove_layer(hazard_layer._url);
             map.removeLayer(hazard_layer);
@@ -316,7 +318,7 @@
                 is_legend = false;
                 $(".legend").toggle(is_legend);
             }
-            show_info_text('InaSAFE Hazard', 'Hazard unselected.');
+            show_info_text(info_text_title, '{% trans 'Hazard unselected.' %}');
         }
     }
 
@@ -366,12 +368,13 @@
             return;
         }
 
+        info_text_title = '{% trans 'InaSAFE Impact' %}';
         if (layer_id) {
             if (impact_layer) {
                 map.removeLayer(impact_layer);
             }
             update_map(layer_id, 'impact');
-            show_info_text('InaSAFE Impact', $a.text() + ' selected.');
+            show_info_text(info_text_title, $a.text() + ' {% trans 'selected.' %}');
         } else {
             remove_layer(impact_layer._url);
             map.removeLayer(impact_layer);
@@ -384,7 +387,7 @@
                 is_legend = false;
                 $(".legend").toggle(is_legend);
             }
-            show_info_text('InaSAFE Impact', 'Impact unselected.');
+            show_info_text(info_text_title, '{% trans 'Impact unselected.' %}');
         }
     }
 
@@ -442,6 +445,7 @@
             return;
         }
 
+        info_text_title = '{% trans 'InaSAFE Aggregation' %}';
         if (layer_id) {
             if (aggregation_layer) {
                 map.removeLayer(aggregation_layer);
@@ -458,7 +462,7 @@
                 hazard_exposure_rect_groups.clearLayers();
             }
 
-            show_info_text('InaSAFE Aggregation', $a.text() + ' selected.');
+            show_info_text(info_text_title, $a.text() + ' {% trans 'selected.' %}');
             if (vector_aggregation_layer) {
                 feature_selector_button.state('selectFeature');
                 feature_selector_button.enable();
@@ -478,7 +482,7 @@
                 is_legend = false;
                 $(".legend").toggle(is_legend);
             }
-            show_info_text('InaSAFE Aggregation', 'Aggregation unselected.');
+            show_info_text(info_text_title, '{% trans 'Aggregation unselected.' %}');
             feature_selector_button.disable();
         }
     }
@@ -497,7 +501,8 @@
         ];
         var url = '{% url "geosafe:layer-panel" bbox="9,9,9,9" %}';
         url = url.replace("9%2C9%2C9%2C9", JSON.stringify(bound_param)).replace("9,9,9,9", JSON.stringify(bound_param));
-        show_info_text('Extent Changed', 'Filtering available layer for extent');
+        info_text_title = '{% trans 'Extent Changed' %}';
+        show_info_text(info_text_title, '{% trans 'Filtering available layer for extent' %}');
         {# Do layer filters and update side panel again to reflect changes. #}
         $.get(url, function (data) {
             var exposure_id = $(".exposure.section a.selected").attr('data-id');

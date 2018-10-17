@@ -441,8 +441,8 @@
                         <div class="row edit-modal">
                             <!--div class="col-sm-3"-->
                             <div class="col-sm-12">
-                                <p>You seem to use an old browser.<br/>Please consider upgrading to the newer version to
-                                    fully use the website</p>
+                                <p>{% trans 'You seem to use an old browser.<br/>Please consider upgrading to the newer version to
+                                    fully use the website' %}</p>
                             </div>
                         </div>
                     </div>
@@ -582,7 +582,7 @@
                     states: [{
                         stateName: 'hazard-top',
                         icon: 'fa-arrows-v',
-                        title: 'Swap hazard and exposure order',
+                        title: '{% trans 'Swap hazard and exposure order' %}',
                         onClick: function (control) {
                             if(hazard_layer) {
                                 hazard_layer.setZIndex(1);
@@ -595,7 +595,7 @@
                     }, {
                         stateName: 'exposure-top',
                         icon: 'fa-arrows-v',
-                        title: 'Swap hazard and exposure order',
+                        title: '{% trans 'Swap hazard and exposure order' %}',
                         onClick: function (control) {
                             if(hazard_layer) {
                                 hazard_layer.setZIndex(2);
@@ -613,7 +613,7 @@
                     states: [{
                         stateName: 'zoom-all',
                         icon: 'fa-globe',
-                        title: 'Zoom to global view',
+                        title: '{% trans 'Zoom to global view' %}',
                         zIndex: 1,
                         onClick: function (control) {
                             zoom_to_box(map, [0, 90, 0, -90]);
@@ -637,7 +637,7 @@
                         {
                             stateName: 'selectFeature',
                             icon: 'fa-hand-pointer-o',
-                            title: 'Select aggregation features',
+                            title: '{% trans 'Select aggregation features' %}',
                             onClick: function (btn, map) {
                                 btn.state('deactivate');
                                 // enable feature selector
@@ -648,7 +648,7 @@
                         {
                             stateName: 'deactivate',
                             icon: 'fa-times',
-                            title: 'cancel',
+                            title: '{% trans 'cancel' %}',
                             onClick: function (btn, map) {
                                 btn.state('selectFeature');
                                 // clear selection
