@@ -3,6 +3,7 @@ import logging
 
 from django import forms
 from django.forms import models
+from django.utils.translation import ugettext as _
 
 from geonode.layers.models import Layer
 from geonode.people.models import Profile
@@ -33,7 +34,7 @@ class AnalysisCreationForm(models.ModelForm):
         label='Analysis Title',
         required=False,
         widget=forms.TextInput(
-            attrs={'placeholder': 'Default title generated'})
+            attrs={'placeholder': _('Default title generated')})
     )
 
     user_extent = forms.CharField(

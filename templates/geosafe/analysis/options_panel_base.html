@@ -4,36 +4,36 @@
 
 {% block options_panel %}
     {% for s in sections %}
-        {% if not s.name == 'impact' %}
-        <div class="{{ s.name }} section">
+        {% if not s.key == 'impact' %}
+        <div class="{{ s.key }} section">
             <div class="option">
                 <h4 class="section-title">{{ s.name|capfirst }}</h4>
-                <a id="{{ s.name }}-section-link" href="#" class="menu-icon {% if s.total_layers > 0 %}has-children{% endif %}"
-                    {% if s.name == 'hazard' %}
+                <a id="{{ s.key }}-section-link" href="#" class="menu-icon {% if s.total_layers > 0 %}has-children{% endif %}"
+                    {% if s.key == 'hazard' %}
                     data-toggle="popover" data-trigger="manual" title="{% trans 'Select Hazard' %}"
                     data-content="{% trans "To get started, select hazard layer that you want to use." %}"
                     >
-                    {% elif s.name == 'exposure' %}
+                    {% elif s.key == 'exposure' %}
                     data-toggle="popover" data-trigger="manual" title="{% trans 'Select Exposure' %}"
                     data-content="{% trans "Now choose an exposure dataset." %}"
                     >
-                    {% elif s.name == 'aggregation' %}
+                    {% elif s.key == 'aggregation' %}
                     data-toggle="popover" data-trigger="manual"
                     >
                     {% endif %}
                     {% if s.total_layers > 0 %}
                     <span class="badge">{{ s.total_layers }}</span>
                     {% endif %}
-                    <img src="{% static "geosafe/img/"|add:s.name|add:"-menu.svg" %}" alt="{{ s.name }}-icon" class="svg"/>
+                    <img src="{% static "geosafe/img/"|add:s.key|add:"-menu.svg" %}" alt="{{ s.key }}-icon" class="svg"/>
                 </a>
-                {% if s.name == 'aggregation' %}
-                <div class="list floating-box section-panel" id="{{ s.name }}-list" style="padding-top: 0;padding-bottom: 0;">
+                {% if s.key == 'aggregation' %}
+                <div class="list floating-box section-panel" id="{{ s.key }}-list" style="padding-top: 0;padding-bottom: 0;">
                     <h4 class="list-title">{{ s.list_title }}
                     </h4>
                     <ul>
                         {% for e in s.layers %}
                             <li>
-                                <a href="javascript:update_{{ s.name }}_layer({{ e.id }})" data-id="{{ e.id }}">{{ e.title }}</a>
+                                <a href="javascript:update_{{ s.key }}_layer({{ e.id }})" data-id="{{ e.id }}">{{ e.title }}</a>
                             </li>
                         {% empty %}
                             <p>{% trans 'No {{ c.name }} layer for the extent.' %}</p>
@@ -43,7 +43,7 @@
                 </div>
                 {% endif %}
             </div>
-            {% if not s.name == 'aggregation' %}
+            {% if not s.key == 'aggregation' %}
             <div class="section-panel">
                 <div class="filtered-status {{ s.filter_status }}">
                     <span class="filtered-text">{% trans 'Filtered' %}</span>
@@ -65,7 +65,7 @@
                         <ul>
                             {% for e in c.layers %}
                                 <li>
-                                    <a href="javascript:update_{{ s.name }}_layer({{ e.id }})" data-id="{{ e.id }}">{{ e.title }}</a>
+                                    <a href="javascript:update_{{ s.key }}_layer({{ e.id }})" data-id="{{ e.id }}">{{ e.title }}</a>
                                 </li>
                             {% empty %}
                                 <p>{% trans 'No {{ c.name }} layer for the extent.' %}</p>

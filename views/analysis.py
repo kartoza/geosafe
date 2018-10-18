@@ -214,35 +214,38 @@ class AnalysisCreateView(CreateView):
         """
         purposes = [
             {
-                'name': 'hazard',
+                'key': 'hazard',
+                'name': _('hazard'),
                 'categories': ['flood', 'tsunami', 'earthquake', 'volcano',
                                'volcanic_ash'],
                 'list_titles': [
-                    'Select a flood layer',
-                    'Select a tsunami layer',
-                    'Select an earthquake layer',
-                    'Select a volcano layer',
-                    'Select a volcanic ash layer',
+                    _('Select a flood layer'),
+                    _('Select a tsunami layer'),
+                    _('Select an earthquake layer'),
+                    _('Select a volcano layer'),
+                    _('Select a volcanic ash layer'),
                 ]
             },
             {
-                'name': 'exposure',
+                'key': 'exposure',
+                'name': _('exposure'),
                 'categories': [
                     'population',
                     'road',
                     'structure',
                     # 'land_cover',
-                    ],
+                ],
                 'list_titles': [
-                    'Select a population layer',
-                    'Select a roads layer',
-                    'Select a structure layer',
+                    _('Select a population layer'),
+                    _('Select a roads layer'),
+                    _('Select a structure layer'),
                     # 'Select a land_cover layer',
                 ]
             },
             {
-                'name': 'aggregation',
-                'list_title': 'Select an aggregation layer'
+                'key': 'aggregation',
+                'name': _('aggregation'),
+                'list_title': _('Select an aggregation layer')
             }
         ]
         sections = []
