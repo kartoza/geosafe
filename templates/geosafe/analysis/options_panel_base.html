@@ -36,7 +36,7 @@
                                 <a href="javascript:update_{{ s.key }}_layer({{ e.id }})" data-id="{{ e.id }}">{{ e.title }}</a>
                             </li>
                         {% empty %}
-                            <p>{% trans 'No {{ c.name }} layer for the extent.' %}</p>
+                            <p>{% blocktrans with c.name as category_name%}No {{ category_name }} layer for the extent.{% endblocktrans %}</p>
                             <a href="{% url "layer_upload" %}" class="btn btn-default">{% trans "Upload Layer" %}</a>
                         {% endfor %}
                     </ul>
@@ -68,7 +68,7 @@
                                     <a href="javascript:update_{{ s.key }}_layer({{ e.id }})" data-id="{{ e.id }}">{{ e.title }}</a>
                                 </li>
                             {% empty %}
-                                <p>{% trans 'No {{ c.name }} layer for the extent.' %}</p>
+                                <p>{% blocktrans with c.name as category_name%}No {{ category_name }} layer for the extent.{% endblocktrans %}</p>
                                 <a href="{% url "layer_upload" %}" class="btn btn-default">{% trans "Upload Layer" %}</a>
                             {% endfor %}
                         </ul>
@@ -112,7 +112,7 @@
                                 <a href="javascript:update_{{ s.name }}_layer({{ e.id }})" data-id="{{ e.id }}">{{ e.title }}</a>
                             </li>
                         {% empty %}
-                            <p>{% trans 'No {{ c.name }} layer for the extent.' %}</p>
+                            <p>{% blocktrans with c.name as category_name%}No {{ category_name }} layer for the extent.{% endblocktrans %}</p>
                             <p>{% trans "Run analysis to create impact layer"%}</p>
                         {% endfor %}
                     </ul>

@@ -18,9 +18,13 @@
                     {% if summary.analysis_question %}
                         {{ summary.analysis_question }}
                     {% elif summary.exposure_type != 'polygon people' and summary.exposure_type != 'population' %}
-                        {% trans 'In the event of {{ analysis.hazard_layer.title }}, the number of {{ summary.exposure_type }}s in hazard areas in {{ analysis.exposure_layer.title }} that are likely to be affected is' %}
+                        {% blocktrans %}
+                        In the event of {{ analysis.hazard_layer.title }}, the number of {{ summary.exposure_type }}s in hazard areas in {{ analysis.exposure_layer.title }} that are likely to be affected is
+                        {% endblocktrans %}
                     {% else %}
-                        {% trans 'In the event of {{ analysis.hazard_layer.title }}, the number of {{ summary.exposure_type }} in hazard areas in {{ analysis.exposure_layer.title }} that are likely to be affected is' %}
+                        {% blocktrans %}
+                        In the event of {{ analysis.hazard_layer.title }}, the number of {{ summary.exposure_type }} in hazard areas in {{ analysis.exposure_layer.title }} that are likely to be affected is
+                        {% endblocktrans %}
                     {% endif %}
                 </p>
                 {% include report_template %}

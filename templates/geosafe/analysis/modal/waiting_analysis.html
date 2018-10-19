@@ -31,11 +31,12 @@
                         {% trans "The analysis is running..." %}
                     </p>
                     <p>
-                        {% trans
-                            'However, you can close this message if you want to continue working. <br />
+                        {% url 'geosafe:analysis-list' as analysis_url %}
+                        {% blocktrans %}
+                            However, you can close this message if you want to continue working. <br />
                             Your analysis covers an area of <span id="analysis_area"></span> km<sup>2</sup>. The larger the area, the longer the analysis will take.<br />
-                            See the <a href="{% url 'geosafe:analysis-list' %}">Analysis List</a> to monitor the progress of this analysis and to view the results when it is complete.'
-                        %}
+                            See the <a href="{{ analysis_url }}">Analysis List</a> to monitor the progress of this analysis and to view the results when it is complete.
+                        {% endblocktrans %}
                     </p>
                     <p>
                         {% trans "This window will automatically close when the analysis is complete." %}
