@@ -57,6 +57,15 @@ class InaSAFETestData(object):
         return cls.path_finder('aggregation', *args)
 
     @classmethod
+    def qgis_templates(cls, *args):
+        """Resolve path to exposure test data.
+
+        :return: path to safe package
+        :rtype: str
+        """
+        return cls.path_finder('qgis_templates', *args)
+
+    @classmethod
     def misc(cls, *args):
         """Resolve path to misc test data.
 

@@ -5,11 +5,13 @@ import time
 
 from django.contrib.auth.models import AnonymousUser
 from django.core.urlresolvers import reverse
+from django.test import override_settings
 
 from geonode.layers.models import Layer
 from geonode.layers.utils import file_upload
 from geonode.people.models import Profile
 from geosafe.forms import AnalysisCreationForm
+from geosafe.helpers.inasafe_helper import InaSAFETestData
 from geosafe.helpers.utils import wait_metadata, \
     GeoSAFEIntegrationLiveServerTestCase
 from geosafe.models import Analysis
@@ -285,40 +287,34 @@ class ViewsTest(GeoSAFEIntegrationLiveServerTestCase):
 
 class AnalysisTest(GeoSAFEIntegrationLiveServerTestCase):
 
-    def test_run_analysis_no_aggregation(self):
-        """Test running analysis without aggregation."""
-        data_helper = self.data_helper
-        flood = data_helper.hazard('flood_data.geojson')
-        buildings = data_helper.exposure('buildings.geojson')
+    def process_analysis(self, **kwargs):
+        """Run InaSAFE analysis and test the results."""
 
-        flood_layer = file_upload(flood)
-        # Wait until metadata is read
-        wait_metadata(flood_layer)
-
-        buildings_layer = file_upload(buildings)
-        # Wait until metadata is read
-        wait_metadata(buildings_layer)
-
-        # Check layer uploaded
-        self.assertEqual(
-            Layer.objects.filter(id=flood_layer.id).count(), 1)
-        self.assertEqual(
-            Layer.objects.filter(id=buildings_layer.id).count(), 1)
-
-        form_data = {
-            'user': AnonymousUser(),
-            'user_title': 'Flood on Buildings custom Analysis',
-            'exposure_layer': buildings_layer.id,
-            'hazard_layer': flood_layer.id,
-            'keep': False,
-            'extent_option': Analysis.HAZARD_EXPOSURE_CODE,
-            'language_code': 'en'
+        # Prepare layer data
+        layers = {
+            'hazard_layer': file_upload(kwargs.get('hazard_layer')),
+            'exposure_layer': file_upload(kwargs.get('exposure_layer')),
+            'aggregation_layer': (
+                None if not kwargs.get('aggregation_layer') else (
+                    file_upload(kwargs.get('aggregation_layer'))))
         }
 
-        form = AnalysisCreationForm(
-            form_data,
-            user=form_data['user'],
-            language_code=form_data['language_code'])
+        # Check layer uploaded
+        for key, layer in layers.iteritems():
+            if isinstance(layer, Layer):
+                # Wait until metadata for respective layer is read
+                wait_metadata(layer)
+                kwargs.update({key: layer.id})
+                self.assertEqual(Layer.objects.filter(id=layer.id).count(), 1)
+            else:
+                kwargs.update({key: ''})
+
+        # Prepare form
+        kwargs.update({
+            'keep': False,
+            'extent_option': Analysis.HAZARD_EXPOSURE_CODE
+        })
+        form = AnalysisCreationForm(kwargs, user=AnonymousUser())
 
         if not form.is_valid():
             LOGGER.debug(form.errors)
@@ -349,166 +345,57 @@ class AnalysisTest(GeoSAFEIntegrationLiveServerTestCase):
         self.assertEqual(
             impact_layer.inasafe_metadata.layer_purpose, 'impact_analysis')
 
-        flood_layer.delete()
-        buildings_layer.delete()
+        # Check if reports are being generated or not
+        self.assertIsNotNone(analysis.report_map)
+        self.assertIsNotNone(analysis.report_table)
+
+        # Clean up layers
+        for layer in [l for l in layers.items() if isinstance(l, Layer)]:
+            layer.delete()
         impact_layer.delete()
+
+    def test_run_analysis_no_aggregation(self):
+        """Test running analysis without aggregation."""
+        data_helper = self.data_helper
+        self.process_analysis(
+            hazard_layer=data_helper.hazard('flood_data.geojson'),
+            exposure_layer=data_helper.exposure('buildings.geojson'),
+            user_title='Flood on Buildings'
+        )
 
     def test_run_analysis_aggregation(self):
         """Test running analysis with aggregation."""
         data_helper = self.data_helper
-        flood = data_helper.hazard('flood_data.geojson')
-        buildings = data_helper.exposure('buildings.geojson')
-        small_grid = data_helper.aggregation('small_grid.geojson')
-
-        flood_layer = file_upload(flood)
-        # Wait until metadata is read
-        wait_metadata(flood_layer)
-
-        buildings_layer = file_upload(buildings)
-        # Wait until metadata is read
-        wait_metadata(buildings_layer)
-
-        small_grid_layer = file_upload(small_grid)
-        # Wait until metadata is read
-        wait_metadata(small_grid_layer)
-
-        # Check layer uploaded
-        self.assertEqual(
-            Layer.objects.filter(id=flood_layer.id).count(), 1)
-        self.assertEqual(
-            Layer.objects.filter(id=buildings_layer.id).count(), 1)
-        self.assertEqual(
-            Layer.objects.filter(id=small_grid_layer.id).count(), 1)
-
-        form_data = {
-            'user': AnonymousUser(),
-            'user_title': 'Flood on Buildings custom Analysis',
-            'exposure_layer': buildings_layer.id,
-            'hazard_layer': flood_layer.id,
-            'aggregation_layer': small_grid_layer.id,
-            'keep': False,
-            'extent_option': Analysis.HAZARD_EXPOSURE_CODE,
-            'language_code': 'en'
-        }
-
-        form = AnalysisCreationForm(
-            form_data,
-            user=form_data['user'],
-            language_code=form_data['language_code'])
-
-        if not form.is_valid():
-            LOGGER.debug(form.errors)
-
-        self.assertTrue(form.is_valid())
-        analysis = form.save()
-        """:type: geosafe.models.Analysis"""
-
-        while analysis.get_task_state() == 'PENDING':
-            analysis.refresh_from_db()
-            time.sleep(1)
-
-        if analysis.get_task_result().failed():
-            LOGGER.debug(analysis.get_task_result().traceback)
-
-        self.assertTrue(analysis.get_task_result().successful())
-        self.assertEqual(analysis.get_task_state(), 'SUCCESS')
-
-        while not analysis.impact_layer:
-            analysis.refresh_from_db()
-            time.sleep(1)
-
-        impact_layer = analysis.impact_layer
-        wait_metadata(impact_layer)
-
-        LOGGER.debug('Layers: {0}'.format(Layer.objects.all()))
-
-        self.assertEqual(
-            impact_layer.inasafe_metadata.layer_purpose, 'impact_analysis')
-
-        flood_layer.delete()
-        buildings_layer.delete()
-        small_grid_layer.delete()
-        impact_layer.delete()
+        self.process_analysis(
+            hazard_layer=data_helper.hazard('flood_data.geojson'),
+            exposure_layer=data_helper.exposure('buildings.geojson'),
+            aggregation_layer=data_helper.aggregation('small_grid.geojson'),
+            user_title='Flood on Buildings with Aggregation'
+        )
 
     def test_run_analysis_selected_aggregation(self):
         """Test running analysis with selected aggregation."""
         data_helper = self.data_helper
-        flood = data_helper.hazard('flood_data.geojson')
-        buildings = data_helper.exposure('buildings.geojson')
-        small_grid = data_helper.aggregation('small_grid.geojson')
-
-        flood_layer = file_upload(flood)
-        # Wait until metadata is read
-        wait_metadata(flood_layer)
-
-        buildings_layer = file_upload(buildings)
-        # Wait until metadata is read
-        wait_metadata(buildings_layer)
-
-        small_grid_layer = file_upload(small_grid)
-        # Wait until metadata is read
-        wait_metadata(small_grid_layer)
-
-        # Check layer uploaded
-        self.assertEqual(
-            Layer.objects.filter(id=flood_layer.id).count(), 1)
-        self.assertEqual(
-            Layer.objects.filter(id=buildings_layer.id).count(), 1)
-        self.assertEqual(
-            Layer.objects.filter(id=small_grid_layer.id).count(), 1)
-
         aggregation_filter = {
             "property_name": "area_name",
             "values": ["area 1"]
         }
+        self.process_analysis(
+            hazard_layer=data_helper.hazard('flood_data.geojson'),
+            exposure_layer=data_helper.exposure('buildings.geojson'),
+            aggregation_layer=data_helper.aggregation('small_grid.geojson'),
+            aggregation_filter=aggregation_filter,
+            user_title='Flood on Buildings with Aggregation'
+        )
 
-        form_data = {
-            'user': AnonymousUser(),
-            'user_title': 'Flood on Buildings custom Analysis',
-            'exposure_layer': buildings_layer.id,
-            'hazard_layer': flood_layer.id,
-            'aggregation_layer': small_grid_layer.id,
-            'aggregation_filter': aggregation_filter,
-            'keep': False,
-            'extent_option': Analysis.HAZARD_EXPOSURE_CODE,
-            'language_code': 'en'
-        }
-
-        form = AnalysisCreationForm(
-            form_data,
-            user=form_data['user'],
-            language_code=form_data['language_code'])
-
-        if not form.is_valid():
-            LOGGER.debug(form.errors)
-
-        self.assertTrue(form.is_valid())
-        analysis = form.save()
-        """:type: geosafe.models.Analysis"""
-
-        while analysis.get_task_state() == 'PENDING':
-            analysis.refresh_from_db()
-            time.sleep(1)
-
-        if analysis.get_task_result().failed():
-            LOGGER.debug(analysis.get_task_result().traceback)
-
-        self.assertTrue(analysis.get_task_result().successful())
-        self.assertEqual(analysis.get_task_state(), 'SUCCESS')
-
-        while not analysis.impact_layer:
-            analysis.refresh_from_db()
-            time.sleep(1)
-
-        impact_layer = analysis.impact_layer
-        wait_metadata(impact_layer)
-
-        LOGGER.debug('Layers: {0}'.format(Layer.objects.all()))
-
-        self.assertEqual(
-            impact_layer.inasafe_metadata.layer_purpose, 'impact_analysis')
-
-        flood_layer.delete()
-        buildings_layer.delete()
-        small_grid_layer.delete()
-        impact_layer.delete()
+    @override_settings(
+        LOCALIZED_QGIS_REPORT_TEMPLATE={
+            'en': InaSAFETestData.qgis_templates('map-report-portrait.qpt')})
+    def test_run_analysis_custom_template(self):
+        """Test running analysis with custom report template."""
+        data_helper = self.data_helper
+        self.process_analysis(
+            hazard_layer=data_helper.hazard('flood_data.geojson'),
+            exposure_layer=data_helper.exposure('buildings.geojson'),
+            user_title='Analysis with custom template settings'
+        )
