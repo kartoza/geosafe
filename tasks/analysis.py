@@ -623,19 +623,17 @@ def process_impact_report(analysis, report_metadata):
         # upload using document upload form post request
         # TODO: find out how to upload document using post request
 
+        assign_report = {
+            'map-report': analysis.assign_report_map,
+            'impact-report-pdf': analysis.assign_report_table
+        }
         for key in report_metadata['pdf_product_tag'].keys():
-            map_report_exists = (
-                'map-report' in key and os.path.exists(
+            report_exists = (
+                key in assign_report and os.path.exists(
                     report_metadata['pdf_product_tag'][key]))
-            table_report_exists = (
-                'impact-report-pdf' in key and os.path.exists(
-                    report_metadata['pdf_product_tag'][key]))
-            if map_report_exists:
-                analysis.assign_report_map(
-                    report_metadata['pdf_product_tag'][key])
-            if table_report_exists:
-                analysis.assign_report_table(
-                    report_metadata['pdf_product_tag'][key])
+            if report_exists:
+                assign_report[key](report_metadata['pdf_product_tag'][key])
+
         analysis.save()
 
         # reference to impact layer
