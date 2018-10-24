@@ -251,7 +251,7 @@ class AnalysisCreateView(CreateView):
         sections = []
         for p in purposes:
             is_section_filtered = False
-            if p['name'] == 'aggregation':
+            if p['key'] == 'aggregation':
                 layers, is_filtered = retrieve_layers(
                     p.get('name'),
                     bbox=bbox,
@@ -272,7 +272,7 @@ class AnalysisCreateView(CreateView):
                 categories = []
                 for idx, c in enumerate(p.get('categories')):
                     layers, is_filtered = retrieve_layers(
-                        p.get('name'),
+                        p.get('key'),
                         c,
                         bbox=bbox,
                         authorized_objects=authorized_objects

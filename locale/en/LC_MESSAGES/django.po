@@ -2,474 +2,736 @@
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the PACKAGE package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
-#
+# 
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-10-07 12:40-0500\n"
+"POT-Creation-Date: 2018-10-19 01:35-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
-"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Language: \n"
+
+#: forms.py:37
+msgid "Default title generated"
+msgstr "Default title generated"
 
 #: templates/geonode_base.html:7 templates/index.html:16
 msgid "GeoSAFE"
-msgstr ""
+msgstr "GeoSAFE"
 
 #: templates/geonode_base.html:11
 msgid "MetaSearch"
-msgstr ""
+msgstr "MetaSearch"
 
 #: templates/geonode_base.html:12
 msgid "Create Analysis"
-msgstr ""
+msgstr "Create Analysis"
 
 #: templates/geonode_base.html:13
 msgid "Analysis List"
-msgstr ""
+msgstr "Analysis List"
 
-#: templates/geosafe/analysis/create.html:429
+#: templates/geosafe/analysis/create_base.html:429
 msgid "Please wait while the page is loading...."
-msgstr ""
+msgstr "Please wait while the page is loading...."
 
-#: templates/geosafe/analysis/create.html:438
+#: templates/geosafe/analysis/create_base.html:438
 msgid "Upgrade Your Browser"
-msgstr ""
+msgstr "Upgrade Your Browser"
 
-#: templates/geosafe/analysis/create.html:450
+#: templates/geosafe/analysis/create_base.html:450
 #: templates/geosafe/analysis/modal/analysis_confirmation.html:62
-#: templates/geosafe/analysis/modal/impact_card.html:70
-#: templates/geosafe/analysis/modal/impact_card.html:107
+#: templates/geosafe/analysis/modal/impact_card.html:109
+#: templates/geosafe/analysis/modal/waiting_analysis.html:49
 msgid "Close"
-msgstr ""
+msgstr "Close"
 
-#: templates/geosafe/analysis/detail.html:10
+#: templates/geosafe/analysis/create_base.html:585
+#: templates/geosafe/analysis/create_base.html:598
+msgid "Swap hazard and exposure order"
+msgstr "Swap hazard and exposure order"
+
+#: templates/geosafe/analysis/create_base.html:616
+msgid "Zoom to global view"
+msgstr "Zoom to global view"
+
+#: templates/geosafe/analysis/create_base.html:628
+msgid ""
+"You can choose specific aggregation polygons to simplify your analysis area."
+msgstr ""
+"You can choose specific aggregation polygons to simplify your analysis area."
+
+#: templates/geosafe/analysis/create_base.html:630
+msgid "Select Features"
+msgstr "Select Features"
+
+#: templates/geosafe/analysis/create_base.html:640
+msgid "Select aggregation features"
+msgstr "Select aggregation features"
+
+#: templates/geosafe/analysis/create_base.html:651
+msgid "cancel"
+msgstr "cancel"
+
+#: templates/geosafe/analysis/detail_base.html:10
 msgid "Analysis Details"
-msgstr ""
+msgstr "Analysis Details"
 
-#: templates/geosafe/analysis/detail.html:20
+#: templates/geosafe/analysis/detail_base.html:20
 msgid "Exposure Layer:"
-msgstr ""
+msgstr "Exposure Layer:"
 
-#: templates/geosafe/analysis/detail.html:24
+#: templates/geosafe/analysis/detail_base.html:24
 msgid "Hazard Layer:"
-msgstr ""
+msgstr "Hazard Layer:"
 
-#: templates/geosafe/analysis/detail.html:28
+#: templates/geosafe/analysis/detail_base.html:28
 msgid "Aggregation Layer:"
-msgstr ""
+msgstr "Aggregation Layer:"
 
-#: templates/geosafe/analysis/detail.html:32
+#: templates/geosafe/analysis/detail_base.html:32
 msgid "Impact Function ID:"
-msgstr ""
+msgstr "Impact Function ID:"
 
-#: templates/geosafe/analysis/detail.html:34
+#: templates/geosafe/analysis/detail_base.html:34
 msgid "Extent:"
-msgstr ""
+msgstr "Extent:"
 
-#: templates/geosafe/analysis/detail.html:36
+#: templates/geosafe/analysis/detail_base.html:36
 msgid "Impact Layer:"
-msgstr ""
+msgstr "Impact Layer:"
 
-#: templates/geosafe/analysis/detail.html:38
-#: templates/geosafe/analysis/list.html:126
+#: templates/geosafe/analysis/detail_base.html:38
+#: templates/geosafe/analysis/list_base.html:126
 msgid "Analysis not yet running"
-msgstr ""
+msgstr "Analysis not yet running"
 
-#: templates/geosafe/analysis/detail.html:42
-#: templates/geosafe/analysis/list.html:130
+#: templates/geosafe/analysis/detail_base.html:42
+#: templates/geosafe/analysis/list_base.html:130
 msgid "Task Status:"
-msgstr ""
+msgstr "Task Status:"
 
-#: templates/geosafe/analysis/detail.html:60
+#: templates/geosafe/analysis/detail_base.html:50
+#: templates/geosafe/analysis/modal/waiting_analysis.html:21
+msgid "Error Detail"
+msgstr "Error Detail"
+
+#: templates/geosafe/analysis/detail_base.html:60
 msgid "Impact Map Report:"
-msgstr ""
+msgstr "Impact Map Report:"
 
-#: templates/geosafe/analysis/detail.html:62
-#: templates/geosafe/analysis/list.html:157
+#: templates/geosafe/analysis/detail_base.html:62
+#: templates/geosafe/analysis/list_base.html:157
 msgid "Map Report"
-msgstr ""
+msgstr "Map Report"
 
-#: templates/geosafe/analysis/detail.html:64
+#: templates/geosafe/analysis/detail_base.html:64
 msgid "There is no map report generated for this Impact Layer"
-msgstr ""
+msgstr "There is no map report generated for this Impact Layer"
 
-#: templates/geosafe/analysis/detail.html:68
+#: templates/geosafe/analysis/detail_base.html:68
 msgid "Impact Table Report:"
-msgstr ""
+msgstr "Impact Table Report:"
 
-#: templates/geosafe/analysis/detail.html:70
-#: templates/geosafe/analysis/list.html:162
+#: templates/geosafe/analysis/detail_base.html:70
+#: templates/geosafe/analysis/list_base.html:162
 msgid "Table Report"
-msgstr ""
+msgstr "Table Report"
 
-#: templates/geosafe/analysis/detail.html:72
+#: templates/geosafe/analysis/detail_base.html:72
 msgid "There is no table report generated for this Impact Layer"
-msgstr ""
+msgstr "There is no table report generated for this Impact Layer"
 
-#: templates/geosafe/analysis/detail.html:82
-#: templates/geosafe/analysis/list.html:137
-#: templates/geosafe/analysis/modal/waiting_analysis.html:51
+#: templates/geosafe/analysis/detail_base.html:82
+#: templates/geosafe/analysis/list_base.html:137
+#: templates/geosafe/analysis/modal/waiting_analysis.html:54
 msgid "Rerun Analysis"
-msgstr ""
+msgstr "Rerun Analysis"
 
-#: templates/geosafe/analysis/dynamic_scripts/create/main.html:338
-msgid "The selected analysis extent is "
-msgstr ""
+#: templates/geosafe/analysis/dynamic_scripts/create/main.html:95
+#: templates/geosafe/analysis/dynamic_scripts/create/main.html:101
+#: templates/geosafe/analysis/dynamic_scripts/create/main.html:107
+#: templates/geosafe/analysis/dynamic_scripts/create/side_panel.html:504
+msgid "Extent Changed"
+msgstr "Extent Changed"
 
-#: templates/geosafe/analysis/dynamic_scripts/create/main.html:338
-msgid " m2. "
+#: templates/geosafe/analysis/dynamic_scripts/create/main.html:96
+msgid "No usable layer in current extent"
+msgstr "No usable layer in current extent"
+
+#: templates/geosafe/analysis/dynamic_scripts/create/main.html:102
+msgid "No usable exposure layer in current extent"
+msgstr "No usable exposure layer in current extent"
+
+#: templates/geosafe/analysis/dynamic_scripts/create/main.html:108
+msgid "No usable hazard layer in current extent"
+msgstr "No usable hazard layer in current extent"
+
+#: templates/geosafe/analysis/dynamic_scripts/create/main.html:155
+msgid "Analysis Extent Too Big"
+msgstr "Analysis Extent Too Big"
+
+#: templates/geosafe/analysis/dynamic_scripts/create/main.html:157
+msgid "You might want to zoom in to perform analysis."
+msgstr "You might want to zoom in to perform analysis."
+
+#: templates/geosafe/analysis/dynamic_scripts/create/main.html:206
+#: templates/geosafe/analysis/dynamic_scripts/create/main.html:239
+#: templates/geosafe/analysis/options_panel_base.html:124
+#: templates/geosafe/analysis/options_panel_base.html:125
+msgid "Show Analysis Summary"
+msgstr "Show Analysis Summary"
+
+#: templates/geosafe/analysis/dynamic_scripts/create/main.html:208
+#: templates/geosafe/analysis/dynamic_scripts/create/main.html:241
+msgid ""
+"Please select desired impact layer first, before viewing analysis summary."
 msgstr ""
+"Please select desired impact layer first, before viewing analysis summary."
+
+#: templates/geosafe/analysis/dynamic_scripts/create/main.html:219
+#, python-brace-format
+msgid "Showing summary for ${impact_layer_title}"
+msgstr "Showing summary for ${impact_layer_title}"
+
+#: templates/geosafe/analysis/dynamic_scripts/create/main.html:302
+msgid "Select Aggregation"
+msgstr "Select Aggregation"
+
+#: templates/geosafe/analysis/dynamic_scripts/create/main.html:303
+msgid ""
+"Now choose an aggregation dataset. This is optional, you can skip this."
+msgstr ""
+"Now choose an aggregation dataset. This is optional, you can skip this."
+
+#: templates/geosafe/analysis/dynamic_scripts/create/main.html:328
+msgid "Hazard and exposure are selected. "
+msgstr "Hazard and exposure are selected. "
+
+#: templates/geosafe/analysis/dynamic_scripts/create/main.html:329
+msgid "Run Analysis"
+msgstr "Run Analysis"
 
 #: templates/geosafe/analysis/dynamic_scripts/create/main.html:339
-msgid "Run Analysis"
+msgid "You can now run analysis."
+msgstr "You can now run analysis."
+
+#: templates/geosafe/analysis/dynamic_scripts/create/main.html:342
+msgid ""
+"You can now run analysis, but the analysis might take a long time to "
+"complete."
 msgstr ""
+"You can now run analysis, but the analysis might take a long time to "
+"complete."
+
+#: templates/geosafe/analysis/dynamic_scripts/create/main.html:346
+#, python-brace-format
+msgid ""
+"${both_selected} The selected analysis extent is ${formatted_area} m2. "
+"${allow_message}"
+msgstr ""
+"${both_selected} The selected analysis extent is ${formatted_area} m2. "
+"${allow_message}"
+
+#: templates/geosafe/analysis/dynamic_scripts/create/main.html:354
+msgid "If hazard and exposure were selected, you can run analysis"
+msgstr "If hazard and exposure were selected, you can run analysis"
 
 #: templates/geosafe/analysis/dynamic_scripts/create/side_panel.html:16
-msgid "sign in"
+msgid ""
+"<span class='alert-danger'> - Please <a href='#' data-toggle='modal' data-"
+"target='#SigninModal' role='button' >sign in</a> to save analysis </span>"
 msgstr ""
+"<span class='alert-danger'> - Please <a href='#' data-toggle='modal' data-"
+"target='#SigninModal' role='button' >sign in</a> to save analysis </span>"
 
-#: templates/geosafe/analysis/legend.html:4
+#: templates/geosafe/analysis/dynamic_scripts/create/side_panel.html:208
+msgid "InaSAFE Exposure"
+msgstr "InaSAFE Exposure"
+
+#: templates/geosafe/analysis/dynamic_scripts/create/side_panel.html:222
+#: templates/geosafe/analysis/dynamic_scripts/create/side_panel.html:308
+#: templates/geosafe/analysis/dynamic_scripts/create/side_panel.html:377
+#: templates/geosafe/analysis/dynamic_scripts/create/side_panel.html:465
+msgid "${$a.text()} selected."
+msgstr "${$a.text()} selected."
+
+#: templates/geosafe/analysis/dynamic_scripts/create/side_panel.html:235
+msgid "Exposure unselected."
+msgstr "Exposure unselected."
+
+#: templates/geosafe/analysis/dynamic_scripts/create/side_panel.html:294
+msgid "InaSAFE Hazard"
+msgstr "InaSAFE Hazard"
+
+#: templates/geosafe/analysis/dynamic_scripts/create/side_panel.html:321
+msgid "Hazard unselected."
+msgstr "Hazard unselected."
+
+#: templates/geosafe/analysis/dynamic_scripts/create/side_panel.html:371
+msgid "InaSAFE Impact"
+msgstr "InaSAFE Impact"
+
+#: templates/geosafe/analysis/dynamic_scripts/create/side_panel.html:390
+msgid "Impact unselected."
+msgstr "Impact unselected."
+
+#: templates/geosafe/analysis/dynamic_scripts/create/side_panel.html:448
+msgid "InaSAFE Aggregation"
+msgstr "InaSAFE Aggregation"
+
+#: templates/geosafe/analysis/dynamic_scripts/create/side_panel.html:485
+msgid "Aggregation unselected."
+msgstr "Aggregation unselected."
+
+#: templates/geosafe/analysis/dynamic_scripts/create/side_panel.html:505
+msgid "Filtering available layer for extent"
+msgstr "Filtering available layer for extent"
+
+#: templates/geosafe/analysis/legend_base.html:5
 msgid "Legend"
-msgstr ""
+msgstr "Legend"
 
-#: templates/geosafe/analysis/legend.html:8
+#: templates/geosafe/analysis/legend_base.html:9
 msgid "Hazard:"
-msgstr ""
+msgstr "Hazard:"
 
-#: templates/geosafe/analysis/legend.html:15
+#: templates/geosafe/analysis/legend_base.html:16
 msgid "Exposure:"
-msgstr ""
+msgstr "Exposure:"
 
-#: templates/geosafe/analysis/legend.html:22
+#: templates/geosafe/analysis/legend_base.html:23
 msgid "Aggregation:"
-msgstr ""
+msgstr "Aggregation:"
 
-#: templates/geosafe/analysis/legend.html:29
+#: templates/geosafe/analysis/legend_base.html:30
 msgid "Impact:"
-msgstr ""
+msgstr "Impact:"
 
-#: templates/geosafe/analysis/list.html:61
+#: templates/geosafe/analysis/list_base.html:61
 msgid "List of Analysis"
-msgstr ""
+msgstr "List of Analysis"
 
-#: templates/geosafe/analysis/list.html:67
+#: templates/geosafe/analysis/list_base.html:67
 msgid "All"
-msgstr ""
+msgstr "All"
 
-#: templates/geosafe/analysis/list.html:72
+#: templates/geosafe/analysis/list_base.html:72
 msgid "Anonymous"
-msgstr ""
+msgstr "Anonymous"
 
-#: templates/geosafe/analysis/list.html:74
+#: templates/geosafe/analysis/list_base.html:74
 msgid "Current users"
-msgstr ""
+msgstr "Current users"
 
-#: templates/geosafe/analysis/list.html:81
+#: templates/geosafe/analysis/list_base.html:81
 msgid "User"
-msgstr ""
+msgstr "User"
 
-#: templates/geosafe/analysis/list.html:82
+#: templates/geosafe/analysis/list_base.html:82
 msgid "Date Created"
-msgstr ""
+msgstr "Date Created"
 
-#: templates/geosafe/analysis/list.html:87
+#: templates/geosafe/analysis/list_base.html:87
 msgid "Impact Function Name"
-msgstr ""
+msgstr "Impact Function Name"
 
-#: templates/geosafe/analysis/list.html:88
+#: templates/geosafe/analysis/list_base.html:88
 msgid "Result"
-msgstr ""
+msgstr "Result"
 
-#: templates/geosafe/analysis/list.html:89
+#: templates/geosafe/analysis/list_base.html:89
 msgid "View"
-msgstr ""
+msgstr "View"
 
-#: templates/geosafe/analysis/list.html:91
+#: templates/geosafe/analysis/list_base.html:91
 msgid "Save"
-msgstr ""
+msgstr "Save"
 
-#: templates/geosafe/analysis/list.html:93
-#: templates/geosafe/analysis/list.html:186
-#: templates/geosafe/analysis/modal/impact_card.html:37
+#: templates/geosafe/analysis/list_base.html:93
+#: templates/geosafe/analysis/list_base.html:186
+#: templates/geosafe/analysis/modal/impact_card.html:40
 msgid "Download"
-msgstr ""
+msgstr "Download"
 
-#: templates/geosafe/analysis/list.html:106
-#: templates/geosafe/analysis/list.html:188
+#: templates/geosafe/analysis/list_base.html:106
+#: templates/geosafe/analysis/list_base.html:188
 msgid "Result not yet created"
-msgstr ""
+msgstr "Result not yet created"
 
-#: templates/geosafe/analysis/list.html:128
+#: templates/geosafe/analysis/list_base.html:128
 msgid "Duration:"
-msgstr ""
+msgstr "Duration:"
 
-#: templates/geosafe/analysis/list.html:131
+#: templates/geosafe/analysis/list_base.html:131
 msgid "Start Time:"
-msgstr ""
+msgstr "Start Time:"
 
-#: templates/geosafe/analysis/list.html:145
+#: templates/geosafe/analysis/list_base.html:145
 msgid "Cancel Analysis"
-msgstr ""
+msgstr "Cancel Analysis"
 
-#: templates/geosafe/analysis/list.html:153
+#: templates/geosafe/analysis/list_base.html:153
 msgid "Analysis Page"
-msgstr ""
+msgstr "Analysis Page"
 
-#: templates/geosafe/analysis/list.html:176
-#: templates/geosafe/analysis/modal/impact_card.html:66
+#: templates/geosafe/analysis/list_base.html:176
+#: templates/geosafe/analysis/modal/impact_card.html:71
 msgid "PROCESSING"
-msgstr ""
+msgstr "PROCESSING"
 
-#: templates/geosafe/analysis/list.html:196
+#: templates/geosafe/analysis/list_base.html:196
 msgid "No analysis yet."
-msgstr ""
+msgstr "No analysis yet."
 
-#: templates/geosafe/analysis/list.html:196
-msgid "Why not creating one?"
-msgstr ""
+#: templates/geosafe/analysis/list_base.html:197
+msgid "Why not create one?"
+msgstr "Why not create one?"
 
 #: templates/geosafe/analysis/modal/analysis_confirmation.html:13
 msgid "InaSAFE Analysis"
-msgstr ""
+msgstr "InaSAFE Analysis"
 
 #: templates/geosafe/analysis/modal/analysis_confirmation.html:19
 msgid "Analysis Title:"
-msgstr ""
+msgstr "Analysis Title:"
 
 #: templates/geosafe/analysis/modal/analysis_confirmation.html:23
 msgid "Hazard layer"
-msgstr ""
+msgstr "Hazard layer"
 
 #: templates/geosafe/analysis/modal/analysis_confirmation.html:27
 msgid "Exposure layer"
-msgstr ""
+msgstr "Exposure layer"
 
 #: templates/geosafe/analysis/modal/analysis_confirmation.html:31
 msgid "Aggregation Layer"
-msgstr ""
+msgstr "Aggregation Layer"
+
+#: templates/geosafe/analysis/modal/analysis_confirmation.html:36
+msgid "Save analysis"
+msgstr "Save analysis"
 
 #: templates/geosafe/analysis/modal/analysis_confirmation.html:44
 msgid "The output layer will be permanently saved in GeoNode."
-msgstr ""
+msgstr "The output layer will be permanently saved in GeoNode."
 
 #: templates/geosafe/analysis/modal/analysis_confirmation.html:47
 msgid "The output layer will be deleted at the end of the day."
-msgstr ""
+msgstr "The output layer will be deleted at the end of the day."
 
 #: templates/geosafe/analysis/modal/analysis_confirmation.html:51
 msgid "You are not logged in, so you won't be able to save analysis."
-msgstr ""
+msgstr "You are not logged in, so you won't be able to save analysis."
 
 #: templates/geosafe/analysis/modal/analysis_confirmation.html:55
 msgid "Analysis extent"
-msgstr ""
+msgstr "Analysis extent"
 
 #: templates/geosafe/analysis/modal/analysis_confirmation.html:63
 msgid "Run analysis"
-msgstr ""
+msgstr "Run analysis"
 
 #: templates/geosafe/analysis/modal/impact_card.html:14
 msgid "Analysis Result"
-msgstr ""
+msgstr "Analysis Result"
 
-#: templates/geosafe/analysis/modal/impact_card.html:41
+#: templates/geosafe/analysis/modal/impact_card.html:21
+#, python-format
+msgid ""
+"\n"
+"                        In the event of %(analysis.hazard_layer.title)s, the number of %(summary.exposure_type)ss in hazard areas in %(analysis.exposure_layer.title)s that are likely to be affected is\n"
+"                        "
+msgstr ""
+"\n"
+"                        In the event of %(analysis.hazard_layer.title)s, the number of %(summary.exposure_type)ss in hazard areas in %(analysis.exposure_layer.title)s that are likely to be affected is\n"
+"                        "
+
+#: templates/geosafe/analysis/modal/impact_card.html:25
+#, python-format
+msgid ""
+"\n"
+"                        In the event of %(analysis.hazard_layer.title)s, the number of %(summary.exposure_type)s in hazard areas in %(analysis.exposure_layer.title)s that are likely to be affected is\n"
+"                        "
+msgstr ""
+"\n"
+"                        In the event of %(analysis.hazard_layer.title)s, the number of %(summary.exposure_type)s in hazard areas in %(analysis.exposure_layer.title)s that are likely to be affected is\n"
+"                        "
+
+#: templates/geosafe/analysis/modal/impact_card.html:46
 msgid "Impact report"
-msgstr ""
+msgstr "Impact report"
 
-#: templates/geosafe/analysis/modal/impact_card.html:44
+#: templates/geosafe/analysis/modal/impact_card.html:49
 msgid "Table report"
-msgstr ""
+msgstr "Table report"
 
-#: templates/geosafe/analysis/modal/impact_card.html:47
+#: templates/geosafe/analysis/modal/impact_card.html:52
 msgid "Download Impact & Table reports"
-msgstr ""
+msgstr "Download Impact & Table reports"
 
-#: templates/geosafe/analysis/modal/impact_card.html:50
+#: templates/geosafe/analysis/modal/impact_card.html:55
 msgid "Download Impact Layer"
-msgstr ""
+msgstr "Download Impact Layer"
 
-#: templates/geosafe/analysis/modal/impact_card.html:57
-msgid "checked"
-msgstr ""
-
-#: templates/geosafe/analysis/modal/impact_card.html:60
-msgid "disabled"
-msgstr ""
-
-#: templates/geosafe/analysis/modal/impact_card.html:63
+#: templates/geosafe/analysis/modal/impact_card.html:68
 msgid "Save Result"
-msgstr ""
+msgstr "Save Result"
 
-#: templates/geosafe/analysis/modal/impact_card.html:78
+#: templates/geosafe/analysis/modal/impact_card.html:80
 msgid "Log in to keep analysis"
-msgstr ""
+msgstr "Log in to keep analysis"
 
-#: templates/geosafe/analysis/modal/impact_card.html:93
+#: templates/geosafe/analysis/modal/impact_card.html:95
 msgid "Download Layer"
-msgstr ""
+msgstr "Download Layer"
 
 #: templates/geosafe/analysis/modal/waiting_analysis.html:9
 msgid "Analysis Failed"
-msgstr ""
+msgstr "Analysis Failed"
 
 #: templates/geosafe/analysis/modal/waiting_analysis.html:14
 msgid "Waiting for analysis to run"
-msgstr ""
-
-#: templates/geosafe/analysis/modal/waiting_analysis.html:21
-msgid "Error Detail"
-msgstr ""
+msgstr "Waiting for analysis to run"
 
 #: templates/geosafe/analysis/modal/waiting_analysis.html:24
 msgid "Analysis process has failed."
-msgstr ""
+msgstr "Analysis process has failed."
 
 #: templates/geosafe/analysis/modal/waiting_analysis.html:31
 msgid "The analysis is running..."
-msgstr ""
+msgstr "The analysis is running..."
 
-#: templates/geosafe/analysis/modal/waiting_analysis.html:39
+#: templates/geosafe/analysis/modal/waiting_analysis.html:35
+#, python-format
+msgid ""
+"\n"
+"                            However, you can close this message if you want to continue working. <br />\n"
+"                            Your analysis covers an area of <span id=\"analysis_area\"></span> km<sup>2</sup>. The larger the area, the longer the analysis will take.<br />\n"
+"                            See the <a href=\"%(analysis_url)s\">Analysis List</a> to monitor the progress of this analysis and to view the results when it is complete.\n"
+"                        "
+msgstr ""
+"\n"
+"                            However, you can close this message if you want to continue working. <br />\n"
+"                            Your analysis covers an area of <span id=\"analysis_area\"></span> km<sup>2</sup>. The larger the area, the longer the analysis will take.<br />\n"
+"                            See the <a href=\"%(analysis_url)s\">Analysis List</a> to monitor the progress of this analysis and to view the results when it is complete.\n"
+"                        "
+
+#: templates/geosafe/analysis/modal/waiting_analysis.html:42
 msgid "This window will automatically close when the analysis is complete."
-msgstr ""
+msgstr "This window will automatically close when the analysis is complete."
 
-#: templates/geosafe/analysis/options_panel.html:13
+#: templates/geosafe/analysis/options_panel_base.html:13
+msgid "Select Hazard"
+msgstr "Select Hazard"
+
+#: templates/geosafe/analysis/options_panel_base.html:14
 msgid "To get started, select hazard layer that you want to use."
-msgstr ""
+msgstr "To get started, select hazard layer that you want to use."
 
-#: templates/geosafe/analysis/options_panel.html:17
+#: templates/geosafe/analysis/options_panel_base.html:17
+msgid "Select Exposure"
+msgstr "Select Exposure"
+
+#: templates/geosafe/analysis/options_panel_base.html:18
 msgid "Now choose an exposure dataset."
-msgstr ""
+msgstr "Now choose an exposure dataset."
 
-#: templates/geosafe/analysis/options_panel.html:39
-#: templates/geosafe/analysis/options_panel.html:71
+#: templates/geosafe/analysis/options_panel_base.html:39
+#: templates/geosafe/analysis/options_panel_base.html:71
+#: templates/geosafe/analysis/options_panel_base.html:115
+#, python-format
+msgid "No %(category_name)s layer for the extent."
+msgstr "No %(category_name)s layer for the extent."
+
+#: templates/geosafe/analysis/options_panel_base.html:40
+#: templates/geosafe/analysis/options_panel_base.html:72
 msgid "Upload Layer"
-msgstr ""
+msgstr "Upload Layer"
 
-#: templates/geosafe/analysis/options_panel.html:90
+#: templates/geosafe/analysis/options_panel_base.html:49
+msgid "Filtered"
+msgstr "Filtered"
+
+#: templates/geosafe/analysis/options_panel_base.html:50
+msgid "Unfiltered"
+msgstr "Unfiltered"
+
+#: templates/geosafe/analysis/options_panel_base.html:91
 msgid "Run"
-msgstr ""
+msgstr "Run"
 
-#: templates/geosafe/analysis/options_panel.html:95
+#: templates/geosafe/analysis/options_panel_base.html:96
 msgid "Reports"
-msgstr ""
+msgstr "Reports"
 
-#: templates/geosafe/analysis/options_panel.html:107
+#: templates/geosafe/analysis/options_panel_base.html:108
 msgid "Select an impact layer"
-msgstr ""
+msgstr "Select an impact layer"
 
-#: templates/geosafe/analysis/options_panel.html:115
+#: templates/geosafe/analysis/options_panel_base.html:116
 msgid "Run analysis to create impact layer"
-msgstr ""
+msgstr "Run analysis to create impact layer"
 
-#: templates/geosafe/analysis/options_panel.html:124
-msgid "Show Analysis Summary"
-msgstr ""
-
-#: templates/geosafe/analysis/options_panel.html:128
+#: templates/geosafe/analysis/options_panel_base.html:129
 msgid "Start Again"
-msgstr ""
+msgstr "Start Again"
 
-#: templates/geosafe/analysis/summary/landcover_report.html:9
+#: templates/geosafe/analysis/summary/landcover_report.html:14
 msgid "Total Area (ha)"
-msgstr ""
+msgstr "Total Area (ha)"
 
-#: templates/geosafe/analysis/summary/landcover_report.html:20
+#: templates/geosafe/analysis/summary/landcover_report.html:25
 msgid "Landcover Affected (ha)"
-msgstr ""
+msgstr "Landcover Affected (ha)"
 
-#: templates/geosafe/analysis/summary/landcover_report.html:30
+#: templates/geosafe/analysis/summary/landcover_report.html:35
 msgid "Hazard areas (ha)"
-msgstr ""
+msgstr "Hazard areas (ha)"
 
 #: templates/geosafe/analysis/summary/polygon_people_report.html:9
-#: templates/geosafe/analysis/summary/population_report.html:9
+#: templates/geosafe/analysis/summary/population_report.html:14
 msgid "Total Population"
-msgstr ""
+msgstr "Total Population"
 
 #: templates/geosafe/analysis/summary/polygon_people_report.html:20
-#: templates/geosafe/analysis/summary/population_report.html:20
+#: templates/geosafe/analysis/summary/population_report.html:25
 msgid "Population Affected"
-msgstr ""
+msgstr "Population Affected"
 
 #: templates/geosafe/analysis/summary/polygon_people_report.html:30
-#: templates/geosafe/analysis/summary/population_report.html:30
-#: templates/geosafe/analysis/summary/structure_report.html:30
+#: templates/geosafe/analysis/summary/population_report.html:35
+#: templates/geosafe/analysis/summary/structure_report.html:35
 msgid "Hazard areas"
-msgstr ""
+msgstr "Hazard areas"
 
-#: templates/geosafe/analysis/summary/road_report.html:9
+#: templates/geosafe/analysis/summary/road_report.html:14
 msgid "Total Roads (m)"
-msgstr ""
+msgstr "Total Roads (m)"
 
-#: templates/geosafe/analysis/summary/road_report.html:20
+#: templates/geosafe/analysis/summary/road_report.html:25
 msgid "Roads Affected (m)"
-msgstr ""
+msgstr "Roads Affected (m)"
 
-#: templates/geosafe/analysis/summary/road_report.html:30
+#: templates/geosafe/analysis/summary/road_report.html:35
 msgid "Hazard areas (m)"
-msgstr ""
+msgstr "Hazard areas (m)"
 
-#: templates/geosafe/analysis/summary/structure_report.html:9
+#: templates/geosafe/analysis/summary/structure_report.html:14
 msgid "Total Buildings"
-msgstr ""
+msgstr "Total Buildings"
 
-#: templates/geosafe/analysis/summary/structure_report.html:20
+#: templates/geosafe/analysis/summary/structure_report.html:25
 msgid "Buildings Affected"
-msgstr ""
+msgstr "Buildings Affected"
 
 #: templates/index.html:6
 msgid "Welcome!"
-msgstr ""
+msgstr "Welcome!"
 
-#: templates/index.html:50
+#: templates/index.html:28
+msgid "Realistic Natural Hazard Impact Analysis - InaSAFE made easy"
+msgstr "Realistic Natural Hazard Impact Analysis - InaSAFE made easy"
+
+#: templates/index.html:55
 msgid "<i class=\"fa fa-arrow-down fa-3x icon-white\"></i>"
-msgstr ""
+msgstr "<i class=\"fa fa-arrow-down fa-3x icon-white\"></i>"
 
-#: templates/index.html:107
+#: templates/index.html:112
 msgid "<i class=\"fa fa-arrow-down icon-blue fa-5x\"></i>"
-msgstr ""
+msgstr "<i class=\"fa fa-arrow-down icon-blue fa-5x\"></i>"
 
-#: templates/index.html:163
+#: templates/index.html:168
 msgid "Search for Data."
-msgstr ""
+msgstr "Search for Data."
 
 #: templates/layers/layer_metadata_detail.html:13
 msgid "InaSAFE"
-msgstr ""
+msgstr "InaSAFE"
 
 #: templates/layers/layer_metadata_detail.html:19
 msgid "Layer Purpose"
-msgstr ""
+msgstr "Layer Purpose"
 
 #: templates/layers/layer_metadata_detail.html:24
 msgid "Category"
-msgstr ""
+msgstr "Category"
 
 #: templates/layers/layer_metadata_detail.html:29
 msgid "Keywords XML"
-msgstr ""
+msgstr "Keywords XML"
 
-#: views/analysis.py:613
+#: views/analysis.py:218
+msgid "hazard"
+msgstr "hazard"
+
+#: views/analysis.py:222
+msgid "Select a flood layer"
+msgstr "Select a flood layer"
+
+#: views/analysis.py:223
+msgid "Select a tsunami layer"
+msgstr "Select a tsunami layer"
+
+#: views/analysis.py:224
+msgid "Select an earthquake layer"
+msgstr "Select an earthquake layer"
+
+#: views/analysis.py:225
+msgid "Select a volcano layer"
+msgstr "Select a volcano layer"
+
+#: views/analysis.py:226
+msgid "Select a volcanic ash layer"
+msgstr "Select a volcanic ash layer"
+
+#: views/analysis.py:231
+msgid "exposure"
+msgstr "exposure"
+
+#: views/analysis.py:239
+msgid "Select a population layer"
+msgstr "Select a population layer"
+
+#: views/analysis.py:240
+msgid "Select a roads layer"
+msgstr "Select a roads layer"
+
+#: views/analysis.py:241
+msgid "Select a structure layer"
+msgstr "Select a structure layer"
+
+#: views/analysis.py:247
+msgid "aggregation"
+msgstr "aggregation"
+
+#: views/analysis.py:248
+msgid "Select an aggregation layer"
+msgstr "Select an aggregation layer"
+
+#: views/analysis.py:659
 msgid "Hazard and exposure does not intersect."
-msgstr ""
+msgstr "Hazard and exposure does not intersect."
 
-#: views/analysis.py:633
+#: views/analysis.py:679
 msgid "View extent does not intersect hazard and exposure."
-msgstr ""
+msgstr "View extent does not intersect hazard and exposure."
 
-#: views/analysis.py:656
+#: views/analysis.py:702
 #, python-brace-format
 msgid ""
-"Analysis extent exceeded area limit: {limit} km<sup>2</sup>.<br />&nbsp;"
-"Analysis might take a long time to complete."
+"Analysis extent exceeded area limit: {limit} km<sup>2</sup>.<br "
+"/>&nbsp;Analysis might take a long time to complete."
 msgstr ""
+"Analysis extent exceeded area limit: {limit} km<sup>2</sup>.<br "
+"/>&nbsp;Analysis might take a long time to complete."
 
-#: views/analysis.py:673
+#: views/analysis.py:719
 msgid "Analysis will be performed on this given view extent."
-msgstr ""
+msgstr "Analysis will be performed on this given view extent."
