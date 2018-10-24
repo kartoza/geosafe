@@ -430,13 +430,13 @@ def process_impact_result(self, impact_result, analysis_id):
             if os.path.exists(custom_template_path):
                 custom_template_path = get_layer_path(custom_template_path)
 
-        async = generate_report.delay(
+        result = generate_report.delay(
             impact_url,
             custom_report_template_uri=custom_template_path,
             locale=analysis.language_code)
 
         with allow_join_result():
-            report_metadata = async.get().get('output', {})
+            report_metadata = result.get().get('output', {})
 
         for product_key, products in report_metadata.iteritems():
             for report_key, report_url in products.iteritems():
