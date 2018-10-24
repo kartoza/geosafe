@@ -214,8 +214,7 @@ class Analysis(models.Model):
         max_length=10,
         verbose_name='Language Code',
         help_text='Language being used by the django app',
-        blank=True,
-        null=True
+        default='en'
     )
 
     def assign_report_map(self, filename):

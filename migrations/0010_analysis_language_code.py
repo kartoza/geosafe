@@ -14,6 +14,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='analysis',
             name='language_code',
-            field=models.CharField(help_text=b'Language being used by the django app', max_length=10, null=True, verbose_name=b'Language Code', blank=True),
+            field=models.CharField(default=b'en', help_text=b'Language being used by the django app', max_length=10, verbose_name=b'Language Code'),
         ),
     ]

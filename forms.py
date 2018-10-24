@@ -137,7 +137,8 @@ class AnalysisCreationForm(models.ModelForm):
 
     def save(self, commit=True):
         instance = super(AnalysisCreationForm, self).save(commit=False)
-        instance.language_code = self.language_code
+        if self.language_code:
+            instance.language_code = self.language_code
         if self.user.username:
             instance.user = self.user
         else:
