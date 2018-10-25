@@ -253,7 +253,7 @@ class AnalysisCreateView(CreateView):
             is_section_filtered = False
             if p['key'] == 'aggregation':
                 layers, is_filtered = retrieve_layers(
-                    p.get('name'),
+                    p.get('key'),
                     bbox=bbox,
                     authorized_objects=authorized_objects
                 )
