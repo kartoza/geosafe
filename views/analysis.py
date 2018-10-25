@@ -233,13 +233,13 @@ class AnalysisCreateView(CreateView):
                     'population',
                     'road',
                     'structure',
-                    # 'land_cover',
+                    'land_cover',
                 ],
                 'list_titles': [
                     _('Select a population layer'),
                     _('Select a roads layer'),
                     _('Select a structure layer'),
-                    # 'Select a land_cover layer',
+                    _('Select a landcover layer'),
                 ]
             },
             {
