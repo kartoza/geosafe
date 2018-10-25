@@ -419,8 +419,9 @@ def process_impact_result(self, impact_result, analysis_id):
 
         # define the location of qgis template file
         custom_template_path = None
-        setting_template_path = settings.LOCALIZED_QGIS_REPORT_TEMPLATE.get(
-            analysis.language_code)
+        template_setting = settings.LOCALIZED_QGIS_REPORT_TEMPLATE
+        setting_template_path = template_setting.get(
+            analysis.language_code) or template_setting.get('en')
         if os.path.exists(setting_template_path):
             # resolve headless impact layer directory on django environment
             filename = os.path.basename(setting_template_path)
