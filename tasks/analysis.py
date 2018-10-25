@@ -417,19 +417,23 @@ def process_impact_result(self, impact_result, analysis_id):
         analysis_summary_url = (
             impact_result['output'].get('analysis_summary'))
 
-        # generate report when analysis has ran successfully
+        # define the location of qgis template file
         custom_template_path = None
         setting_template_path = settings.LOCALIZED_QGIS_REPORT_TEMPLATE.get(
             analysis.language_code)
         if os.path.exists(setting_template_path):
+            # resolve headless impact layer directory on django environment
             filename = os.path.basename(setting_template_path)
-            custom_template_path = os.path.join(
-                settings.INASAFE_LAYER_DIRECTORY_BASE_PATH, filename)
-            if not os.path.exists(custom_template_path):
-                shutil.copy(setting_template_path, custom_template_path)
-            if os.path.exists(custom_template_path):
-                custom_template_path = get_layer_path(custom_template_path)
+            dirname = os.path.basename(os.path.dirname(
+                impact_result['output']['analysis_summary']))
+            template_path = get_impact_path(os.path.join(
+                settings.GEOSAFE_IMPACT_OUTPUT_DIRECTORY, dirname, filename))
+            if os.path.exists(os.path.dirname(template_path)) and not (
+                    os.path.exists(template_path)):
+                shutil.copy(setting_template_path, template_path)
+                custom_template_path = template_path
 
+        # generate report when analysis has ran successfully
         result = generate_report.delay(
             impact_url,
             custom_report_template_uri=custom_template_path,
