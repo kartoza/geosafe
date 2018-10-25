@@ -447,7 +447,16 @@ class AnalysisTest(GeoSAFEIntegrationLiveServerTestCase):
             exposure_layer=data_helper.exposure('buildings.geojson'),
             aggregation_layer=data_helper.aggregation('small_grid.geojson'),
             aggregation_filter=aggregation_filter,
-            user_title='Flood on Buildings with Aggregation'
+            user_title='Flood on Buildings with Selected Aggregation'
+        )
+
+    def test_landcover_exposure(self):
+        """Test running analysis with landcover exposure."""
+        data_helper = self.data_helper
+        self.process_analysis(
+            hazard_layer=data_helper.hazard('flood_data.geojson'),
+            exposure_layer=data_helper.exposure('landcover.geojson'),
+            user_title='Flood on Landcover'
         )
 
     @override_settings(
