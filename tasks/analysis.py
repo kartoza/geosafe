@@ -633,8 +633,8 @@ def process_impact_report(analysis, report_metadata):
         }
         for key in report_metadata['pdf_product_tag'].keys():
             report_exists = (
-                key in assign_report and os.path.exists(
-                    report_metadata['pdf_product_tag'][key]))
+                (key in assign_report or 'map-report-portrait' in key) and (
+                    os.path.exists(report_metadata['pdf_product_tag'][key])))
             if report_exists:
                 assign_report[key](report_metadata['pdf_product_tag'][key])
 
