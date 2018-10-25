@@ -6,6 +6,7 @@ import glob
 import json
 import logging
 import os
+import shutil
 import tempfile
 import urlparse
 from datetime import datetime
@@ -416,10 +417,30 @@ def process_impact_result(self, impact_result, analysis_id):
         analysis_summary_url = (
             impact_result['output'].get('analysis_summary'))
 
+        # define the location of qgis template file
+        custom_template_path = None
+        setting_template_path = settings.LOCALIZED_QGIS_REPORT_TEMPLATE.get(
+            analysis.language_code)
+        if os.path.exists(setting_template_path):
+            # resolve headless impact layer directory on django environment
+            filename = os.path.basename(setting_template_path)
+            dirname = os.path.basename(os.path.dirname(
+                impact_result['output']['analysis_summary']))
+            template_path = get_impact_path(os.path.join(
+                settings.GEOSAFE_IMPACT_OUTPUT_DIRECTORY, dirname, filename))
+            if os.path.exists(os.path.dirname(template_path)) and not (
+                    os.path.exists(template_path)):
+                shutil.copy(setting_template_path, template_path)
+                custom_template_path = template_path
+
         # generate report when analysis has ran successfully
-        async = generate_report.delay(impact_url)
+        result = generate_report.delay(
+            impact_url,
+            custom_report_template_uri=custom_template_path,
+            locale=analysis.language_code)
+
         with allow_join_result():
-            report_metadata = async.get().get('output', {})
+            report_metadata = result.get().get('output', {})
 
         for product_key, products in report_metadata.iteritems():
             for report_key, report_url in products.iteritems():
@@ -603,27 +624,20 @@ def process_impact_report(analysis, report_metadata):
     """
     success = False
     try:
-        # extract report (map and table report)
-        map_reports = [
-            'inasafe-map-report-portrait',  # pdf product
-            'inasafe-map-report-landscape',  # pdf product
-        ]
-        table_reports = [
-            'impact-report',  # html product
-            'impact-report-pdf'  # pdf product
-        ]
-
         # upload using document upload form post request
         # TODO: find out how to upload document using post request
 
-        # assign report to analysis model
-        if os.path.exists(report_metadata['pdf_product_tag'][map_reports[0]]):
-            analysis.assign_report_map(
-                report_metadata['pdf_product_tag'][map_reports[0]])
-        if os.path.exists(
-                report_metadata['pdf_product_tag'][table_reports[1]]):
-            analysis.assign_report_table(
-                report_metadata['pdf_product_tag'][table_reports[1]])
+        assign_report = {
+            'map-report': analysis.assign_report_map,
+            'impact-report-pdf': analysis.assign_report_table
+        }
+        for key in report_metadata['pdf_product_tag'].keys():
+            report_exists = (
+                key in assign_report and os.path.exists(
+                    report_metadata['pdf_product_tag'][key]))
+            if report_exists:
+                assign_report[key](report_metadata['pdf_product_tag'][key])
+
         analysis.save()
 
         # reference to impact layer

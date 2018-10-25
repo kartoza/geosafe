@@ -26,6 +26,7 @@ class AnalysisCreationForm(models.ModelForm):
             'hazard_layer',
             'aggregation_layer',
             'aggregation_filter',
+            'language_code',
             'extent_option',
             'keep',
         )
@@ -87,6 +88,11 @@ class AnalysisCreationForm(models.ModelForm):
     #         'values': ['area 1', 'area 2', 'area 3']
     #     }
 
+    language_code = forms.CharField(
+        required=False,
+        widget=forms.HiddenInput()
+    )
+
     keep = forms.BooleanField(
         label='Save Analysis',
         required=False,
@@ -109,6 +115,7 @@ class AnalysisCreationForm(models.ModelForm):
 
     def __init__(self, *args, **kwargs):
         self.user = kwargs.pop('user', None)
+        self.language_code = kwargs.pop('language_code', None)
         exposure_layer = kwargs.pop('exposure_layer', None)
         hazard_layer = kwargs.pop('hazard_layer', None)
         aggregation_layer = kwargs.pop('aggregation_layer', None)
@@ -131,6 +138,8 @@ class AnalysisCreationForm(models.ModelForm):
 
     def save(self, commit=True):
         instance = super(AnalysisCreationForm, self).save(commit=False)
+        if self.language_code:
+            instance.language_code = self.language_code
         if self.user.username:
             instance.user = self.user
         else:
