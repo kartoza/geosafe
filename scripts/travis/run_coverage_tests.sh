@@ -14,6 +14,10 @@ until docker-compose exec django /bin/bash -c "export TESTING=True; export COVER
 
 	if [ "$exit_code" -eq "1" ]; then
 		echo "Unittests failed"
+		echo "Print docker inasafe headless log"
+		echo
+		docker-compose logs inasafe-headless
+		echo
 		exit 1
 	fi
 	# investigate why it failed
