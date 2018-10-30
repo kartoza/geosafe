@@ -74,15 +74,13 @@
                     </p>
 
                     {% if analysis.get_task_result %}
-                        {% if analysis.get_task_result.successful or analysis.get_task_result.failed %}
-                            <p>
-                                <form action="{% url 'geosafe:rerun-analysis' analysis_id=analysis.id %}" method="post">
-                                    {% csrf_token %}
-                                    <input type="hidden" id="analysis_id" value="{{ analysis.id }}" />
-                                    <button type="submit" class="btn btn-primary">{% trans "Rerun Analysis" %}</button>
-                                </form>
-                            </p>
-                        {% endif %}
+                        <p>
+                            <form action="{% url 'geosafe:rerun-analysis' analysis_id=analysis.id %}" method="post">
+                                {% csrf_token %}
+                                <input type="hidden" id="analysis_id" value="{{ analysis.id }}" />
+                                <button type="submit" class="btn btn-primary">{% trans "Rerun Analysis" %}</button>
+                            </form>
+                        </p>
                     {% endif %}
                 </div>
             </div>

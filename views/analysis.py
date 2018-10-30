@@ -748,6 +748,13 @@ def rerun_analysis(request, analysis_id=None):
 
     try:
         analysis = Analysis.objects.get(id=analysis_id)
+        result = analysis.get_task_result()
+        try:
+            # to cancel celery task, do revoke
+            result.revoke(terminate=True)
+        except BaseException:
+            # in case result is an empty task id
+            pass
         analysis_post_save(None, analysis, True)
         return HttpResponseRedirect(
             reverse('geosafe:analysis-detail', kwargs={'pk': analysis.pk})

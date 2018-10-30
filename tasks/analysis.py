@@ -628,15 +628,27 @@ def process_impact_report(analysis, report_metadata):
         # TODO: find out how to upload document using post request
 
         assign_report = {
-            'map-report': analysis.assign_report_map,
+            # By default we always take the portrait report
+            'map-report-portrait': analysis.assign_report_map,
             'impact-report-pdf': analysis.assign_report_table
         }
-        for key in report_metadata['pdf_product_tag'].keys():
-            report_exists = (
-                (key in assign_report or 'map-report-portrait' in key) and (
-                    os.path.exists(report_metadata['pdf_product_tag'][key])))
-            if report_exists:
-                assign_report[key](report_metadata['pdf_product_tag'][key])
+        # List of tags of PDF report product
+        pdf_product_tag = report_metadata['pdf_product_tag']
+        for metadata_key in pdf_product_tag.keys():
+            for assign_key, assign_method in assign_report.iteritems():
+
+                # If the key we search doesn't exists in metadata,
+                # just continue
+                if assign_key not in metadata_key:
+                    continue
+
+                # if it is exists, check the file is exists too
+                report_path = pdf_product_tag[metadata_key]
+                # convert to GeoSAFE path location
+                report_path = get_impact_path(report_path)
+                if os.path.exists(report_path):
+                    # save the path location
+                    assign_method(report_path)
 
         analysis.save()
 
