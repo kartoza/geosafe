@@ -17,7 +17,7 @@ from geosafe.helpers.utils import wait_metadata, \
 from geosafe.models import Analysis
 from geosafe.views.analysis import retrieve_layers
 
-LOGGER = logging.getLogger(__file__)
+LOGGER = logging.getLogger(__name__)
 
 
 class ViewsTest(GeoSAFEIntegrationLiveServerTestCase):
@@ -373,8 +373,8 @@ class AnalysisTest(GeoSAFEIntegrationLiveServerTestCase):
 
         # Prepare form
         kwargs.update({
-            'keep': False,
-            'extent_option': Analysis.HAZARD_EXPOSURE_CODE
+            "keep": False,
+            "extent_option": Analysis.HAZARD_EXPOSURE_CODE
         })
         form = AnalysisCreationForm(kwargs, user=AnonymousUser())
 
@@ -412,7 +412,7 @@ class AnalysisTest(GeoSAFEIntegrationLiveServerTestCase):
         self.assertIsNotNone(analysis.report_table)
 
         # Clean up layers
-        for layer in [l for l in layers.items() if isinstance(l, Layer)]:
+        for layer in [l for _, l in layers.items() if isinstance(l, Layer)]:
             layer.delete()
         impact_layer.delete()
 
@@ -422,7 +422,7 @@ class AnalysisTest(GeoSAFEIntegrationLiveServerTestCase):
         self.process_analysis(
             hazard_layer=data_helper.hazard('flood_data.geojson'),
             exposure_layer=data_helper.exposure('buildings.geojson'),
-            user_title='Flood on Buildings'
+            user_title="Flood on Buildings"
         )
 
     def test_run_analysis_aggregation(self):
@@ -432,7 +432,7 @@ class AnalysisTest(GeoSAFEIntegrationLiveServerTestCase):
             hazard_layer=data_helper.hazard('flood_data.geojson'),
             exposure_layer=data_helper.exposure('buildings.geojson'),
             aggregation_layer=data_helper.aggregation('small_grid.geojson'),
-            user_title='Flood on Buildings with Aggregation'
+            user_title="Flood on Buildings with Aggregation"
         )
 
     def test_run_analysis_selected_aggregation(self):
@@ -447,7 +447,7 @@ class AnalysisTest(GeoSAFEIntegrationLiveServerTestCase):
             exposure_layer=data_helper.exposure('buildings.geojson'),
             aggregation_layer=data_helper.aggregation('small_grid.geojson'),
             aggregation_filter=aggregation_filter,
-            user_title='Flood on Buildings with Selected Aggregation'
+            user_title="Flood on Buildings with Selected Aggregation"
         )
 
     def test_landcover_exposure(self):
@@ -456,7 +456,7 @@ class AnalysisTest(GeoSAFEIntegrationLiveServerTestCase):
         self.process_analysis(
             hazard_layer=data_helper.hazard('flood_data.geojson'),
             exposure_layer=data_helper.exposure('landcover.geojson'),
-            user_title='Flood on Landcover'
+            user_title="Flood on Landcover"
         )
 
     @override_settings(
@@ -468,5 +468,5 @@ class AnalysisTest(GeoSAFEIntegrationLiveServerTestCase):
         self.process_analysis(
             hazard_layer=data_helper.hazard('flood_data.geojson'),
             exposure_layer=data_helper.exposure('buildings.geojson'),
-            user_title='Analysis with custom template settings'
+            user_title="Analysis with custom template settings"
         )
