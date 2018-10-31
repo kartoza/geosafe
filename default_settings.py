@@ -3,6 +3,8 @@
 import os
 from ast import literal_eval
 
+_LOCAL_ROOT = os.path.abspath(os.path.dirname(__file__))
+
 # Opt-in to use layerfile direct disk access for InaSAFE Headless Celery
 # workers instead of Http
 USE_LAYER_FILE_ACCESS = literal_eval(os.environ.get(
@@ -72,5 +74,8 @@ INASAFE_ANALYSIS_AREA_LIMIT = literal_eval(os.environ.get(
 
 # QGIS report template settings
 LOCALIZED_QGIS_REPORT_TEMPLATE = {
-    'en': '/usr/src/geosafe/templates/geosafe/qgis_templates/en/map-report.qpt'
+    # Below is a sample dict of locale to custom template
+    # We will uncomment this when we have a custom template file
+    # 'en': os.path.join(
+    #     _LOCAL_ROOT, 'templates/geosafe/qgis_templates/en/map-report.qpt')
 }

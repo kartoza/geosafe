@@ -1,5 +1,6 @@
 from __future__ import absolute_import
 
+import os
 import urlparse
 
 from celery.result import AsyncResult
@@ -289,6 +290,26 @@ class Analysis(models.Model):
                 get_layer_path(self.impact_layer)).get()
             return keywords['provenance_data']['impact_function_name']
         return self.get_default_impact_title()
+
+    @property
+    def custom_template_exists(self):
+        """Use to check if particular language code for this analysis have
+        custom template.
+        """
+        locale_template_map = settings.LOCALIZED_QGIS_REPORT_TEMPLATE
+        has_dict_mapping = self.language_code in locale_template_map
+        if has_dict_mapping:
+            custom_template = locale_template_map.get(self.language_code)
+            return os.path.exists(custom_template)
+        return False
+
+    @property
+    def custom_template(self):
+        """Return custom report template path if exists and defined."""
+        if not self.custom_template_exists:
+            return None
+        locale_template_map = settings.LOCALIZED_QGIS_REPORT_TEMPLATE
+        return locale_template_map.get(self.language_code)
 
     @classmethod
     def get_layer_url(cls, layer):

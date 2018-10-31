@@ -70,8 +70,8 @@ class SettingsWrapper(object):
             if not self.INASAFE_IMPACT_BASE_URL:
                 message = "INASAFE_IMPACT_BASE_URL not set."
                 raise ImproperlyConfigured(message)
-            if not self.LOCALIZED_QGIS_REPORT_TEMPLATE:
-                message = "LOCALIZED_QGIS_REPORT_TEMPLATE not set."
+            if not isinstance(self.LOCALIZED_QGIS_REPORT_TEMPLATE, dict):
+                message = "LOCALIZED_QGIS_REPORT_TEMPLATE mapping not set."
                 raise ImproperlyConfigured(message)
 
 

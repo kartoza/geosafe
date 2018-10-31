@@ -419,24 +419,25 @@ def process_impact_result(self, impact_result, analysis_id):
 
         # define the location of qgis template file
         custom_template_path = None
-        template_setting = settings.LOCALIZED_QGIS_REPORT_TEMPLATE
-        setting_template_path = template_setting.get(
-            analysis.language_code) or template_setting.get('en')
-        if os.path.exists(setting_template_path):
+        if analysis.custom_template:
             # resolve headless impact layer directory on django environment
-            filename = os.path.basename(setting_template_path)
-            dirname = os.path.basename(os.path.dirname(
-                impact_result['output']['analysis_summary']))
-            template_path = get_impact_path(os.path.join(
-                settings.GEOSAFE_IMPACT_OUTPUT_DIRECTORY, dirname, filename))
-            if os.path.exists(os.path.dirname(template_path)) and not (
-                    os.path.exists(template_path)):
-                shutil.copy(setting_template_path, template_path)
-                custom_template_path = template_path
+            filename = os.path.basename(analysis.custom_template)
+            dirname = os.path.dirname(impact_url)
+            # template path from headless service
+            headless_template_path = os.path.join(dirname, filename)
+            # template path in GeoSAFE
+            template_path = get_impact_path(headless_template_path)
+            # each analysis path is unique, so we can just copy/overwrite
+            # the template
+            shutil.copy(analysis.custom_template, template_path)
+
+            # pass on template path according to headless service
+            custom_template_path = headless_template_path
 
         # generate report when analysis has ran successfully
         result = generate_report.delay(
             impact_url,
+            # If it is None, it will use default headless template
             custom_report_template_uri=custom_template_path,
             locale=analysis.language_code)
 
@@ -591,21 +592,15 @@ def process_impact_layer(
     if analysis.impact_layer:
         current_impact = analysis.impact_layer
     analysis.impact_layer = saved_layer
-    # check map report and table
-    report_map_path = os.path.join(
-        dir_name, '%s.pdf' % impact_basename
-    )
-    if os.path.exists(report_map_path):
-        analysis.assign_report_map(report_map_path)
-    report_table_path = os.path.join(
-        dir_name, '%s_table.pdf' % impact_basename
-    )
-    if os.path.exists(report_table_path):
-        analysis.assign_report_table(report_table_path)
     analysis.task_id = process_impact_result.request.id
     analysis.task_state = 'SUCCESS'
     analysis.end_time = datetime.now().strftime('%Y-%m-%d %H:%M')
-    analysis.save()
+    analysis.save(update_fields=[
+        'task_id',
+        'task_state',
+        'end_time',
+        'impact_layer'
+    ])
     if current_impact:
         current_impact.delete()
     success = True
@@ -629,10 +624,17 @@ def process_impact_report(analysis, report_metadata):
         # TODO: find out how to upload document using post request
 
         assign_report = {
-            # By default we always take the portrait report
-            'map-report-portrait': analysis.assign_report_map,
             'impact-report-pdf': analysis.assign_report_table
         }
+
+        if analysis.custom_template:
+            # If we provide custom_template, search custom template key
+            assign_report['map-report'] = analysis.assign_report_map
+        else:
+            # If not, pick default headless report
+            assign_report['inasafe-map-report-portrait'] = \
+                analysis.assign_report_map
+
         # List of tags of PDF report product
         pdf_product_tag = report_metadata['pdf_product_tag']
         for metadata_key in pdf_product_tag.keys():
@@ -651,7 +653,8 @@ def process_impact_report(analysis, report_metadata):
                     # save the path location
                     assign_method(report_path)
 
-        analysis.save()
+        # Avoid race conditions
+        analysis.save(update_fields=['report_map', 'report_table'])
 
         # reference to impact layer
         # TODO: find out how to upload document using post request first
