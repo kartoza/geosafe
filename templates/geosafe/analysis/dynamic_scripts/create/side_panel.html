@@ -219,7 +219,7 @@
                 hazard_exposure_rect_groups.clearLayers();
             }
 
-            show_info_text(info_text_title, '{% trans '${$a.text()} selected.' %}');
+            show_info_text(info_text_title, `{% trans '${$a.text()} selected.' %}`);
         } else {
             remove_layer(exposure_layer._url);
             map.removeLayer(exposure_layer);
@@ -305,7 +305,7 @@
                 hazard_exposure_rect_groups.clearLayers();
             }
 
-            show_info_text(info_text_title, '{% trans '${$a.text()} selected.' %}');
+            show_info_text(info_text_title, `{% trans '${$a.text()} selected.' %}`);
         } else {
             remove_layer(hazard_layer._url);
             map.removeLayer(hazard_layer);
@@ -374,7 +374,7 @@
                 map.removeLayer(impact_layer);
             }
             update_map(layer_id, 'impact');
-            show_info_text(info_text_title, '{% trans '${$a.text()} selected.' %}');
+            show_info_text(info_text_title, `{% trans '${$a.text()} selected.' %}`);
         } else {
             remove_layer(impact_layer._url);
             map.removeLayer(impact_layer);
@@ -462,7 +462,7 @@
                 hazard_exposure_rect_groups.clearLayers();
             }
 
-            show_info_text(info_text_title, '{% trans '${$a.text()} selected.' %}');
+            show_info_text(info_text_title, `{% trans '${$a.text()} selected.' %}`);
             if (vector_aggregation_layer) {
                 feature_selector_button.state('selectFeature');
                 feature_selector_button.enable();
