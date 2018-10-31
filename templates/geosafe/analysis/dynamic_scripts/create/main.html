@@ -369,14 +369,10 @@
         $.get('{% url 'geosafe:layer-tiles' %}', {'layer_id': layer_id}, function (data) {
 
             //default use of the marker
-            center_y = data['layer_bbox_y0'] + ((data['layer_bbox_y1'] - data['layer_bbox_y0'] ) / 2);
-            center_x = data['layer_bbox_x0'] + ((data['layer_bbox_x1'] - data['layer_bbox_x0'] ) / 2);
             corner_1 = L.latLng(data['layer_bbox_y0'], data['layer_bbox_x0'])
             corner_2 = L.latLng(data['layer_bbox_y1'], data['layer_bbox_x1'])
             var marker = L.marker(L.latLngBounds(corner_1, corner_2).getCenter(), {
                   title:data['layer_name']
-            });
-                title:data['layer_name']
             });
             marker.on('click', function (event) {
                 zoom_to_box(map, [data['layer_bbox_x0'], data['layer_bbox_y0'], data['layer_bbox_x1'], data['layer_bbox_y1']]);
