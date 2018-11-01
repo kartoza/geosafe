@@ -109,7 +109,7 @@
                     <ul>
                         {% for e in c.layers %}
                             <li>
-                                <a href="javascript:update_{{ s.name }}_layer({{ e.id }})" data-id="{{ e.id }}">{{ e.title }}</a>
+                                <a href="javascript:update_{{ s.key }}_layer({{ e.id }})" data-id="{{ e.id }}">{{ e.title }}</a>
                             </li>
                         {% empty %}
                             <p>{% blocktrans with c.name as category_name%}No {{ category_name }} layer for the extent.{% endblocktrans %}</p>
