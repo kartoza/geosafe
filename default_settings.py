@@ -79,3 +79,8 @@ LOCALIZED_QGIS_REPORT_TEMPLATE = {
     # 'en': os.path.join(
     #     _LOCAL_ROOT, 'templates/geosafe/qgis_templates/en/map-report.qpt')
 }
+
+# InaSAFE Headless Settings modifier
+INASAFE_SETTINGS_PATH = os.environ.get('INASAFE_SETTINGS_PATH', '')
+MINIMUM_NEEDS_LOCALE_MAPPING_PATH = os.environ.get(
+    'MINIMUM_NEEDS_LOCALE_MAPPING_PATH', '')

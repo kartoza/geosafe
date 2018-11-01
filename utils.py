@@ -5,7 +5,6 @@ from zipfile import ZipFile
 
 from geosafe.app_settings import settings
 
-LOGGER = logging.getLogger(__name__)
 REPORT_TEMPLATES = settings.REPORT_TEMPLATES
 
 
@@ -90,6 +89,7 @@ def substitute_layer_order(layer_order_template, source_dict):
                 # substitute if we find replacement
                 layer = value
             except BaseException as e:
+                LOGGER = get_geosafe_logger()
                 LOGGER.exception(e)
                 # Let layer order contains @ sign so it can be parsed
                 # by InaSAFE Headless instead (and decide if it will fail).
@@ -121,3 +121,7 @@ def template_names(hazard_type, locale='en'):
     basename = os.path.basename(template_filename)
     output_name, _ = os.path.splitext(basename)
     return output_name
+
+
+def get_geosafe_logger():
+    return logging.getLogger('GeoSAFE')

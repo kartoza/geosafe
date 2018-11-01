@@ -1,0 +1,33 @@
+{% block inasafe_settings_mapping %}
+  {% if inasafe_settings %}
+
+{
+  {# Generate from dict object #}
+  {% for key, value in inasafe_settings.iteritems %}
+  "{{ key }}": "{{ value }}"{% if not forloop.last %},{% endif %}
+  {% endfor %}
+}
+  {% else %}
+{
+    "visibleLayersOnlyFlag": true,
+    "set_layer_from_title_flag": true,
+    "setZoomToImpactFlag": true,
+    "set_show_only_impact_on_report": false,
+    "print_atlas_report": false,
+    "setHideExposureFlag": false,
+    "useSelectedFeaturesOnly": true,
+    "template_warning_verbose": true,
+    "showOrganisationLogoInDockFlag": false,
+    "developer_mode": false,
+    "generate_report": true,
+    "memory_profile": false,
+    
+    "ISO19115_ORGANIZATION": "InaSAFE.org",
+    "ISO19115_URL": "http://inasafe.org",
+    "ISO19115_EMAIL": "info@inasafe.org",
+    "ISO19115_LICENSE": "Free use with accreditation",
+
+    "always_show_welcome_message": false
+}
+  {% endif %}
+{% endblock inasafe_settings_mapping %}

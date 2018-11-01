@@ -1,0 +1,16 @@
+{% block minimum_needs_mapping %}
+  {% if minimum_needs %}
+
+{
+  {# Generate from dict object #}
+  {% for key, value in minimum_needs.iteritems %}
+  "{{ key }}": "{{ value }}"{% if not forloop.last %},{% endif %}
+  {% endfor %}
+}
+  {% else %}
+{
+  "en": "minimum_needs/BNPB_en.json",
+  "id": "minimum_needs/BNPB_id.json"
+}
+  {% endif %}
+{% endblock minimum_needs_mapping %}
