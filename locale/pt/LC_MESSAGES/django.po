@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-10-19 01:35-0500\n"
+"POT-Creation-Date: 2018-11-01 01:21-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Muhammad Yarjuna Rohmat <myarjunar@gmail.com>, 2018\n"
 "Language-Team: Portuguese (https://www.transifex.com/inasafe/teams/92273/pt/)\n"
@@ -18,7 +18,7 @@ msgstr ""
 "Language: pt\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: forms.py:37
+#: forms.py:38
 msgid "Default title generated"
 msgstr "Título padrão gerado"
 
@@ -150,7 +150,7 @@ msgstr "Relatório de tabela"
 msgid "There is no table report generated for this Impact Layer"
 msgstr "Não há relatório de tabela gerado para essa camada de impacto"
 
-#: templates/geosafe/analysis/detail_base.html:82
+#: templates/geosafe/analysis/detail_base.html:81
 #: templates/geosafe/analysis/list_base.html:137
 #: templates/geosafe/analysis/modal/waiting_analysis.html:54
 msgid "Rerun Analysis"
@@ -587,15 +587,15 @@ msgstr "Executar análise para criar uma camada de impacto"
 msgid "Start Again"
 msgstr "Comece de novo"
 
-#: templates/geosafe/analysis/summary/landcover_report.html:14
+#: templates/geosafe/analysis/summary/land_cover_report.html:14
 msgid "Total Area (ha)"
 msgstr "Área Total (ha)"
 
-#: templates/geosafe/analysis/summary/landcover_report.html:25
+#: templates/geosafe/analysis/summary/land_cover_report.html:25
 msgid "Landcover Affected (ha)"
 msgstr "Cobertura da terra afetada (ha)"
 
-#: templates/geosafe/analysis/summary/landcover_report.html:35
+#: templates/geosafe/analysis/summary/land_cover_report.html:35
 msgid "Hazard areas (ha)"
 msgstr "Áreas de risco (ha)"
 
@@ -711,6 +711,10 @@ msgstr "Selecione uma camada de estradas"
 msgid "Select a structure layer"
 msgstr "Selecione uma camada de estrutura"
 
+#: views/analysis.py:242
+msgid "Select a landcover layer"
+msgstr "Selecione uma camada de cobertura da terra"
+
 #: views/analysis.py:247
 msgid "aggregation"
 msgstr "agregação"
@@ -719,15 +723,19 @@ msgstr "agregação"
 msgid "Select an aggregation layer"
 msgstr "Selecione uma camada de agregação"
 
-#: views/analysis.py:659
+#: views/analysis.py:310
+msgid "impact"
+msgstr "impacto"
+
+#: views/analysis.py:661
 msgid "Hazard and exposure does not intersect."
 msgstr "Perigo e exposição não se cruzam."
 
-#: views/analysis.py:679
+#: views/analysis.py:681
 msgid "View extent does not intersect hazard and exposure."
 msgstr "A extensão da vista não cruza perigo e exposição."
 
-#: views/analysis.py:702
+#: views/analysis.py:704
 #, python-brace-format
 msgid ""
 "Analysis extent exceeded area limit: {limit} km<sup>2</sup>.<br "
@@ -736,6 +744,6 @@ msgstr ""
 "A extensão de análise excedeu o limite de área: {limit} km<sup>2</sup>.<br "
 "/>&nbsp;A análise pode demorar muito tempo para ser concluída."
 
-#: views/analysis.py:719
+#: views/analysis.py:721
 msgid "Analysis will be performed on this given view extent."
 msgstr "A análise será realizada sobre a extensão dessa visão."
