@@ -5,6 +5,7 @@ import json
 import os
 
 from django.template.loader import get_template
+from mock import mock
 
 from geosafe.app_settings import settings
 from geosafe.utils import get_geosafe_logger
@@ -79,6 +80,14 @@ class HeadlessConfig(object):
         # from profile mapping json, attempt to load all minimum needs profile
         profile_mapping_dict = json.loads(profile_mapping_json)
         profile_mapping_template_dirname = os.path.dirname(template_path)
+        # Retrieve template location
+        engine = profile_mapping_template.template.engine
+        if not engine.debug:
+            # temporarily use engine debug mode to fetch template location
+            with mock.patch.object(engine, 'debug', 1):
+                profile_mapping_template = engine.get_template(
+                    profile_mapping_template.template.name)
+
         profile_mapping_file_dirname = os.path.dirname(
             profile_mapping_template.origin.name)
         for locale, profile_path in profile_mapping_dict.iteritems():
