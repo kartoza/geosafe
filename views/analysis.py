@@ -809,6 +809,7 @@ def analysis_json(request, analysis_id):
             'analysis_id': analysis_id,
             'impact_layer_id': analysis.impact_layer_id
         }
+
         return HttpResponse(
             json.dumps(retval), content_type="application/json")
     except Exception as e:

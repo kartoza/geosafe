@@ -9,8 +9,11 @@ import urllib
 import urlparse
 
 import requests
+from django.core.mail import send_mail
 from django.core.management import call_command
+from django.core.urlresolvers import reverse
 from django.test import LiveServerTestCase
+from django.utils.translation import ugettext as _
 
 from geonode.layers.models import Layer
 from geosafe.app_settings import settings
@@ -78,6 +81,33 @@ def download_file(url, direct_access=False, user=None, password=None):
     tmpfile = tempfile.mktemp()
     shutil.copy(file_path, tmpfile)
     return tmpfile
+
+
+def send_analysis_result_email(analysis):
+    """Helper function to send email about the analysis result.
+
+    :param analysis: analysis model
+    :type analysis: geosafe.models.Analysis
+    """
+    if settings.EMAIL_ENABLE and analysis.user.email:
+        analysis_url = reverse(
+            'geosafe:analysis-create', kwargs={'pk': analysis.pk})
+        analysis_url = urlparse.urljoin(
+            settings.SITE_URL, analysis_url)
+        subject_email = _("Your GeoSAFE analysis is finished!")
+        plain_message = _("Your GeoSAFE analysis is finished! Visit {0} "
+                          "to see the result.").format(analysis_url)
+        html_message = _("<p> Your GeoSAFE analysis is finished! Visit "
+                         "<a href=\"{0}\"> the analysis page </a>"
+                         "to see the result. </p>").format(analysis_url)
+        try:
+            send_mail(
+                subject_email, plain_message,
+                settings.DEFAULT_FROM_EMAIL, [analysis.user.email, ],
+                html_message=html_message)
+        except Exception as e:
+            LOGGER.debug(e)
+            pass
 
 
 def get_layer_path(layer, base=None):
