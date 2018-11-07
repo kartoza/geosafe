@@ -364,7 +364,9 @@ def prepare_analysis(analysis_id):
     # - Run analysis
     # - Process analysis result
     tasks_chain = chain(
-        run_analysis.s(hazard, exposure, aggregation).set(
+        run_analysis.s(
+            hazard, exposure, aggregation,
+            locale=analysis.language_code).set(
             queue=run_analysis.queue).set(
             time_limit=settings.INASAFE_ANALYSIS_RUN_TIME_LIMIT),
         process_impact_result.s(analysis_id).set(

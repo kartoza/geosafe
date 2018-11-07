@@ -757,7 +757,7 @@ def rerun_analysis(request, analysis_id=None):
             pass
         analysis_post_save(None, analysis, True)
         return HttpResponseRedirect(
-            reverse('geosafe:analysis-detail', kwargs={'pk': analysis.pk})
+            reverse('geosafe:analysis-list', kwargs={'pk': analysis.pk})
         )
     except Exception as e:
         LOGGER.exception(e)
