@@ -28,9 +28,8 @@ from geonode.qgis_server.helpers import qgis_server_endpoint
 from geosafe.app_settings import settings
 from geosafe.celery import app
 from geosafe.helpers.utils import (
-    download_file,
-    get_layer_path,
-    get_impact_path, copy_inasafe_metadata)
+    download_file, get_layer_path, get_impact_path,
+    copy_inasafe_metadata, send_analysis_result_email)
 from geosafe.models import Analysis, Metadata, \
     ISO_METADATA_INASAFE_KEYWORD_TAG, \
     ISO_METADATA_INASAFE_PROVENANCE_KEYWORD_TAG
@@ -510,6 +509,8 @@ def process_impact_result(self, impact_result, analysis_id):
 
     if not report_success:
         LOGGER.info('No impact report generated.')
+
+    send_analysis_result_email(analysis)
 
     return success
 

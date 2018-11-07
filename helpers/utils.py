@@ -93,16 +93,18 @@ def send_analysis_result_email(analysis):
         analysis_url = reverse(
             'geosafe:analysis-create', kwargs={'pk': analysis.pk})
         analysis_url = urlparse.urljoin(
-            settings.GEONODE_BASE_URL, analysis_url)
+            settings.SITE_URL, analysis_url)
         subject_email = _("Your GeoSAFE analysis is finished!")
-        message = _("Your GeoSAFE analysis is finished! Visit {0} "
-                    "to see the result.").format(analysis_url)
+        plain_message = _("Your GeoSAFE analysis is finished! Visit {0} "
+                          "to see the result.").format(analysis_url)
+        html_message = _("<p> Your GeoSAFE analysis is finished! Visit "
+                         "<a href=\"{0}\"> the analysis page </a>"
+                         "to see the result. </p>").format(analysis_url)
         try:
             send_mail(
-                subject_email,
-                message,
-                settings.DEFAULT_FROM_EMAIL,
-                [analysis.user.email, ])
+                subject_email, plain_message,
+                settings.DEFAULT_FROM_EMAIL, [analysis.user.email, ],
+                html_message=html_message)
         except Exception as e:
             LOGGER.debug(e)
             pass

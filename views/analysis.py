@@ -35,7 +35,6 @@ from geonode.utils import bbox_to_wkt
 from geosafe.app_settings import settings
 from geosafe.forms import (AnalysisCreationForm)
 from geosafe.helpers.impact_summary.summary_base import ImpactSummary
-from geosafe.helpers.utils import send_analysis_result_email
 from geosafe.models import Analysis, Metadata
 from geosafe.signals import analysis_post_save
 
@@ -810,9 +809,6 @@ def analysis_json(request, analysis_id):
             'analysis_id': analysis_id,
             'impact_layer_id': analysis.impact_layer_id
         }
-
-        if analysis.impact_layer_id:
-            send_analysis_result_email(analysis)
 
         return HttpResponse(
             json.dumps(retval), content_type="application/json")
