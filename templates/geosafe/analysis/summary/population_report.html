@@ -9,7 +9,7 @@
             <img src="{% static "geosafe/img/"|add:c|add:".svg" %}" alt="{{ c }}" class="svg"/>
             {% endwith %}
         </div>
-        <div class="col-xs-8">
+        <div class="col-xs-8" style="padding-left: 0px;">
             <div class="number">{{ summary.total }}</div>
             <div class="category">{% trans 'Total Population' %}</div>
         </div>
@@ -20,7 +20,7 @@
             <img src="{% static "geosafe/img/"|add:c|add:".svg" %}" alt="{{ c }}" class="svg"/>
             {% endwith %}
         </div>
-        <div class="col-xs-8">
+        <div class="col-xs-8" style="padding-left: 0px;">
             <div class="number">{{ summary.total_affected }}</div>
             <div class="category">{% trans 'Population Affected' %}</div>
         </div>
