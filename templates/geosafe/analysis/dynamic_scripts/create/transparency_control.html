@@ -19,28 +19,28 @@
         var new_exposure_opacity = $('#exposure-slider').bootstrapSlider('getValue');
         if (exposure_id != undefined && new_exposure_opacity != slider_exposure_val) {
             slider_exposure_val = new_exposure_opacity;
-            update_map(exposure_id, 'exposure');
+            update_map(exposure_id, 'exposure', false);
             $('#exposure-slider').bootstrapSlider('setValue', slider_exposure_val);
         }
 
         var new_hazard_opacity = $('#hazard-slider').bootstrapSlider('getValue');
         if (hazard_id != undefined && new_hazard_opacity != slider_hazard_val) {
             slider_hazard_val = new_hazard_opacity;
-            update_map(hazard_id, 'hazard');
+            update_map(hazard_id, 'hazard', false);
             $('#hazard-slider').bootstrapSlider('setValue', slider_hazard_val);
         }
 
         var new_aggregation_opacity = $('#aggregation-slider').bootstrapSlider('getValue');
         if (aggregation_id != undefined && new_aggregation_opacity != slider_aggregation_val) {
             slider_aggregation_val = new_aggregation_opacity;
-            update_map(aggregation_id, 'aggregation');
+            update_map(aggregation_id, 'aggregation', false);
             $('#aggregation-slider').bootstrapSlider('setValue', slider_aggregation_val);
         }
 
         var new_impact_opacity = $('#impact-slider').bootstrapSlider('getValue');
         if (impact_id != undefined && new_impact_opacity != slider_impact_val) {
             slider_impact_val = new_impact_opacity;
-            update_map(impact_id, 'impact');
+            update_map(impact_id, 'impact', false);
             $('#impact-slider').bootstrapSlider('setValue', slider_impact_val);
         }
     }
@@ -201,7 +201,10 @@
      * @param layer_id: the layer id
      * @param layer_purpose: layer purpose (hazard, exposure, impact)
      */
-    function update_map(layer_id, layer_purpose) {
+    function update_map(layer_id, layer_purpose, is_update_map) {
+        if (is_update_map === undefined) {
+            is_update_map = true;
+        }
         $.get('{% url 'geosafe:layer-tiles' %}', {'layer_id': layer_id}, function (data) {
             var layer_tiles_url = data['layer_tiles_url'];
             var layer_bbox_x0 = data['layer_bbox_x0'];
@@ -275,23 +278,28 @@
             // Zooming magic
             // If only one of the 3 layers is selected then zoom to the layer
             {% if not analysis %}
-                // Case 1: A layer will always intersect with map's bound
-                // Case 2: Hazard and exposure selected intersect with map's bound
-                var new_sw = [
-                    Math.max(
-                        current_bounds.getSouthWest().lat,
-                        layer_bounds.getSouthWest().lat),
-                    Math.max(
-                        current_bounds.getSouthWest().lng,
-                        layer_bounds.getSouthWest().lng)];
-                var new_ne = [
-                    Math.min(
-                        current_bounds.getNorthEast().lat,
-                        layer_bounds.getNorthEast().lat),
-                    Math.min(
-                        current_bounds.getNorthEast().lng,
-                        layer_bounds.getNorthEast().lng)];
-                map.fitBounds([new_sw, new_ne]);
+                if (((is_hazard != is_exposure) != is_impact) && is_update_map) {
+                     map.fitBounds([[layer_bbox_y1, layer_bbox_x1], [layer_bbox_y0, layer_bbox_x0]]);
+                 }
+                // If hazard and exposure selected intersect both extents
+                if ((layer_purpose == 'hazard' && is_exposure) || (layer_purpose == 'exposure' && is_hazard || layer_purpose == 'aggregation') && is_update_map) {
+                    // Intersect current extent to the input layer's extent
+                    var new_sw = [
+                        Math.max(
+                            current_bounds.getSouthWest().lat,
+                            layer_bounds.getSouthWest().lat),
+                        Math.max(
+                            current_bounds.getSouthWest().lng,
+                            layer_bounds.getSouthWest().lng)];
+                    var new_ne = [
+                        Math.min(
+                            current_bounds.getNorthEast().lat,
+                            layer_bounds.getNorthEast().lat),
+                        Math.min(
+                            current_bounds.getNorthEast().lng,
+                            layer_bounds.getNorthEast().lng)];
+                    map.fitBounds([new_sw, new_ne]);
+                }
             {% else %}
                 // Use case: the user toggle impact layer off and on
                 if (layer_purpose == 'impact') {
