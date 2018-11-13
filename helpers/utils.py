@@ -12,6 +12,7 @@ import requests
 from django.core.mail import send_mail
 from django.core.management import call_command
 from django.core.urlresolvers import reverse
+from django.template.loader import render_to_string
 from django.test import LiveServerTestCase
 from django.utils.translation import ugettext as _
 
@@ -95,11 +96,12 @@ def send_analysis_result_email(analysis):
         analysis_url = urlparse.urljoin(
             settings.SITE_URL, analysis_url)
         subject_email = _("Your GeoSAFE analysis is finished!")
-        plain_message = _("Your GeoSAFE analysis is finished! Visit {0} "
-                          "to see the result.").format(analysis_url)
-        html_message = _("<p> Your GeoSAFE analysis is finished! Visit "
-                         "<a href=\"{0}\"> the analysis page </a>"
-                         "to see the result. </p>").format(analysis_url)
+        plain_message = render_to_string(
+            'geosafe/analysis/notification/email_notification.txt',
+            {'analysis_url': analysis_url})
+        html_message = render_to_string(
+            'geosafe/analysis/notification/email_notification.html',
+            {'analysis_url': analysis_url})
         try:
             send_mail(
                 subject_email, plain_message,
