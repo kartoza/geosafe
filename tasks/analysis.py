@@ -35,6 +35,7 @@ from geosafe.models import Analysis, Metadata, \
     ISO_METADATA_INASAFE_PROVENANCE_KEYWORD_TAG
 from geosafe.tasks.headless.analysis import (
     get_keywords, generate_report, run_analysis, RESULT_SUCCESS)
+from geosafe.utils import substitute_layer_order
 
 __author__ = 'lucernae'
 
@@ -435,11 +436,29 @@ def process_impact_result(self, impact_result, analysis_id):
             # pass on template path according to headless service
             custom_template_path = headless_template_path
 
+        # define the layer order of the map report
+        layer_order = (
+            list(settings.LAYER_ORDER) if settings.LAYER_ORDER else None)
+        if layer_order:
+            layer_source = {
+                'impact': impact_url,
+                'hazard': get_layer_path(analysis.hazard_layer),
+                'exposure': get_layer_path(analysis.exposure_layer)
+            }
+            if analysis.aggregation_layer:
+                layer_source.update({
+                    'aggregation': get_layer_path(analysis.aggregation_layer)})
+            else:
+                layer_order.remove('@aggregation')
+
+            layer_order = substitute_layer_order(layer_order, layer_source)
+
         # generate report when analysis has ran successfully
         result = generate_report.delay(
             impact_url,
             # If it is None, it will use default headless template
             custom_report_template_uri=custom_template_path,
+            custom_layer_order=layer_order,
             locale=analysis.language_code)
 
         with allow_join_result():

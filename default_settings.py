@@ -84,3 +84,13 @@ LOCALIZED_QGIS_REPORT_TEMPLATE = {
 INASAFE_SETTINGS_PATH = os.environ.get('INASAFE_SETTINGS_PATH', '')
 MINIMUM_NEEDS_LOCALE_MAPPING_PATH = os.environ.get(
     'MINIMUM_NEEDS_LOCALE_MAPPING_PATH', '')
+
+# Context layers. The order of the layers that we want to show
+# in the map report.
+LAYER_ORDER = [
+    # From top to bottom
+    '@aggregation',
+    '@impact',
+    '@hazard',
+    '@exposure'
+]
