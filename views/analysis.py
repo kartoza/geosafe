@@ -696,26 +696,6 @@ def validate_analysis_extent(request):
         # Transform back to EPSG:4326
         analysis_geom.transform('4326')
 
-        area_limit = settings.INASAFE_ANALYSIS_AREA_LIMIT
-        if area > area_limit:
-            # Area exceeded designated area limit.
-            # Don't allow analysis when exceeding area limit
-            message = _(
-                'Analysis extent exceeded area limit: {limit} km<sup>2</sup>.'
-                '<br />&nbsp;Analysis might take a long time to complete.')
-            # Convert m2 into km2.
-            area_limit = area_limit / 1000000
-            message = message.format(limit=area_limit)
-            retval = {
-                'is_valid': False,
-                'is_warned': True,
-                'extent': view_extent,
-                'area': area,
-                'reason': message
-            }
-            return HttpResponse(
-                json.dumps(retval), content_type="application/json")
-
         # convert analysis extent to bbox string again
         view_extent = ','.join([str(f) for f in analysis_geom.extent])
         message = _("Analysis will be performed on this given view extent.")
