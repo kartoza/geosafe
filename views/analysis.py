@@ -217,13 +217,14 @@ class AnalysisCreateView(CreateView):
                 'key': 'hazard',
                 'name': _('hazard'),
                 'categories': ['flood', 'tsunami', 'earthquake', 'volcano',
-                               'volcanic_ash'],
+                               'volcanic_ash', 'cyclone'],
                 'list_titles': [
                     _('Select a flood layer'),
                     _('Select a tsunami layer'),
                     _('Select an earthquake layer'),
                     _('Select a volcano layer'),
                     _('Select a volcanic ash layer'),
+                    _('Select a cyclone layer'),
                 ]
             },
             {
