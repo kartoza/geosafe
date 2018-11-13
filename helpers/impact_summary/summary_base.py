@@ -133,7 +133,7 @@ class ImpactSummary(object):
                 available_classifications = (
                     hazard_keywords.get('value_maps') or
                     hazard_keywords.get('thresholds'))
-                classes = (
+                classes = OrderedDict(
                     available_classifications[self.exposure_type()]
                     [self.hazard_classification()]['classes'])
                 if 'not exposed_hazard_count' in self.impact_data.keys():
