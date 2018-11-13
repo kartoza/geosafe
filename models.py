@@ -1,13 +1,15 @@
 from __future__ import absolute_import
 
+import json
 import os
 import urlparse
+from datetime import datetime
 
 from celery.result import AsyncResult
 from django.core.files.base import File
+from django.core.serializers.json import DjangoJSONEncoder
 from django.core.urlresolvers import reverse
 from django.db import models
-from datetime import datetime
 
 from geonode.layers.models import Layer
 from geosafe.app_settings import settings
@@ -26,6 +28,14 @@ ISO_METADATA_NAMESPACES = {
 
 class GeoSAFEException(BaseException):
     pass
+
+
+class MetadataManager(models.Manager):
+
+    def get_queryset(self):
+        """Defer text fields"""
+        return super(MetadataManager, self).get_queryset().defer(
+            'keywords_xml', 'keywords_json')
 
 
 # Create your models here.
@@ -54,6 +64,22 @@ class Metadata(models.Model):
         null=True,
         default=''
     )
+    keywords_json = models.TextField(
+        verbose_name='Full representation of InaSAFE keywords in json format',
+        blank=True,
+        null=True,
+        default='{}'
+    )
+
+    objects = MetadataManager()
+
+    @property
+    def keywords(self):
+        """Return InaSAFE keywords dict."""
+        try:
+            return json.loads(self.keywords_json, cls=DjangoJSONEncoder)
+        finally:
+            return {}
 
 
 class Analysis(models.Model):
@@ -263,7 +289,14 @@ class Analysis(models.Model):
         if not result.task_id:
             # If no task_id, we don't have any task yet.
             return 'FAILURE'
-        return self.task_state if result.state == 'PENDING' else result.state
+        # chain state, iterate result
+        if result.children:
+            for child in result.children:
+                if child.state == 'PENDING':
+                    return self.task_state
+                else:
+                    return child.state
+        return self.task_state
 
     def get_default_impact_title(self):
         layer_name = '%s on %s' % (
@@ -275,20 +308,21 @@ class Analysis(models.Model):
     def aggregation_field_name(self):
         # Get aggregation field name from InaSAFE keywords
         if self.aggregation_layer:
-            from geosafe.tasks.headless.analysis import get_keywords
-            from geosafe.helpers.utils import get_layer_path
-            keywords = get_keywords.delay(get_layer_path(
-                self.aggregation_layer)).get()
-            return keywords['inasafe_fields']['aggregation_name_field']
+            keywords = self.aggregation_layer.inasafe_metadata.keywords
+            try:
+                return keywords['inasafe_fields']['aggregation_name_field']
+            except KeyError:
+                return ''
+        return ''
 
     def impact_function_name(self):
         # Set impact function name from provenance data
         if self.impact_layer:
-            from geosafe.tasks.headless.analysis import get_keywords
-            from geosafe.helpers.utils import get_layer_path
-            keywords = get_keywords.delay(
-                get_layer_path(self.impact_layer)).get()
-            return keywords['provenance_data']['impact_function_name']
+            keywords = self.impact_layer.inasafe_metadata.keywords
+            try:
+                return keywords['provenance_data']['impact_function_name']
+            except KeyError:
+                self.get_default_impact_title()
         return self.get_default_impact_title()
 
     @property
@@ -342,3 +376,5 @@ class Analysis(models.Model):
 
 
 # needed to load signals
+# noinspection PyUnresolvedReferences
+from geosafe.signals import *  # noqa

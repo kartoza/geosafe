@@ -78,11 +78,7 @@ class ImpactSummary(object):
     def read_impact_keywords(self):
         """Read impact keywords"""
         try:
-            from geosafe.tasks.headless.analysis import get_keywords
-            from geosafe.helpers.utils import get_layer_path
-            keywords = get_keywords.delay(
-                get_layer_path(self.impact_layer)).get()
-            return keywords
+            return self.impact_layer.inasafe_metadata.keywords
         except Exception:
             return {}
 

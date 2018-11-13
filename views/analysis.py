@@ -502,14 +502,11 @@ def layer_keywords(request):
     if not layer_id:
         return HttpResponseBadRequest()
     try:
-        from geosafe.tasks.headless.analysis import get_keywords
-        from geosafe.helpers.utils import get_layer_path
         layer = Layer.objects.get(id=layer_id)
-        keywords = get_keywords.delay(get_layer_path(layer)).get()
 
         return HttpResponse(
-            json.dumps(keywords), content_type="application/json"
-        )
+            layer.inasafe_metadata.keywords_json,
+            content_type="application/json")
     except Exception as e:
         LOGGER.exception(e)
         return HttpResponseServerError()
