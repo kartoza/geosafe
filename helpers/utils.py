@@ -94,7 +94,7 @@ def send_analysis_result_email(analysis):
         analysis_url = reverse(
             'geosafe:analysis-create', kwargs={'pk': analysis.pk})
         analysis_url = urlparse.urljoin(
-            settings.SITE_URL, analysis_url)
+            settings.SITEURL, analysis_url)
         subject_email = _("Your GeoSAFE analysis is finished!")
         plain_message = render_to_string(
             'geosafe/analysis/notification/email_notification.txt',
