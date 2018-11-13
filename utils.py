@@ -3,10 +3,6 @@ import logging
 import os
 from zipfile import ZipFile
 
-from geosafe.app_settings import settings
-
-REPORT_TEMPLATES = settings.REPORT_TEMPLATES
-
 
 def split_layer_ext(layer_path):
     """Split layer file by basename and extension.
@@ -108,19 +104,6 @@ def celery_worker_connected(celery_app, worker_name):
                 return True
 
     return False
-
-
-def template_paths(hazard_type, locale='en'):
-    """Internal function to return template paths."""
-    return REPORT_TEMPLATES[hazard_type][locale]
-
-
-def template_names(hazard_type, locale='en'):
-    """Internal function to return template output name."""
-    template_filename = template_paths(hazard_type, locale)
-    basename = os.path.basename(template_filename)
-    output_name, _ = os.path.splitext(basename)
-    return output_name
 
 
 def get_geosafe_logger():

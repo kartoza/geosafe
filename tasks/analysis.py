@@ -8,13 +8,15 @@ import logging
 import os
 import shutil
 import tempfile
+import time
 import urlparse
 from datetime import datetime
 from zipfile import ZipFile
 
 import requests
 from celery import chain
-from celery.result import allow_join_result
+from celery.result import allow_join_result, AsyncResult
+from django.core.serializers.json import DjangoJSONEncoder
 from django.core.urlresolvers import reverse
 from django.db.models.query_utils import Q
 from django.core.files import File
@@ -226,8 +228,10 @@ def set_layer_purpose(keywords, layer_id):
             layer_purpose != 'hazard_aggregation_summary') else (
             'impact_analysis'))
     metadata.category = keywords.get(metadata.layer_purpose, None)
+    metadata.keywords_json = json.dumps(keywords, cls=DjangoJSONEncoder)
     Metadata.objects.filter(pk=metadata.pk).update(
         layer_purpose=metadata.layer_purpose,
+        keywords_json=metadata.keywords_json,
         category=metadata.category)
 
     return True
@@ -350,6 +354,11 @@ def prepare_analysis(analysis_id):
     """
     analysis = Analysis.objects.get(id=analysis_id)
 
+    # Set analysis start time
+    Analysis.objects.filter(id=analysis_id).update(
+        start_time=datetime.now())
+    analysis.refresh_from_db()
+
     hazard = get_layer_path(analysis.hazard_layer)
     exposure = get_layer_path(analysis.exposure_layer)
     aggregation = (
@@ -378,7 +387,9 @@ def prepare_analysis(analysis_id):
     # Parent information will be lost later.
     # What we should save is the run_analysis task result as this is the
     # chain's parent
-    return result.parent
+    while result.parent:
+        result = result.parent
+    return result
 
 
 @app.task(
@@ -403,9 +414,6 @@ def process_impact_result(self, impact_result, analysis_id):
     """
     # Track the current task_id
     analysis = Analysis.objects.get(id=analysis_id)
-
-    analysis.task_id = self.request.id
-    analysis.save()
 
     success = False
     report_success = False
@@ -438,7 +446,8 @@ def process_impact_result(self, impact_result, analysis_id):
 
         # define the layer order of the map report
         layer_order = (
-            list(settings.LAYER_ORDER) if settings.LAYER_ORDER else None)
+            list(settings.REPORT_LAYER_ORDER)
+            if settings.REPORT_LAYER_ORDER else None)
         if layer_order:
             layer_source = {
                 'impact': impact_url,
@@ -451,6 +460,16 @@ def process_impact_result(self, impact_result, analysis_id):
             else:
                 layer_order.remove('@aggregation')
 
+            try:
+                default_tile = settings.LEAFLET_CONFIG['TILES'][0]
+                basemap_url = default_tile[1]
+
+                basemap_source_uri = 'type=xyz&url={0}|qgis_provider=wms'\
+                    .format(basemap_url)
+                layer_source['basemap'] = basemap_source_uri
+            except BaseException:
+                pass
+
             layer_order = substitute_layer_order(layer_order, layer_source)
 
         # generate report when analysis has ran successfully
@@ -461,8 +480,16 @@ def process_impact_result(self, impact_result, analysis_id):
             custom_layer_order=layer_order,
             locale=analysis.language_code)
 
-        with allow_join_result():
-            report_metadata = result.get().get('output', {})
+        retries = 10
+        for _ in range(retries):
+            try:
+                with allow_join_result():
+                    report_metadata = result.get().get('output', {})
+                break
+            except BaseException as e:
+                LOGGER.exception(e)
+                time.sleep(5)
+                result = AsyncResult(result.id)
 
         for product_key, products in report_metadata.iteritems():
             for report_key, report_url in products.iteritems():
@@ -614,7 +641,6 @@ def process_impact_layer(
     if analysis.impact_layer:
         current_impact = analysis.impact_layer
     analysis.impact_layer = saved_layer
-    analysis.task_id = process_impact_result.request.id
     analysis.task_state = 'SUCCESS'
     analysis.end_time = datetime.now().strftime('%Y-%m-%d %H:%M')
     analysis.save(update_fields=[

@@ -87,7 +87,7 @@ MINIMUM_NEEDS_LOCALE_MAPPING_PATH = os.environ.get(
 
 # Context layers. The order of the layers that we want to show
 # in the map report.
-LAYER_ORDER = [
+REPORT_LAYER_ORDER = [
     # From top to bottom
     '@aggregation',
     '@impact',
