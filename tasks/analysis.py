@@ -427,50 +427,9 @@ def process_impact_result(self, impact_result, analysis_id):
         analysis_summary_url = (
             impact_result['output'].get('analysis_summary'))
 
-        # define the location of qgis template file
-        custom_template_path = None
-        if analysis.custom_template:
-            # resolve headless impact layer directory on django environment
-            filename = os.path.basename(analysis.custom_template)
-            dirname = os.path.dirname(impact_url)
-            # template path from headless service
-            headless_template_path = os.path.join(dirname, filename)
-            # template path in GeoSAFE
-            template_path = get_impact_path(headless_template_path)
-            # each analysis path is unique, so we can just copy/overwrite
-            # the template
-            shutil.copy(analysis.custom_template, template_path)
+        custom_template_path = prepare_custom_template(analysis, impact_url)
 
-            # pass on template path according to headless service
-            custom_template_path = headless_template_path
-
-        # define the layer order of the map report
-        layer_order = (
-            list(settings.REPORT_LAYER_ORDER)
-            if settings.REPORT_LAYER_ORDER else None)
-        if layer_order:
-            layer_source = {
-                'impact': impact_url,
-                'hazard': get_layer_path(analysis.hazard_layer),
-                'exposure': get_layer_path(analysis.exposure_layer)
-            }
-            if analysis.aggregation_layer:
-                layer_source.update({
-                    'aggregation': get_layer_path(analysis.aggregation_layer)})
-            else:
-                layer_order.remove('@aggregation')
-
-            try:
-                default_tile = settings.LEAFLET_CONFIG['TILES'][0]
-                basemap_url = default_tile[1]
-
-                basemap_source_uri = 'type=xyz&url={0}|qgis_provider=wms'\
-                    .format(basemap_url)
-                layer_source['basemap'] = basemap_source_uri
-            except BaseException:
-                pass
-
-            layer_order = substitute_layer_order(layer_order, layer_source)
+        layer_order = prepare_context_layer_order(analysis, impact_url)
 
         # generate report when analysis has ran successfully
         result = generate_report.delay(
@@ -561,6 +520,118 @@ def process_impact_result(self, impact_result, analysis_id):
     send_analysis_result_email(analysis)
 
     return success
+
+
+def prepare_context_layer_order(analysis, impact_url):
+    """This helper method will prepare context layer order.
+
+    This order will be used in report generation.
+
+    :param analysis: Analysis object to prepare
+    :type analysis: Analysis
+
+    :param impact_url: The impact URI returned by Headless
+    :type impact_url: basestring
+
+    :return: The layer order data source uri to be loaded.
+        It will contain a list of QGIS data source. It can be a filepath or
+        any valid QGIS datasource URI. example:
+        [
+            '/path/to/impact',
+            '/path/to/hazard',
+            'type=xyz&url=http://basemap.url/z/x/y.png|qgis_provider=wms'
+        ]
+    :rtype: list(basestring)
+    """
+    # define the layer order of the map report
+    layer_order = (
+        list(settings.REPORT_LAYER_ORDER)
+        if settings.REPORT_LAYER_ORDER else None)
+    if layer_order:
+        # Regular context
+        layer_source = {
+            'impact': impact_url,
+            'hazard': get_layer_path(analysis.hazard_layer),
+            'exposure': get_layer_path(analysis.exposure_layer)
+        }
+        # Aggregation layer
+        if analysis.aggregation_layer:
+            layer_source.update({
+                'aggregation': get_layer_path(analysis.aggregation_layer)})
+        else:
+            try:
+                layer_order.remove('@aggregation')
+            except ValueError:
+                pass
+
+        # Basemap
+        if settings.REPORT_DEFAULT_BASEMAP:
+            try:
+                basemap_url = settings.REPORT_DEFAULT_BASEMAP
+
+                basemap_source_uri = 'type=xyz&url={0}|qgis_provider=wms' \
+                    .format(basemap_url)
+                layer_source['basemap'] = basemap_source_uri
+            except BaseException:
+                pass
+
+        if 'basemap' not in layer_source:
+            try:
+                layer_order.remove('@basemap')
+            except ValueError:
+                pass
+
+        # Prepare styles
+        # Impact layer will have default style defined, so we don't deal
+        # with it again.
+
+        # GeoNode layer will have default style defined in QGISServerStyle
+        layer_list = [
+            analysis.hazard_layer,
+            analysis.exposure_layer
+        ]
+        if analysis.aggregation_layer:
+            layer_list.append(analysis.aggregation_layer)
+
+        for l in layer_list:
+            l.qgis_layer.extract_default_style_to_qml()
+
+        layer_order = substitute_layer_order(layer_order, layer_source)
+    return layer_order
+
+
+def prepare_custom_template(analysis, impact_url):
+    """This helper method will prepare custom template.
+
+    This template will be included in report generations.
+
+    :param analysis: Analysis object to prepare
+    :type analysis: Analysis
+
+    :param impact_url: The impact URI returned by Headless
+    :type impact_url: basestring
+
+    :return: The location of custom template path, relative to
+        Headless service
+    :rtype: basestring
+    """
+    # define the location of qgis template file
+    custom_template_path = None
+    if analysis.custom_template:
+        # resolve headless impact layer directory on django environment
+        filename = os.path.basename(analysis.custom_template)
+        dirname = os.path.dirname(impact_url)
+        # template path from headless service
+        headless_template_path = os.path.join(dirname, filename)
+        # template path in GeoSAFE
+        template_path = get_impact_path(headless_template_path)
+        # each analysis path is unique, so we can just copy/overwrite
+        # the template
+        shutil.copy(analysis.custom_template, template_path)
+
+        # pass on template path according to headless service
+        custom_template_path = headless_template_path
+    return custom_template_path
 
 
 @app.task(
@@ -706,6 +777,17 @@ def process_impact_report(analysis, report_metadata):
 
         # reference to impact layer
         # TODO: find out how to upload document using post request first
+
+        # delete all possible temporary styles being used to generate report
+        layer_list = [
+            analysis.hazard_layer,
+            analysis.exposure_layer
+        ]
+        if analysis.aggregation_layer:
+            layer_list.append(analysis.aggregation_layer)
+
+        for l in layer_list:
+            l.qgis_layer.remove_qml_file_style()
 
         success = True
     except Exception as e:

@@ -92,5 +92,10 @@ REPORT_LAYER_ORDER = [
     '@aggregation',
     '@impact',
     '@hazard',
-    '@exposure'
+    '@exposure',
+    '@basemap'
 ]
+
+# The basemap
+# Default Korona basemap doesn't load, so we uses OSM
+REPORT_DEFAULT_BASEMAP = 'http://tile.openstreetmap.org/{z}/{x}/{y}.png'
