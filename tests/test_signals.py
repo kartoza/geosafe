@@ -6,6 +6,7 @@ import os
 import re
 import tempfile
 
+from geonode.layers.models import Layer
 from lxml import etree
 
 from geonode.layers.utils import file_upload
@@ -66,11 +67,12 @@ class SignalsTest(GeoSAFEIntegrationLiveServerTestCase):
         wait_metadata(ash_fall_layer)
 
         # Validate internal model
-        ash_fall_layer.refresh_from_db()
-        ash_fall_layer.inasafe_metadata.refresh_from_db()
+        ash_fall_layer = Layer.objects.get(id=ash_fall_layer.id)
 
         self.assertTrue(ash_fall_layer.inasafe_metadata)
         self.assertTrue(ash_fall_layer.inasafe_metadata.keywords_xml)
+        self.assertTrue(ash_fall_layer.inasafe_metadata.keywords_json)
+        self.assertTrue(ash_fall_layer.inasafe_metadata.keywords)
         self.assertEqual(
             ash_fall_layer.inasafe_metadata.layer_purpose, 'hazard')
         self.assertEqual(
@@ -145,12 +147,13 @@ class SignalsTest(GeoSAFEIntegrationLiveServerTestCase):
         # Supposedly, there's no metadata
 
         # Validate internal model
-        ash_fall_layer.refresh_from_db()
-        ash_fall_layer.inasafe_metadata.refresh_from_db()
+        ash_fall_layer = Layer.objects.get(id=ash_fall_layer.id)
 
         self.assertTrue(ash_fall_layer.inasafe_metadata)
         # Now there is no InaSAFE keywords
         self.assertFalse(ash_fall_layer.inasafe_metadata.keywords_xml)
+        self.assertFalse(ash_fall_layer.inasafe_metadata.keywords_json)
+        self.assertFalse(ash_fall_layer.inasafe_metadata.keywords)
         self.assertFalse(ash_fall_layer.inasafe_metadata.layer_purpose)
         self.assertFalse(ash_fall_layer.inasafe_metadata.category)
 
@@ -208,11 +211,12 @@ class SignalsTest(GeoSAFEIntegrationLiveServerTestCase):
         wait_metadata(ash_fall_layer)
 
         # Validate internal model
-        ash_fall_layer.refresh_from_db()
-        ash_fall_layer.inasafe_metadata.refresh_from_db()
+        ash_fall_layer = Layer.objects.get(id=ash_fall_layer.id)
 
         self.assertTrue(ash_fall_layer.inasafe_metadata)
         self.assertTrue(ash_fall_layer.inasafe_metadata.keywords_xml)
+        self.assertTrue(ash_fall_layer.inasafe_metadata.keywords_json)
+        self.assertTrue(ash_fall_layer.inasafe_metadata.keywords)
         self.assertEqual(
             ash_fall_layer.inasafe_metadata.layer_purpose, 'hazard')
         self.assertEqual(

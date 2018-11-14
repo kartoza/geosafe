@@ -7,7 +7,6 @@ from datetime import datetime
 
 from celery.result import AsyncResult
 from django.core.files.base import File
-from django.core.serializers.json import DjangoJSONEncoder
 from django.core.urlresolvers import reverse
 from django.db import models
 
@@ -77,9 +76,17 @@ class Metadata(models.Model):
     def keywords(self):
         """Return InaSAFE keywords dict."""
         try:
-            return json.loads(self.keywords_json, cls=DjangoJSONEncoder)
-        finally:
+            return json.loads(self.keywords_json)
+        except ValueError:
             return {}
+
+    def reset_metadata(self):
+        """Reset to empty metadata."""
+        Metadata.objects.filter(pk=self.pk).update(
+            keywords_xml='',
+            keywords_json='',
+            layer_purpose='',
+            category='')
 
 
 class Analysis(models.Model):

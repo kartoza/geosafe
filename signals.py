@@ -87,7 +87,7 @@ def layer_post_save(sender, instance, created, **kwargs):
     process_inasafe_metadata(sender, instance, created, **kwargs)
 
 
-@receiver(post_save, sender=Metadata)
+@receiver(post_save)
 def metadata_post_save(sender, instance, created, **kwargs):
     """Signal to handle InaSAFE metadata changes
 
@@ -100,6 +100,8 @@ def metadata_post_save(sender, instance, created, **kwargs):
     :param kwargs:
     :return:
     """
+    if not isinstance(instance, Metadata):
+        return
     # execute in a different task to let post_save returns and create metadata
     # asyncly
     # set countdown to 5 secs, to make sure it is executed after layer is
@@ -108,10 +110,7 @@ def metadata_post_save(sender, instance, created, **kwargs):
         create_metadata_object.apply_async(
             args=[instance.layer.id], countdown=5)
     else:
-        Metadata.objects.filter(pk=instance.pk).update(
-            keywords_xml='',
-            layer_purpose='',
-            category='')
+        instance.reset_metadata()
 
 
 @receiver(post_save, sender=Analysis)
