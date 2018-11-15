@@ -1,1 +1,5 @@
+{% load i18n %}
+
+{% blocktrans %}
 Your GeoSAFE analysis is finished! Visit {{ analysis_url }} to see the result.
+{% endblocktrans %}

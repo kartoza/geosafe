@@ -1,4 +1,8 @@
+{% load i18n %}
+
 <p>
+    {% blocktrans %}
     Your GeoSAFE analysis is finished! Visit
     <a href="{{ analysis_url }}"> the analysis page </a> to see the result.
-</p>"
+    {% endblocktrans %}
+</p>

@@ -221,6 +221,9 @@
 
             show_info_text(info_text_title, `{% trans '${$a.text()} selected.' %}`);
         } else {
+            if (!exposure_layer) {
+                return;
+            }
             remove_layer(exposure_layer._url);
             map.removeLayer(exposure_layer);
             $("#exposure-legend-img").removeAttr("src");
@@ -307,6 +310,9 @@
 
             show_info_text(info_text_title, `{% trans '${$a.text()} selected.' %}`);
         } else {
+            if (!hazard_layer) {
+                return;
+            }
             remove_layer(hazard_layer._url);
             map.removeLayer(hazard_layer);
             $("#hazard-legend-img").removeAttr("src");
@@ -376,6 +382,9 @@
             update_map(layer_id, 'impact');
             show_info_text(info_text_title, `{% trans '${$a.text()} selected.' %}`);
         } else {
+            if (!impact_layer) {
+                return;
+            }
             remove_layer(impact_layer._url);
             map.removeLayer(impact_layer);
             $("#impact-legend-img").removeAttr("src");
@@ -471,6 +480,9 @@
                 feature_selector_button.disable();
             }
         } else {
+            if (!aggregation_layer) {
+                return;
+            }
             remove_layer(aggregation_layer._url);
             map.removeLayer(aggregation_layer);
             $("#aggregation-legend-img").removeAttr("src");

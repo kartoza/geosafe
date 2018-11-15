@@ -84,8 +84,8 @@
 {#                    <th>Hazard</th>#}
 {#                    <th>Aggregation</th>#}
 {#                    <th>Extent</th>#}
-                    <th>{% trans "Impact Function Name" %}</th>
-                    <th>{% trans "Result" %}</th>
+{#                    <th>{% trans "Impact Function Name" %}</th>#}
+                    <th>{% trans "Impact Result" %}</th>
                     <th>{% trans "View" %}</th>
                     {% if user.username %}
                         <th>{% trans "Save" %}</th>
@@ -118,9 +118,9 @@
 {#                        <td>#}
 {#                            {{ analysis.get_extent_option_display }}#}
 {#                        </td>#}
-                        <td>
-                            {{ analysis.impact_function_name }}
-                        </td>
+{#                        <td>#}
+{#                            {{ analysis.impact_function_name }}#}
+{#                        </td>#}
                         <td>
                             {% if not analysis.get_task_result %}
                                 {% trans "Analysis not yet running" %}
