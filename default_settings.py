@@ -2,6 +2,7 @@
 
 import os
 from ast import literal_eval
+from django.utils.translation import ugettext_lazy as _
 
 _LOCAL_ROOT = os.path.abspath(os.path.dirname(__file__))
 
@@ -95,6 +96,49 @@ REPORT_LAYER_ORDER = [
     '@exposure',
     '@basemap'
 ]
+
+# Hazard settings.
+# Do not forget to add also the icon when adding new hazard.
+HAZARD_DEFINITION = {
+    'key': 'hazard',
+    'name': _('hazard'),
+    'categories': ['flood', 'tsunami', 'earthquake', 'volcano',
+                   'volcanic_ash', 'cyclone'],
+    'list_titles': [
+        _('Select a flood layer'),
+        _('Select a tsunami layer'),
+        _('Select an earthquake layer'),
+        _('Select a volcano layer'),
+        _('Select a volcanic ash layer'),
+        _('Select a cyclone layer'),
+    ]
+}
+
+# Exposure settings.
+# Do not forget to add also the icon when adding new exposure.
+EXPOSURE_DEFINITION = {
+    'key': 'exposure',
+    'name': _('exposure'),
+    'categories': [
+        'population',
+        'road',
+        'structure',
+        'land_cover',
+    ],
+    'list_titles': [
+        _('Select a population layer'),
+        _('Select a roads layer'),
+        _('Select a structure layer'),
+        _('Select a landcover layer'),
+    ]
+}
+
+# Aggregation settings
+AGGREGATION_DEFINITION = {
+    'key': 'aggregation',
+    'name': _('aggregation'),
+    'list_title': _('Select an aggregation layer')
+}
 
 # The basemap
 # Default Korona basemap doesn't load, so we uses OSM
