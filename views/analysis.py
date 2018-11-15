@@ -213,41 +213,9 @@ class AnalysisCreateView(CreateView):
         :rtype: dict
         """
         purposes = [
-            {
-                'key': 'hazard',
-                'name': _('hazard'),
-                'categories': ['flood', 'tsunami', 'earthquake', 'volcano',
-                               'volcanic_ash', 'cyclone'],
-                'list_titles': [
-                    _('Select a flood layer'),
-                    _('Select a tsunami layer'),
-                    _('Select an earthquake layer'),
-                    _('Select a volcano layer'),
-                    _('Select a volcanic ash layer'),
-                    _('Select a cyclone layer'),
-                ]
-            },
-            {
-                'key': 'exposure',
-                'name': _('exposure'),
-                'categories': [
-                    'population',
-                    'road',
-                    'structure',
-                    'land_cover',
-                ],
-                'list_titles': [
-                    _('Select a population layer'),
-                    _('Select a roads layer'),
-                    _('Select a structure layer'),
-                    _('Select a landcover layer'),
-                ]
-            },
-            {
-                'key': 'aggregation',
-                'name': _('aggregation'),
-                'list_title': _('Select an aggregation layer')
-            }
+            settings.HAZARD_DEFINITION,
+            settings.EXPOSURE_DEFINITION,
+            settings.AGGREGATION_DEFINITION
         ]
         sections = []
         for p in purposes:
