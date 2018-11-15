@@ -332,9 +332,6 @@
 
             $.post(analysis_url, post_data, function (data) {
                 if (data) {
-                    area = data['area'] / 1000000;
-                    formatted_area = numeral(area).format('0,0');
-
                     if (data['is_valid']) {
                         allow_message = '{% trans 'You can now run analysis.' %}';
                     }
@@ -343,7 +340,7 @@
                     }
                     if (data['is_valid'] || data['is_warned']) {
                         if ($run_analysis_popover) {
-                            run_message = `{% trans '${both_selected} The selected analysis extent is ${formatted_area} m2. ${allow_message}' %}`;
+                            run_message = `{% trans '${both_selected} ${allow_message}' %}`;
                             $run_analysis_popover.popover({title: run_title, content: run_message});
                             $run_analysis_popover.popover('show');
                         }
