@@ -3,13 +3,17 @@
 # This file is distributed under the same license as the PACKAGE package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 # 
+# Translators:
+# Gavin Fleming <gavin@kartoza.com>, 2018
+# Muhammad Yarjuna Rohmat <myarjunar@gmail.com>, 2018
+# 
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-11-01 01:21-0500\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"POT-Creation-Date: 2018-11-15 03:49-0600\n"
+"PO-Revision-Date: 2018-10-05 12:06+0000\n"
 "Last-Translator: Muhammad Yarjuna Rohmat <myarjunar@gmail.com>, 2018\n"
 "Language-Team: Portuguese (https://www.transifex.com/inasafe/teams/92273/pt/)\n"
 "MIME-Version: 1.0\n"
@@ -18,9 +22,69 @@ msgstr ""
 "Language: pt\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
+#: default_settings.py:104
+msgid "hazard"
+msgstr "risco"
+
+#: default_settings.py:108
+msgid "Select a flood layer"
+msgstr "Selecione uma camada de inundação"
+
+#: default_settings.py:109
+msgid "Select a tsunami layer"
+msgstr "Selecione uma camada de tsunami"
+
+#: default_settings.py:110
+msgid "Select an earthquake layer"
+msgstr "Selecione uma camada de terremoto"
+
+#: default_settings.py:111
+msgid "Select a volcano layer"
+msgstr "Selecione uma camada de vulcân"
+
+#: default_settings.py:112
+msgid "Select a volcanic ash layer"
+msgstr "Selecione uma camada de cinzas vulcânicas"
+
+#: default_settings.py:113
+msgid "Select a cyclone layer"
+msgstr "Selecione uma camada de ciclone"
+
+#: default_settings.py:121
+msgid "exposure"
+msgstr "exposição"
+
+#: default_settings.py:129
+msgid "Select a population layer"
+msgstr "Selecione uma camada de população"
+
+#: default_settings.py:130
+msgid "Select a roads layer"
+msgstr "Selecione uma camada de estradas"
+
+#: default_settings.py:131
+msgid "Select a structure layer"
+msgstr "Selecione uma camada de estrutura"
+
+#: default_settings.py:132
+msgid "Select a landcover layer"
+msgstr "Selecione uma camada de cobertura da terra"
+
+#: default_settings.py:139
+msgid "aggregation"
+msgstr "agregação"
+
+#: default_settings.py:140
+msgid "Select an aggregation layer"
+msgstr "Selecione uma camada de agregação"
+
 #: forms.py:38
 msgid "Default title generated"
 msgstr "Título padrão gerado"
+
+#: helpers/utils.py:98
+msgid "Your GeoSAFE analysis is finished!"
+msgstr "Sua análise GeoSAFE está concluída!"
 
 #: templates/geonode_base.html:7 templates/index.html:16
 msgid "GeoSAFE"
@@ -53,31 +117,31 @@ msgstr "Atualize seu navegador"
 msgid "Close"
 msgstr "Feche"
 
-#: templates/geosafe/analysis/create_base.html:585
-#: templates/geosafe/analysis/create_base.html:598
+#: templates/geosafe/analysis/create_base.html:586
+#: templates/geosafe/analysis/create_base.html:599
 msgid "Swap hazard and exposure order"
 msgstr "Troque a ordem de perigo e exposição"
 
-#: templates/geosafe/analysis/create_base.html:616
+#: templates/geosafe/analysis/create_base.html:617
 msgid "Zoom to global view"
 msgstr "Zoom para visão global"
 
-#: templates/geosafe/analysis/create_base.html:628
+#: templates/geosafe/analysis/create_base.html:629
 msgid ""
 "You can choose specific aggregation polygons to simplify your analysis area."
 msgstr ""
 "Você pode escolher polígonos de agregação específicos para simplificar sua "
 "área de análise."
 
-#: templates/geosafe/analysis/create_base.html:630
+#: templates/geosafe/analysis/create_base.html:631
 msgid "Select Features"
 msgstr "Selecione feições"
 
-#: templates/geosafe/analysis/create_base.html:640
+#: templates/geosafe/analysis/create_base.html:641
 msgid "Select aggregation features"
 msgstr "Selecione os feições de agregação"
 
-#: templates/geosafe/analysis/create_base.html:651
+#: templates/geosafe/analysis/create_base.html:652
 msgid "cancel"
 msgstr "cancelar"
 
@@ -159,7 +223,7 @@ msgstr "Execute novamente a análise"
 #: templates/geosafe/analysis/dynamic_scripts/create/main.html:95
 #: templates/geosafe/analysis/dynamic_scripts/create/main.html:101
 #: templates/geosafe/analysis/dynamic_scripts/create/main.html:107
-#: templates/geosafe/analysis/dynamic_scripts/create/side_panel.html:504
+#: templates/geosafe/analysis/dynamic_scripts/create/side_panel.html:516
 msgid "Extent Changed"
 msgstr "Extensão alterada"
 
@@ -222,11 +286,11 @@ msgstr "Perigo e exposição são selecionados."
 msgid "Run Analysis"
 msgstr "Execute análise"
 
-#: templates/geosafe/analysis/dynamic_scripts/create/main.html:339
+#: templates/geosafe/analysis/dynamic_scripts/create/main.html:336
 msgid "You can now run analysis."
 msgstr "Agora você pode executar a análise."
 
-#: templates/geosafe/analysis/dynamic_scripts/create/main.html:342
+#: templates/geosafe/analysis/dynamic_scripts/create/main.html:339
 msgid ""
 "You can now run analysis, but the analysis might take a long time to "
 "complete."
@@ -234,16 +298,12 @@ msgstr ""
 "Agora você pode executar a análise, mas a análise pode levar muito tempo "
 "para ser concluída."
 
-#: templates/geosafe/analysis/dynamic_scripts/create/main.html:346
+#: templates/geosafe/analysis/dynamic_scripts/create/main.html:343
 #, python-brace-format
-msgid ""
-"${both_selected} The selected analysis extent is ${formatted_area} m2. "
-"${allow_message}"
-msgstr ""
-"${both_selected} A extensão da análise selecionada é ${formatted_area} m2. "
-"${allow_message}"
+msgid "${both_selected} ${allow_message}"
+msgstr "${both_selected} ${allow_message}"
 
-#: templates/geosafe/analysis/dynamic_scripts/create/main.html:354
+#: templates/geosafe/analysis/dynamic_scripts/create/main.html:351
 msgid "If hazard and exposure were selected, you can run analysis"
 msgstr ""
 "Se perigo e exposição foram selecionados, você pode executar a análise"
@@ -262,41 +322,41 @@ msgid "InaSAFE Exposure"
 msgstr "Exposição InaSAFE"
 
 #: templates/geosafe/analysis/dynamic_scripts/create/side_panel.html:222
-#: templates/geosafe/analysis/dynamic_scripts/create/side_panel.html:308
-#: templates/geosafe/analysis/dynamic_scripts/create/side_panel.html:377
-#: templates/geosafe/analysis/dynamic_scripts/create/side_panel.html:465
+#: templates/geosafe/analysis/dynamic_scripts/create/side_panel.html:311
+#: templates/geosafe/analysis/dynamic_scripts/create/side_panel.html:383
+#: templates/geosafe/analysis/dynamic_scripts/create/side_panel.html:474
 msgid "${$a.text()} selected."
 msgstr "${$a.text()} selecionado."
 
-#: templates/geosafe/analysis/dynamic_scripts/create/side_panel.html:235
+#: templates/geosafe/analysis/dynamic_scripts/create/side_panel.html:238
 msgid "Exposure unselected."
 msgstr "Exposição não selecionada."
 
-#: templates/geosafe/analysis/dynamic_scripts/create/side_panel.html:294
+#: templates/geosafe/analysis/dynamic_scripts/create/side_panel.html:297
 msgid "InaSAFE Hazard"
 msgstr "Risco InaSAFE"
 
-#: templates/geosafe/analysis/dynamic_scripts/create/side_panel.html:321
+#: templates/geosafe/analysis/dynamic_scripts/create/side_panel.html:327
 msgid "Hazard unselected."
 msgstr "Risco não selecionada."
 
-#: templates/geosafe/analysis/dynamic_scripts/create/side_panel.html:371
+#: templates/geosafe/analysis/dynamic_scripts/create/side_panel.html:377
 msgid "InaSAFE Impact"
 msgstr "Impacto InaSAFE"
 
-#: templates/geosafe/analysis/dynamic_scripts/create/side_panel.html:390
+#: templates/geosafe/analysis/dynamic_scripts/create/side_panel.html:399
 msgid "Impact unselected."
 msgstr "Impacto não selecionada."
 
-#: templates/geosafe/analysis/dynamic_scripts/create/side_panel.html:448
+#: templates/geosafe/analysis/dynamic_scripts/create/side_panel.html:457
 msgid "InaSAFE Aggregation"
 msgstr "Agregação InaSAFE"
 
-#: templates/geosafe/analysis/dynamic_scripts/create/side_panel.html:485
+#: templates/geosafe/analysis/dynamic_scripts/create/side_panel.html:497
 msgid "Aggregation unselected."
 msgstr "Agregação não selecionada."
 
-#: templates/geosafe/analysis/dynamic_scripts/create/side_panel.html:505
+#: templates/geosafe/analysis/dynamic_scripts/create/side_panel.html:517
 msgid "Filtering available layer for extent"
 msgstr "Filtrando a camada disponível por extensão"
 
@@ -344,13 +404,9 @@ msgstr "Usuário"
 msgid "Date Created"
 msgstr "Data Criada"
 
-#: templates/geosafe/analysis/list_base.html:87
-msgid "Impact Function Name"
-msgstr "Nome da Função de Impacto"
-
 #: templates/geosafe/analysis/list_base.html:88
-msgid "Result"
-msgstr "Resultado"
+msgid "Impact Result"
+msgstr "Resultado do Impacto"
 
 #: templates/geosafe/analysis/list_base.html:89
 msgid "View"
@@ -516,20 +572,41 @@ msgstr "A análise está sendo executada ..."
 #, python-format
 msgid ""
 "\n"
-"                            However, you can close this message if you want to continue working. <br />\n"
-"                            Your analysis covers an area of <span id=\"analysis_area\"></span> km<sup>2</sup>. The larger the area, the longer the analysis will take.<br />\n"
+"                            However, you can close this message if you want to continue working. Don't worry, we will send you an email once the analysis is finished. <br />\n"
+"                            The larger the analysis area, the longer the analysis will take.<br />\n"
 "                            See the <a href=\"%(analysis_url)s\">Analysis List</a> to monitor the progress of this analysis and to view the results when it is complete.\n"
 "                        "
 msgstr ""
 "\n"
-"No entanto, você pode fechar esta mensagem se você quer continuar a trabalhar.<br />\n"
-"Sua análise cobre uma área de <span id=\"analysis_area\"></span> km<sup>2</sup>. Quanto maior a área, maior será a análise.<br />\n"
+"No entanto, você pode fechar esta mensagem se você quer continuar a trabalhar. Não se preocupe, nós lhe enviaremos um email assim que a análise estiver concluída.<br />\n"
+"Quanto maior a área de análise, maior será a análise.<br />\n"
 "Consulte a <a href=\"%(analysis_url)s\">lista de análise</a> para monitorar o progresso dessa análise e visualizar os resultados quando estiver concluída."
 
 #: templates/geosafe/analysis/modal/waiting_analysis.html:42
 msgid "This window will automatically close when the analysis is complete."
 msgstr ""
 "Esta janela será fechada automaticamente quando a análise estiver concluída."
+
+#: templates/geosafe/analysis/notification/email_notification.html:4
+#, python-format
+msgid ""
+"\n"
+"    Your GeoSAFE analysis is finished! Visit\n"
+"    <a href=\"%(analysis_url)s\"> the analysis page </a> to see the result.\n"
+"    "
+msgstr ""
+"\n"
+"Sua análise GeoSAFE está concluída! Visite\n"
+"<a href=\"%(analysis_url)s\">a página de análise</a>para ver o resultado."
+
+#: templates/geosafe/analysis/notification/email_notification.txt:3
+#, python-format
+msgid ""
+"\n"
+"Your GeoSAFE analysis is finished! Visit %(analysis_url)s to see the result.\n"
+msgstr ""
+"\n"
+"Sua análise GeoSAFE está concluída! Visite %(analysis_url)spara ver o resultado. \n"
 
 #: templates/geosafe/analysis/options_panel_base.html:13
 msgid "Select Hazard"
@@ -671,79 +748,18 @@ msgstr "Categoria"
 msgid "Keywords XML"
 msgstr "XML de palavras-chave"
 
-#: views/analysis.py:218
-msgid "hazard"
-msgstr "risco"
-
-#: views/analysis.py:222
-msgid "Select a flood layer"
-msgstr "Selecione uma camada de inundação"
-
-#: views/analysis.py:223
-msgid "Select a tsunami layer"
-msgstr "Selecione uma camada de tsunami"
-
-#: views/analysis.py:224
-msgid "Select an earthquake layer"
-msgstr "Selecione uma camada de terremoto"
-
-#: views/analysis.py:225
-msgid "Select a volcano layer"
-msgstr "Selecione uma camada de vulcân"
-
-#: views/analysis.py:226
-msgid "Select a volcanic ash layer"
-msgstr "Selecione uma camada de cinzas vulcânicas"
-
-#: views/analysis.py:231
-msgid "exposure"
-msgstr "exposição"
-
-#: views/analysis.py:239
-msgid "Select a population layer"
-msgstr "Selecione uma camada de população"
-
-#: views/analysis.py:240
-msgid "Select a roads layer"
-msgstr "Selecione uma camada de estradas"
-
-#: views/analysis.py:241
-msgid "Select a structure layer"
-msgstr "Selecione uma camada de estrutura"
-
-#: views/analysis.py:242
-msgid "Select a landcover layer"
-msgstr "Selecione uma camada de cobertura da terra"
-
-#: views/analysis.py:247
-msgid "aggregation"
-msgstr "agregação"
-
-#: views/analysis.py:248
-msgid "Select an aggregation layer"
-msgstr "Selecione uma camada de agregação"
-
-#: views/analysis.py:310
+#: views/analysis.py:279
 msgid "impact"
 msgstr "impacto"
 
-#: views/analysis.py:661
+#: views/analysis.py:627
 msgid "Hazard and exposure does not intersect."
 msgstr "Perigo e exposição não se cruzam."
 
-#: views/analysis.py:681
+#: views/analysis.py:647
 msgid "View extent does not intersect hazard and exposure."
 msgstr "A extensão da vista não cruza perigo e exposição."
 
-#: views/analysis.py:704
-#, python-brace-format
-msgid ""
-"Analysis extent exceeded area limit: {limit} km<sup>2</sup>.<br "
-"/>&nbsp;Analysis might take a long time to complete."
-msgstr ""
-"A extensão de análise excedeu o limite de área: {limit} km<sup>2</sup>.<br "
-"/>&nbsp;A análise pode demorar muito tempo para ser concluída."
-
-#: views/analysis.py:721
+#: views/analysis.py:667
 msgid "Analysis will be performed on this given view extent."
 msgstr "A análise será realizada sobre a extensão dessa visão."
