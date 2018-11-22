@@ -503,8 +503,10 @@
 
             // Add scrollbar in case of overflowing in dimension-y
             var w_height = $(window).height();
+            var w_width = $(window).width();
             $("#legend-body").css("max-height", 0.7 * w_height);
-            $("#legend-body").css("overflow-y", "auto")
+            $(".legend").css("max-width", 0.3 * w_width);
+            $("#legend-body").css("overflow", "auto")
 
             {# initialize tooltip #}
             $(function () {
