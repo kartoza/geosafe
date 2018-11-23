@@ -11,7 +11,7 @@
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <i class="fa fa-times-circle-o"></i>
                     </button>
-                    <h4 class="modal-title" id="analysis-result-label"><i class="fa fa-spinner fa-spin"></i> {% trans "Waiting for analysis to run" %}</h4>
+                    <h4 class="modal-title" id="analysis-result-label"><i class="fa fa-spinner fa-spin"></i> {% trans "Waiting for analysis to complete" %}</h4>
                 {% endif %}
             </div>
             <div class="modal-body">
@@ -28,13 +28,19 @@
                     </div>
                 {% else %}
                     <p>
-                        {% trans "The analysis is running..." %}
+                        {% trans "Your analysis job has been queued." %}
                     </p>
                     <p>
                         {% url 'geosafe:analysis-list' as analysis_url %}
                         {% blocktrans %}
-                            However, you can close this message if you want to continue working. Don't worry, we will send you an email once the analysis is finished. <br />
-                            The larger the analysis area, the longer the analysis will take.<br />
+                            If it is a small job the results will appear soon.
+                            Analysis jobs on large areas or with certain data layers will take longer,
+                            from minutes to possibly hours. <br /> <br />
+                            You can close this message and continue working.
+                            The analysis will continue even if you log out or shut down. <br /> <br />
+                            We will send you an email once the analysis is finished,
+                            or you can come back here or to the Analysis List page any time
+                            to check on progress. <br /> <br />
                             See the <a href="{{ analysis_url }}">Analysis List</a> to monitor the progress of this analysis and to view the results when it is complete.
                         {% endblocktrans %}
                     </p>
