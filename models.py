@@ -9,6 +9,7 @@ from celery.result import AsyncResult
 from django.core.files.base import File
 from django.core.urlresolvers import reverse
 from django.db import models
+from django.utils.translation import ugettext as _
 
 from geonode.layers.models import Layer
 from geosafe.app_settings import settings
@@ -306,11 +307,17 @@ class Analysis(models.Model):
         return self.task_state
 
     def get_default_impact_title(self):
-        layer_name = '%s on %s' % (
-            self.hazard_layer.name,
-            self.exposure_layer.name
-        )
-        return layer_name
+        title_dict = {
+            'hazard': self.hazard_layer.title,
+            'exposure': self.exposure_layer.title
+        }
+        if self.aggregation_layer:
+            title_template = _('{hazard} on {exposure} around {aggregation}')
+            title_dict['aggregation'] = self.aggregation_layer.title
+        else:
+            title_template = _('{hazard} on {exposure}')
+
+        return title_template.format(**title_dict)
 
     def aggregation_field_name(self):
         # Get aggregation field name from InaSAFE keywords
