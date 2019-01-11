@@ -541,7 +541,7 @@
             };
             map = L.map('map', {
                 layers: [OpenMapSurfer_Roads],
-                minZoom: 2
+                minZoom: 4
             });
 
             var layerControl = L.control.layers(
@@ -689,31 +689,35 @@
                 var num_hazard = hazard_layer_cbo[0].length;
                 var num_exposure = exposure_layer_cbo[0].length;
                 var num_aggregation = aggregation_layer_cbo[0].length;
+                var current_loop = 0;
+                // hazard, exposure, and aggregation contain at least 1 unnecessary info, so we must ignore them
+                total_layers = num_hazard + num_exposure + num_aggregation - 3;
                 //show marker for each layers
                 var layer_id;
-                for (var loop_hazard = 0; loop_hazard < num_hazard; loop_hazard++) {
+                for (var loop_hazard = 0; loop_hazard < num_hazard; loop_hazard++, current_loop++) {
                     layer_id = hazard_layer_cbo[0][loop_hazard].value;
                     // first combo option is an empty tag.
                     if (layer_id != ""){
-                        show_marker(layer_id, "hazard");
+                        show_marker(layer_id, "hazard", current_loop);
                     }
                 }
-                for (var loop_exposure = 0; loop_exposure < num_exposure; loop_exposure++) {
+                for (var loop_exposure = 0; loop_exposure < num_exposure; loop_exposure++, current_loop++) {
                     layer_id = exposure_layer_cbo[0][loop_exposure].value;
                     // first combo option is an empty tag.
                     if (layer_id != "") {
-                        show_marker(layer_id, "exposure");
+                        show_marker(layer_id, "exposure", current_loop);
                     }
                 }
-                for (var loop_aggregation = 0; loop_aggregation < num_aggregation; loop_aggregation++) {
+                for (var loop_aggregation = 0; loop_aggregation < num_aggregation; loop_aggregation++, current_loop++) {
                     layer_id = aggregation_layer_cbo[0][loop_aggregation].value;
                     // first combo option is an empty tag.
                     if (layer_id != "") {
-                        show_marker(layer_id, "aggregation");
+                        show_marker(layer_id, "aggregation", current_loop);
                     }
                 }
                 //use markers as the default
-                map.addLayer(hazard_exposure_marker_groups);
+                //map.addLayer(hazard_exposure_marker_groups);
+                //map.addLayer(hazard_exposure_group);
             }
             {% endif %}
 
