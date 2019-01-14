@@ -36,12 +36,12 @@
                     <p>{% trans "Impact Layer:" %}
                         {% if not analysis.get_task_result %}
                                 {% trans "Analysis not yet running" %}
-                        {% elif analysis.get_task_result.successful %}
+                        {% elif analysis.get_task_state == 'SUCCESS' %}
                             <a href="{% url 'layer_detail' layername=analysis.impact_layer.alternate %}">{{ analysis.impact_layer }}</a>
                         {% else %}
                             {% trans "Task Status:" %}
                             <span class="label label-{{ analysis.get_label_class }}">
-                            {{ analysis.get_task_result.state }}
+                            {{ analysis.get_task_state }}
                             </span>
                         {% endif %}
                         {% if analysis.get_task_result and analysis.get_task_result.state == "FAILURE" %}

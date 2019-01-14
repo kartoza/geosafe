@@ -307,6 +307,12 @@ class Analysis(models.Model):
                         return child.state
                 except BaseException:
                     return 'FAILURE'
+        # If state result is not PENDING, this could be the current state
+        if result.state != 'PENDING':
+            return result.state
+
+        # If state result is PENDING, it is possible the result is gone.
+        # So, retrieve the state from cache
         return self.task_state
 
     def get_default_impact_title(self):
