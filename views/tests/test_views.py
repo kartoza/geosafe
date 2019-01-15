@@ -385,7 +385,10 @@ class AnalysisTest(GeoSAFEIntegrationLiveServerTestCase):
         analysis = form.save()
         """:type: geosafe.models.Analysis"""
 
-        while analysis.get_task_state() == 'PENDING':
+        # wait for the analysis to succeed whatever happens with
+        # the task progress
+        while not analysis.task_state == 'SUCCESS':
+
             analysis.refresh_from_db()
             time.sleep(1)
 
