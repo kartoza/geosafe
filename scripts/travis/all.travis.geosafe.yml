@@ -34,6 +34,11 @@ qgis_server:
     # Log level 0 is the lowest (catch all), 5 is the highest (only fatal error)
     QGIS_SERVER_LOG_LEVEL: 0
 
+selenium:
+  driver:
+    host: 172.17.0.1
+    port: 4444
+
 web:
   command: debug
 
@@ -66,6 +71,8 @@ django:
     INASAFE_ANALYSIS_AREA_LIMIT: 1000000000
     INASAFE_SETTINGS_PATH: /home/headless/settings/inasafe-settings.json
     MINIMUM_NEEDS_LOCALE_MAPPING_PATH: /home/headless/settings/min-needs-mapping.json
+    # Selenium Settings
+    SELENIUM_DRIVER: 'http://172.17.0.1:4444/wd/hub'
 
 celery:
   command: dev

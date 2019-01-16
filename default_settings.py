@@ -6,6 +6,9 @@ from django.utils.translation import ugettext_lazy as _
 
 _LOCAL_ROOT = os.path.abspath(os.path.dirname(__file__))
 
+# Selenium
+SELENIUM_DRIVER = os.environ.get('SELENIUM_DRIVER')
+
 # Opt-in to use layerfile direct disk access for InaSAFE Headless Celery
 # workers instead of Http
 USE_LAYER_FILE_ACCESS = literal_eval(os.environ.get(

@@ -14,6 +14,7 @@ services:
 
 env:
   - ALL_FILE: '/home/travis/build/kartoza/geosafe/scripts/travis/all.travis.geosafe.yml'
+    SELENIUM_COMPOSE_FILE: '/home/travis/build/kartoza/geosafe/scripts/travis/selenium-compose.yml'
     COMPOSE_PROJECT_NAME: geonode-docker
     COMPOSE_FILE: 'docker-compose.yml:docker-compose.override.yml'
 
@@ -25,7 +26,7 @@ branches:
 before_install:
   # install ansible
   - sudo apt-get -y update
-  - sudo apt-get -y install libssl-dev systemd
+  - sudo apt-get -y install libssl-dev systemd sshpass
   - sudo pip install -r travis-requirements.txt
   # clone docker-geosafe
   - cd ../
@@ -41,6 +42,8 @@ install:
   # setup files
   - pushd docker-geosafe
   - cd deployment
+  # Cleanup db files
+  - rm -rf pg
   - cp ${ALL_FILE} ansible/development/group_vars/all.yml
   # Run setup-ansible
   - make setup-ansible ANSIBLE_ARGS="--extra-vars='ansible_sudo_pass=\"\"' --extra-vars='pycharm_version=\"\"' --skip-tags=development"
@@ -54,22 +57,39 @@ install:
   # Show container status
   - source compose.env.sh
   - docker-compose ps
+
+  # selenium
+  - mkdir selenium
+  - pushd selenium
+  - cp ${SELENIUM_COMPOSE_FILE} docker-compose.yml
+#  - docker-compose up -d --scale firefox=4
+  - docker-compose -f docker-compose.yml -p selenium  up -d firefox
+  - docker-compose -f docker-compose.yml -p selenium scale firefox=4
+  - popd
+
   - popd
 
 script:
   # Test Geosafe app
-  - pushd geosafe
   # Run flake8
+  - pushd geosafe
   - flake8 .
-  # Run unittests
   - popd
+  # Run unittests
   - pushd docker-geosafe/deployment
+  # make sure django is ready
+  - until docker-compose exec django /bin/bash -c "exit 0"; do docker-compose logs django; echo "Retrying"; make up; sleep 10; done
   - make geosafe-coverage-unittests-worker
   - sleep 10
   # Temporarily disable this because it randomly fails
   #  - make geosafe-coverage-test
   - ../../geosafe/scripts/travis/run_coverage_tests.sh
   - make geosafe-coverage-unittests-worker-kill
+  - popd
+
+  # Run selenium test
+  - pushd docker-geosafe/deployment
+  - ../../geosafe/scripts/travis/run_selenium_tests.sh
   - popd
 
 after_success:

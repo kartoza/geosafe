@@ -1,0 +1,52 @@
+version: '2'
+services:
+  firefox:
+    image: selenium/node-firefox:3.12.0-cobalt
+    volumes:
+      - /dev/shm:/dev/shm
+      - ./scripts:/scripts
+    depends_on:
+      - hub
+    environment:
+      HUB_HOST: hub
+
+  firefox-debug:
+    image: selenium/node-firefox-debug:3.12.0-cobalt
+    volumes:
+      - /dev/shm:/dev/shm
+      - ./scripts:/scripts
+    depends_on:
+      - hub
+    environment:
+      HUB_HOST: hub
+    ports:
+      - 5900:5900
+
+  chrome:
+    image: selenium/node-chrome:3.12.0-cobalt
+    volumes:
+      - /dev/shm:/dev/shm
+      - ./scripts:/scripts
+    depends_on:
+      - hub
+    environment:
+      HUB_HOST: hub
+
+  chrome-debug:
+    image: selenium/node-chrome-debug:3.12.0-cobalt
+    volumes:
+      - /dev/shm:/dev/shm
+      - ./scripts:/scripts
+    depends_on:
+      - hub
+    environment:
+      HUB_HOST: hub
+    ports:
+      - 5900:5900
+
+  hub:
+    image: selenium/hub:3.12.0-cobalt
+    volumes:
+      - ./scripts:/scripts
+    ports:
+      - 4444:4444

@@ -3,15 +3,19 @@
 # Run this from travis
 
 # Print runtime variable
-echo "Running GeoSAFE coverage test"
+echo "Running GeoSAFE Selenium test"
 echo "COMPOSE_PROJECT_NAME=$COMPOSE_PROJECT_NAME"
 echo "COMPOSE_FILE=$COMPOSE_FILE"
 
-TEST_ARG="geosafe --noinput --liveserver=0.0.0.0:8000 --nomigrations"
+# Note that Selenium test need to preserve test db (not delete it after the test)
+# This is because, Selenium had the database connection shared, so when it tries to
+# do a cleanup when deleting the database it will fail to do so, because there are other threads
+# who have the connection open.
+TEST_ARG="geosafe.tests.selenium --noinput --liveserver=0.0.0.0:8000 --nomigrations --keepdb"
 
 echo "Test argument: ${TEST_ARG}"
 
-until docker-compose exec django /bin/bash -c "export TESTING=True; export SELENIUM_UNIT_TEST_FLAG=False; export COVERAGE_PROCESS_START=/usr/src/geosafe/.coveragerc; coverage run --rcfile=/usr/src/geosafe/.coveragerc manage.py test ${TEST_ARG}"; do
+until docker-compose exec django /bin/bash -c "export SELENIUM_UNIT_TEST_FLAG=True; python manage.py test ${TEST_ARG}"; do
 	# Retrieve exit code
 	exit_code=$?
 	echo "EXIT CODE: $exit_code"
