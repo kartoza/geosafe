@@ -127,9 +127,9 @@ def analysis_post_save(sender, instance, created, **kwargs):
     # Used to run impact analysis when analysis object is firstly created
     if created:
         async_result = prepare_analysis(instance.id)
-        instance.task_id = async_result.task_id
-        instance.task_state = async_result.state
-        instance.save()
+        Analysis.objects.filter(id=instance.id).update(
+            task_id=async_result.task_id,
+            task_state=async_result.state)
 
 
 @receiver(post_delete, sender=Analysis)

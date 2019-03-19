@@ -349,7 +349,7 @@ class ViewsTest(GeoSAFEIntegrationLiveServerTestCase):
 
 class AnalysisTest(GeoSAFEIntegrationLiveServerTestCase):
 
-    def process_analysis(self, **kwargs):
+    def process_analysis(self, clean_up=True, **kwargs):
         """Run InaSAFE analysis and test the results."""
 
         # Prepare layer data
@@ -414,10 +414,15 @@ class AnalysisTest(GeoSAFEIntegrationLiveServerTestCase):
         self.assertIsNotNone(analysis.report_map)
         self.assertIsNotNone(analysis.report_table)
 
-        # Clean up layers
-        for layer in [l for _, l in layers.items() if isinstance(l, Layer)]:
-            layer.delete()
-        impact_layer.delete()
+        if clean_up:
+
+            # Clean up layers
+            layer_items = [
+                l for _, l in layers.items() if isinstance(l, Layer)]
+
+            for layer in layer_items:
+                layer.delete()
+            impact_layer.delete()
 
     def test_run_analysis_no_aggregation(self):
         """Test running analysis without aggregation."""
@@ -473,3 +478,43 @@ class AnalysisTest(GeoSAFEIntegrationLiveServerTestCase):
             exposure_layer=data_helper.exposure('buildings.geojson'),
             user_title="Analysis with custom template settings"
         )
+
+    def test_rerun_analysis(self):
+        """Test rerunning analysis."""
+        # Run the first analysis
+        data_helper = self.data_helper
+        self.process_analysis(
+            hazard_layer=data_helper.hazard('flood_data.geojson'),
+            exposure_layer=data_helper.exposure('buildings.geojson'),
+            user_title="Flood on Buildings",
+            clean_up=False
+        )
+
+        # record start time:
+        analysis = Analysis.objects.first()
+        start_time = analysis.start_time
+
+        # rerun the same analysis
+        rerun_url = reverse(
+            'geosafe:rerun-analysis',
+            kwargs={
+                'analysis_id': analysis.id
+            })
+        self.assertTrue(self.client.login(username='admin', password='admin'))
+        response = self.client.post(rerun_url)
+        analysis.refresh_from_db()
+
+        # If post succeeded, it should redirect
+        self.assertEqual(response.status_code, 302)
+
+        while not analysis.get_task_state() == 'SUCCESS':
+            time.sleep(5)
+            analysis.refresh_from_db()
+
+        new_start_time = analysis.start_time
+
+        self.assertGreater(new_start_time, start_time)
+
+        # Clean up
+        for l in Layer.objects.all():
+            l.delete()
