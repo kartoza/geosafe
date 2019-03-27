@@ -526,21 +526,23 @@
 
             check_popover();
 
-            var OpenMapSurfer_Roads = L.tileLayer('http://korona.geog.uni-heidelberg.de/tiles/roads/x={x}&y={y}&z={z}', {
-                zIndex: 0,
-                noWrap: true,
-                attribution: 'Imagery from <a href="http://giscience.uni-hd.de/">GIScience Research Group @ University of Heidelberg</a> &mdash; Map data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-            });
-            var osm = L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            var default_basemap = L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 zIndex: 0,
                 attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
             });
-            var base_maps = {
-                'OpenMapSurfer_Roads': OpenMapSurfer_Roads,
-                'OpenStreetMap': osm
-            };
+            var base_maps = {};
+            {% if LEAFLET_CONFIG and LEAFLET_CONFIG.TILES %}
+                {% for tile in LEAFLET_CONFIG.TILES %}
+
+                    base_maps["{{ tile.0 }}"] = L.tileLayer('{{ tile.1|safe }}', {
+                        attribution: '{{ tile.2|safe }}'
+                });
+                {% endfor %}
+                default_basemap = base_maps["{{ LEAFLET_CONFIG.TILES.0.0 }}"];
+            {% endif %}
+
             map = L.map('map', {
-                layers: [OpenMapSurfer_Roads],
+                layers: [default_basemap],
                 minZoom: 4
             });
 
